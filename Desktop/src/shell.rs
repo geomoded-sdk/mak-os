@@ -1,13 +1,9 @@
 use std::rc::Rc;
 
 use glib::clone;
-use gtk4::prelude::*;
-use gtk4::{gdk, Box as GtkBox, Button, CenterBox, Label, Orientation, Widget};
+use gtk::prelude::*;
+use gtk::{gdk, Box as GtkBox, Button, CenterBox, Label, Orientation, Widget};
 use gtk4_layer_shell::{Edge, Layer, LayerShell};
-
-mod status;
-mod menu;
-mod workspace;
 
 /// Cria a barra superior do Mak OS.
 pub struct ShellBar {
@@ -27,7 +23,7 @@ impl ShellBar {
         let logo = Button::new();
         logo.set_css_classes(&["mak-logo-button"]);
         logo.set_icon_name("mak-logo");
-        logo.set_tooltip_text("Mak OS");
+        logo.set_tooltip_text(Some("Mak OS"));
         menu::attach(logo);
 
         let title = Label::new(Some("MaK"));
@@ -54,7 +50,7 @@ impl ShellBar {
     }
 
     /// Aplica a camada de janela no topo da tela (Layer Shell).
-    pub fn place_as_top(&self, window: &gtk4::ApplicationWindow) {
+    pub fn place_as_top(&self, window: &gtk::ApplicationWindow) {
         window.init_layer_shell();
         window.set_layer(Layer::Top);
         window.set_anchor(Edge::Top, true);
@@ -76,8 +72,8 @@ pub fn start_clock_loop(clock_label: Label) {
 }
 
 /// Cria uma janela GTK sem decoração para o shell.
-pub fn shell_window(app: &gtk4::Application) -> gtk4::ApplicationWindow {
-    let window = gtk4::ApplicationWindow::new(app);
+pub fn shell_window(app: &gtk::Application) -> gtk::ApplicationWindow {
+    let window = gtk::ApplicationWindow::new(app);
     window.set_decorated(false);
     window
 }

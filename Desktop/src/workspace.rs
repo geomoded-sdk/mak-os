@@ -7,8 +7,8 @@
 // =============================================================================
 
 use glib::clone;
-use gtk4::prelude::*;
-use gtk4::{Box as GtkBox, Label, Orientation};
+use gtk::prelude::*;
+use gtk::{Box as GtkBox, Label, Orientation};
 
 const DEFAULT_WORKSPACES: u32 = 4;
 const STATE_FILE: &str = "/run/user/";
@@ -57,7 +57,7 @@ pub fn indicator() -> Label {
 /// Caixa central da barra: indicador + reserva.
 pub fn center_widget() -> GtkBox {
     let box_ = GtkBox::new(Orientation::Horizontal, 8);
-    box_.set_halign(gtk4::Align::Center);
+    box_.set_halign(gtk::Align::Center);
     box_.append(&indicator());
     box_
 }

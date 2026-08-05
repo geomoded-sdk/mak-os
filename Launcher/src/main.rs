@@ -1,7 +1,7 @@
-use gtk4::prelude::*;
-use gtk4::{
-    Application, ApplicationWindow, Button, IconTheme, Image, Label, ListBox,
-    ListBoxRow, Orientation, SearchEntry,
+use gtk::prelude::*;
+use gtk::{
+    Application, ApplicationWindow, IconTheme, Image, Label, ListBox, ListBoxRow,
+    Orientation, SearchEntry,
 };
 
 /// Um aplicativo descoberto pelo launcher.
@@ -81,7 +81,7 @@ pub fn discover_apps() -> Vec<AppItem> {
 
 /// Cria uma linha do launcher para um app.
 fn row_for(app: &AppItem) -> ListBoxRow {
-    let hbox = gtk4::Box::new(Orientation::Horizontal, 12);
+    let hbox = gtk::Box::new(Orientation::Horizontal, 12);
     hbox.set_margin_top(6);
     hbox.set_margin_bottom(6);
     hbox.set_margin_start(10);
@@ -91,7 +91,7 @@ fn row_for(app: &AppItem) -> ListBoxRow {
     icon.set_pixel_size(36);
     hbox.append(&icon);
 
-    let vbox = gtk4::Box::new(Orientation::Vertical, 0);
+    let vbox = gtk::Box::new(Orientation::Vertical, 0);
     let name = Label::new(Some(&app.name));
     name.set_xalign(0.0);
     name.set_css_classes(&["mak-launcher-name"]);
@@ -120,9 +120,9 @@ fn spawn(cmd: &str) {
 }
 
 /// Cria um botão de ação do sistema (bloquear/suspender/reiniciar/desligar).
-fn system_button(icon: &str, tooltip: &str, cmd: &str) -> gtk4::Button {
-    let btn = gtk4::Button::from_icon_name(icon);
-    btn.set_tooltip_text(tooltip);
+fn system_button(icon: &str, tooltip: &str, cmd: &str) -> gtk::Button {
+    let btn = gtk::Button::from_icon_name(icon);
+    btn.set_tooltip_text(Some(tooltip));
     btn.set_hexpand(true);
     let cmd = cmd.to_string();
     btn.connect_clicked(move |_| spawn(&cmd));
@@ -136,7 +136,7 @@ pub fn build(app: &Application) -> ApplicationWindow {
     win.set_title("Mak Launcher");
     win.set_css_classes(&["mak-launcher-window"]);
 
-    let vbox = gtk4::Box::new(Orientation::Vertical, 6);
+    let vbox = gtk::Box::new(Orientation::Vertical, 6);
     vbox.set_css_classes(&["mak-launcher"]);
 
     let entry = SearchEntry::new();
@@ -147,31 +147,31 @@ pub fn build(app: &Application) -> ApplicationWindow {
 
     let list = ListBox::new();
     list.set_css_classes(&["mak-launcher-list"]);
-    list.set_selection_mode(gtk4::SelectionMode::Single);
+    list.set_selection_mode(gtk::SelectionMode::Single);
 
     let all = discover_apps();
     for app in &all {
         list.append(&row_for(app));
     }
-    list.set_filter_func(Some(Box::new(move |row| {
-        let Ok(text) = entry.text() else { return true };
-        if text.is_empty() {
-            return true;
-        }
-        if let Some(child) = row.child() {
-            if let Ok(hbox) = child.downcast::<gtk4::Box>() {
-                if let Some(vbox) = hbox.first_child().and_then(|c| c.next_sibling()) {
-                    if let Some(name) = vbox.first_child().and_then(|n| n.downcast::<Label>().ok()) {
-                        return name
-                            .text()
-                            .to_lowercase()
-                            .contains(&text.to_lowercase());
+    list.set_filter_func({
+        let entry = entry.clone();
+        move |row| {
+            let text = entry.text();
+            if text.is_empty() {
+                return true;
+            }
+            if let Some(child) = row.child() {
+                if let Ok(hbox) = child.downcast::<gtk::Box>() {
+                    if let Some(vbox) = hbox.first_child().and_then(|c| c.next_sibling()) {
+                        if let Some(name) = vbox.first_child().and_then(|n| n.downcast::<Label>().ok()) {
+                            return name.text().to_lowercase().contains(&text.to_lowercase());
+                        }
                     }
                 }
             }
+            true
         }
-        true
-    })));
+    });
 
     entry.connect_search_changed({
         let list = list.clone();
@@ -182,11 +182,11 @@ pub fn build(app: &Application) -> ApplicationWindow {
 
     list.connect_row_activated(move |_, row| {
         if let Some(child) = row.child() {
-            if let Ok(hbox) = child.downcast::<gtk4::Box>() {
+            if let Ok(hbox) = child.downcast::<gtk::Box>() {
                 if let Some(vbox) = hbox.first_child().and_then(|c| c.next_sibling()) {
                     if let Some(name) = vbox.first_child().and_then(|n| n.downcast::<Label>().ok()) {
                         let name = name.text();
-                        if let Some(app) = all.iter().find(|a| a.name == name) {
+                        if let Some(app) = all.iter().find(|a| a.name.as_str() == name.as_str()) {
                             let _ = std::process::Command::new("sh")
                                 .arg("-c")
                                 .arg(&app.exec)
@@ -198,16 +198,16 @@ pub fn build(app: &Application) -> ApplicationWindow {
         }
     });
 
-    let scroller = gtk4::ScrolledWindow::new();
+    let scroller = gtk::ScrolledWindow::new();
     scroller.set_child(Some(&list));
     scroller.set_vexpand(true);
     vbox.append(&scroller);
 
     // ---- ações de sistema ----
-    let sep = gtk4::Separator::new(Orientation::Horizontal);
+    let sep = gtk::Separator::new(Orientation::Horizontal);
     vbox.append(&sep);
 
-    let sysbar = gtk4::Box::new(Orientation::Horizontal, 4);
+    let sysbar = gtk::Box::new(Orientation::Horizontal, 4);
     sysbar.set_margin_top(6);
     sysbar.set_margin_bottom(6);
     sysbar.set_margin_start(10);
@@ -237,24 +237,22 @@ pub fn build(app: &Application) -> ApplicationWindow {
     win.set_child(Some(&vbox));
 
     // Fecha com Esc
-    let key_controller = gtk4::EventControllerKey::new();
+    let key_controller = gtk::EventControllerKey::new();
     key_controller.connect_key_pressed({
         let win = win.clone();
         move |_, keyval, _, _| {
-            if keyval == gtk4::gdk::Key::Escape {
+            if keyval == gtk::gdk::Key::Escape {
                 win.close();
-                glib::ControlFlow::Break
+                glib::Propagation::Stop
             } else {
-                glib::ControlFlow::Proceed
+                glib::Propagation::Proceed
             }
         }
     });
     win.add_controller(key_controller);
 
     // fallback para tema de ícones
-    let _ = IconTheme::for_display(&gtk4::gdk::Display::default().unwrap());
-    let _ = &Button;
-    let _ = Image;
+    let _ = IconTheme::for_display(&gtk::gdk::Display::default().unwrap());
 
     win
 }

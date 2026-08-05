@@ -1,8 +1,8 @@
-use gtk4::prelude::*;
-use gtk4::{Button, Image, Orientation};
+use gtk::prelude::*;
+use gtk::{Button, Image, Orientation};
 use gtk4_layer_shell::{Edge, Layer, LayerShell};
 
-fn place_dock(window: &gtk4::ApplicationWindow) {
+fn place_dock(window: &gtk::ApplicationWindow) {
     window.init_layer_shell();
     window.set_layer(Layer::Bottom);
     window.set_anchor(Edge::Bottom, true);
@@ -45,42 +45,42 @@ fn make_icon_button(icon: &str, label: &str, exec: &str) -> Button {
     button
 }
 
-fn populate_dock(box_: &gtk4::Box) {
+fn populate_dock(box_: &gtk::Box) {
     for (name, label, exec) in default_icons() {
         box_.append(&make_icon_button(name, label, exec));
     }
 
     // Magnificação suave: ícones próximos ao centro ficam maiores.
-    let tick = glib::closure!(@strong box_ => move || {
-        let children = box_.children();
+    let children_box = box_.clone();
+    glib::timeout_add_local(std::time::Duration::from_millis(16), move || {
+        let children = children_box.children();
         let total = children.len().max(1) as f64;
         for (i, child) in children.iter().enumerate() {
             let dist = (i as f64 - (total - 1.0) / 2.0).abs();
             let scale = 1.0 + (1.0 - (dist / total).min(1.0)) * 0.35;
             let size = (48.0 * scale) as i32;
             if let Ok(btn) = child.clone().downcast::<Button>() {
-                if let Some(image) = btn.child().and_downcast::<Image>().ok() {
+                if let Some(image) = btn.child().and_then(|c| c.and_downcast::<Image>().ok()) {
                     image.set_pixel_size(size);
                 }
             }
         }
         glib::ControlFlow::Continue
     });
-    glib::timeout_add_local(std::time::Duration::from_millis(16), tick);
 }
 
 fn main() -> glib::ExitCode {
-    let app = gtk4::Application::builder()
+    let app = gtk::Application::builder()
         .application_id("org.makos.dock")
         .build();
 
     app.connect_activate(|app| {
-        let window = gtk4::ApplicationWindow::new(app);
+        let window = gtk::ApplicationWindow::new(app);
         window.set_decorated(false);
 
-        let container = gtk4::Box::new(Orientation::Horizontal, 6);
+        let container = gtk::Box::new(Orientation::Horizontal, 6);
         container.set_css_classes(&["mak-dock"]);
-        container.set_halign(gtk4::Align::Center);
+        container.set_halign(gtk::Align::Center);
         populate_dock(&container);
 
         window.set_child(Some(&container));

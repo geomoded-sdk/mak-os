@@ -1,6 +1,6 @@
 use chrono::Local;
-use gtk4::prelude::*;
-use gtk4::{Box as GtkBox, Button, Image, Label, Orientation};
+use gtk::prelude::*;
+use gtk::{Box as GtkBox, Button, Image, Label, Orientation};
 
 /// Cria o label do relógio (horas:minutos, dia da semana e data curta).
 pub fn clock_label() -> Label {
@@ -43,6 +43,6 @@ fn status_button(icon: &str, tip: &str) -> Button {
     let img = Image::from_icon_name(icon);
     img.set_pixel_size(16);
     btn.set_child(Some(&img));
-    btn.set_tooltip_text(tip);
+    btn.set_tooltip_text(Some(tip));
     btn
 }

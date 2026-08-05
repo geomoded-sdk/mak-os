@@ -14,8 +14,7 @@ use std::process::{Child, Command};
 use std::thread;
 use std::time::Duration;
 
-use glib::clone;
-use gtk4::prelude::*;
+use gtk::prelude::*;
 
 const COMPOSITOR: &str = "labwc";
 const DEFAULT_WORKSPACES: u32 = 4;
@@ -109,9 +108,9 @@ fn main() -> glib::ExitCode {
 
 /// Mantém a sessão viva até que o compositor saia.
 fn keep_alive_for(_procs: HashMap<&'static str, Managed>) -> glib::ExitCode {
-    let app = gtk4::Application::builder()
+    let app = gtk::Application::builder()
         .application_id("org.makos.session")
-        .flags(gtk4::gio::ApplicationFlags::NON_UNIQUE)
+        .flags(gtk::gio::ApplicationFlags::NON_UNIQUE)
         .build();
 
     // roda o loop GTK para receber sinais de encerramento de forma limpa

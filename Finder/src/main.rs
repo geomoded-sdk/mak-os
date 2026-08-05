@@ -3,8 +3,8 @@ use std::path::{Path, PathBuf};
 use std::rc::Rc;
 
 use gio::prelude::*;
-use gtk4::prelude::*;
-use gtk4::{
+use gtk::prelude::*;
+use gtk::{
     Application, ApplicationWindow, Button, Image, Label, ListBox, ListBoxRow,
     Orientation, Popover, ScrolledWindow, SearchEntry, Stack,
 };
@@ -95,7 +95,7 @@ fn human_size(bytes: u64) -> String {
 }
 
 fn make_row(path: &Path, name: &str, size: u64) -> ListBoxRow {
-    let hbox = gtk4::Box::new(Orientation::Horizontal, 12);
+    let hbox = gtk::Box::new(Orientation::Horizontal, 12);
     hbox.set_margin_top(4);
     hbox.set_margin_bottom(4);
     hbox.set_margin_start(10);
@@ -105,7 +105,7 @@ fn make_row(path: &Path, name: &str, size: u64) -> ListBoxRow {
     icon.set_pixel_size(28);
     hbox.append(&icon);
 
-    let vbox = gtk4::Box::new(Orientation::Vertical, 0);
+    let vbox = gtk::Box::new(Orientation::Vertical, 0);
     let name_label = Label::new(Some(name));
     name_label.set_xalign(0.0);
     name_label.set_css_classes(&["mak-file-name"]);
@@ -126,7 +126,9 @@ fn make_row(path: &Path, name: &str, size: u64) -> ListBoxRow {
     let row = ListBoxRow::new();
     row.set_child(Some(&hbox));
     row.set_activatable(true);
-    row.set_data("path", path.to_path_buf());
+    unsafe {
+        row.set_data("path", path.to_path_buf());
+    }
     row
 }
 
@@ -142,31 +144,31 @@ fn open_path(state: &mut FinderState, target: PathBuf, refresh: &dyn Fn()) {
 
 /// Janela modal simples para digitar um nome (renomear / nova pasta).
 fn input_window(
-    parent: &gtk4::Window,
+    parent: &gtk::Window,
     title: &str,
     initial: &str,
     on_submit: impl FnOnce(String) + 'static,
 ) {
-    let win = gtk4::Window::new();
+    let win = gtk::Window::new();
     win.set_title(title);
     win.set_default_size(400, 140);
     win.set_transient_for(Some(parent));
     win.set_modal(true);
     win.set_resizable(false);
 
-    let vbox = gtk4::Box::new(Orientation::Vertical, 12);
+    let vbox = gtk::Box::new(Orientation::Vertical, 12);
     vbox.set_margin_top(16);
     vbox.set_margin_bottom(16);
     vbox.set_margin_start(16);
     vbox.set_margin_end(16);
 
-    let entry = gtk4::Entry::new();
+    let entry = gtk::Entry::new();
     entry.set_text(initial);
     entry.set_activates_default(true);
     vbox.append(&entry);
 
-    let hbox = gtk4::Box::new(Orientation::Horizontal, 8);
-    hbox.set_halign(gtk4::Align::End);
+    let hbox = gtk::Box::new(Orientation::Horizontal, 8);
+    hbox.set_halign(gtk::Align::End);
 
     let cancel = Button::with_label("Cancelar");
     let ok = Button::with_label("OK");
@@ -198,7 +200,7 @@ fn input_window(
 /// Cria um botão com ícone + rótulo para o menu de contexto.
 fn menu_button(label: &str, icon: &str, on_click: impl Fn() + 'static) -> Button {
     let btn = Button::new();
-    let hbox = gtk4::Box::new(Orientation::Horizontal, 8);
+    let hbox = gtk::Box::new(Orientation::Horizontal, 8);
     hbox.set_margin_top(2);
     hbox.set_margin_bottom(2);
     hbox.set_margin_start(4);
@@ -222,7 +224,7 @@ fn build_context_menu(
     win: &ApplicationWindow,
 ) -> Popover {
     let pop = Popover::new();
-    let vbox = gtk4::Box::new(Orientation::Vertical, 2);
+    let vbox = gtk::Box::new(Orientation::Vertical, 2);
     vbox.set_margin_top(6);
     vbox.set_margin_bottom(6);
 
@@ -411,21 +413,21 @@ fn build_ui(app: &Application) {
     win.set_default_size(960, 620);
     win.set_css_classes(&["mak-finder-window"]);
 
-    let root = gtk4::Box::new(Orientation::Vertical, 0);
+    let root = gtk::Box::new(Orientation::Vertical, 0);
 
     // ---- barra de ações ----
-    let actions = gtk4::Box::new(Orientation::Horizontal, 4);
+    let actions = gtk::Box::new(Orientation::Horizontal, 4);
     actions.set_margin_start(8);
     actions.set_margin_end(8);
     actions.set_margin_top(6);
     actions.set_margin_bottom(6);
 
-    let back = gtk4::Button::from_icon_name("go-previous-symbolic");
-    back.set_tooltip_text("Voltar");
-    let fwd = gtk4::Button::from_icon_name("go-next-symbolic");
-    fwd.set_tooltip_text("Avançar");
-    let up = gtk4::Button::from_icon_name("go-up-symbolic");
-    up.set_tooltip_text("Subir um nível");
+    let back = gtk::Button::from_icon_name("go-previous-symbolic");
+    back.set_tooltip_text(Some("Voltar"));
+    let fwd = gtk::Button::from_icon_name("go-next-symbolic");
+    fwd.set_tooltip_text(Some("Avançar"));
+    let up = gtk::Button::from_icon_name("go-up-symbolic");
+    up.set_tooltip_text(Some("Subir um nível"));
 
     let path_label = Label::new(Some("/"));
     path_label.set_xalign(0.0);
@@ -443,7 +445,7 @@ fn build_ui(app: &Application) {
     root.append(&actions);
 
     // ---- conteúdo ----
-    let content = gtk4::Box::new(Orientation::Horizontal, 0);
+    let content = gtk::Box::new(Orientation::Horizontal, 0);
 
     let sidebar = ListBox::new();
     sidebar.set_css_classes(&["mak-sidebar"]);
@@ -457,7 +459,7 @@ fn build_ui(app: &Application) {
     let mut place_rows: Vec<PathBuf> = Vec::new();
     for (icon, name) in places {
         let row = ListBoxRow::new();
-        let box_ = gtk4::Box::new(Orientation::Horizontal, 8);
+        let box_ = gtk::Box::new(Orientation::Horizontal, 8);
         box_.set_margin_top(8);
         box_.set_margin_bottom(8);
         box_.set_margin_start(8);
@@ -484,7 +486,7 @@ fn build_ui(app: &Application) {
     scroller.set_child(Some(&list));
     scroller.set_vexpand(true);
 
-    let empty = gtk4::Box::new(Orientation::Vertical, 4);
+    let empty = gtk::Box::new(Orientation::Vertical, 4);
     empty.set_vexpand(true);
     let msg = Label::new(Some("Pasta vazia"));
     msg.set_css_classes(&["mak-empty"]);
@@ -517,17 +519,17 @@ fn build_ui(app: &Application) {
 
     // ---- menu de contexto ----
     let context = build_context_menu(selected.clone(), state.clone(), refresh.clone(), &win);
-    context.set_relative_to(Some(&list));
+    context.set_parent(&list);
 
-    let gesture = gtk4::GestureClick::new();
+    let gesture = gtk::GestureClick::new();
     gesture.set_button(3);
     let selected_g = selected.clone();
     let context_g = context.clone();
     gesture.connect_pressed(move |_g, _n, x, y| {
-        if let Some(row) = list.row_at_y(y) {
-            if let Some(path) = row.data::<PathBuf>("path") {
-                *selected_g.borrow_mut() = Some(path);
-                let rect = gtk4::gdk::Rectangle {
+        if let Some(row) = list.row_at_y(y as i32) {
+            if let Some(path) = unsafe { row.data::<PathBuf>("path") } {
+                *selected_g.borrow_mut() = Some(path.as_ref().clone());
+                let rect = gtk::gdk::Rectangle {
                     x: x as i32,
                     y: y as i32,
                     width: 1,
@@ -586,8 +588,8 @@ fn build_ui(app: &Application) {
         let state = state.clone();
         let refresh = refresh.clone();
         move |_, row| {
-            if let Some(path) = row.data::<PathBuf>("path") {
-                open_path(&mut state.borrow_mut(), path, &refresh);
+            if let Some(path) = unsafe { row.data::<PathBuf>("path") } {
+                open_path(&mut state.borrow_mut(), path.as_ref().clone(), &refresh);
             }
         }
     });
