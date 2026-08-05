@@ -64,6 +64,7 @@ fn populate_dock(box_: &gtk::Box) {
         let mut index = 0i32;
         let mut c = children_box.first_child();
         while let Some(child) = c {
+            let next = child.next_sibling();
             let dist = (index as f64 - (total - 1.0) / 2.0).abs();
             let scale = 1.0 + (1.0 - (dist / total).min(1.0)) * 0.35;
             let size = (48.0 * scale) as i32;
@@ -73,7 +74,7 @@ fn populate_dock(box_: &gtk::Box) {
                 }
             }
             index += 1;
-            c = child.next_sibling();
+            c = next;
         }
         glib::ControlFlow::Continue
     });
