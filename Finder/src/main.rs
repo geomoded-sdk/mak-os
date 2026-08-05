@@ -260,14 +260,16 @@ fn build_context_menu(
                     .file_name()
                     .map(|f| f.to_string_lossy().to_string())
                     .unwrap_or_default();
+                let initial_cmp = initial.clone();
+                let refresh2 = refresh.clone();
                 input_window(&win2, "Renomear", &initial, move |new_name| {
                     let new_name = new_name.trim().to_string();
-                    if new_name.is_empty() || new_name == initial {
+                    if new_name.is_empty() || new_name == initial_cmp {
                         return;
                     }
                     let dest = current.join(&new_name);
                     let _ = std::fs::rename(&path, &dest);
-                    refresh();
+                    refresh2();
                 });
             }
         }));
@@ -338,13 +340,14 @@ fn build_context_menu(
         vbox.append(&menu_button("Nova pasta", "folder-new-symbolic", move || {
             let dest_dir = state.borrow().current.clone();
             pop2.popdown();
+            let refresh2 = refresh.clone();
             input_window(&win2, "Nova pasta", "Nova pasta", move |name| {
                 let name = name.trim().to_string();
                 if name.is_empty() {
                     return;
                 }
                 let _ = std::fs::create_dir(dest_dir.join(&name));
-                refresh();
+                refresh2();
             });
         }));
     }
@@ -527,8 +530,9 @@ fn build_ui(app: &Application) {
     gesture.set_button(3);
     let selected_g = selected.clone();
     let context_g = context.clone();
+    let list_g = list.clone();
     gesture.connect_pressed(move |_g, _n, x, y| {
-        if let Some(row) = list.row_at_y(y as i32) {
+        if let Some(row) = list_g.row_at_y(y as i32) {
             if let Some(path) = unsafe { row.data::<PathBuf>("path") } {
                 *selected_g.borrow_mut() = Some(unsafe { path.as_ref() }.clone());
                 let rect = gtk::gdk::Rectangle::new(x as i32, y as i32, 1, 1);
