@@ -133,14 +133,14 @@ fn system_button(icon: &str, tooltip: &str, cmd: &str) -> gtk::Button {
 pub fn build(app: &Application) -> ApplicationWindow {
     let win = ApplicationWindow::new(app);
     win.set_decorated(false);
-    win.set_title("Mak Launcher");
+    win.set_title(Some("Mak Launcher"));
     win.set_css_classes(&["mak-launcher-window"]);
 
     let vbox = gtk::Box::new(Orientation::Vertical, 6);
     vbox.set_css_classes(&["mak-launcher"]);
 
     let entry = SearchEntry::new();
-    entry.set_placeholder_text("Pesquisar aplicativos, arquivos, comandos...");
+    entry.set_placeholder_text(Some("Pesquisar aplicativos, arquivos, comandos..."));
     entry.set_hexpand(true);
     entry.set_css_classes(&["mak-launcher-entry"]);
     vbox.append(&entry);
@@ -255,4 +255,20 @@ pub fn build(app: &Application) -> ApplicationWindow {
     let _ = IconTheme::for_display(&gtk::gdk::Display::default().unwrap());
 
     win
+}
+
+fn main() -> glib::ExitCode {
+    let hidden = std::env::args().any(|a| a == "--hidden");
+    let app = Application::builder()
+        .application_id("org.makos.launcher")
+        .build();
+
+    app.connect_activate(move |app| {
+        let win = build(app);
+        if !hidden {
+            win.present();
+        }
+    });
+
+    app.run()
 }

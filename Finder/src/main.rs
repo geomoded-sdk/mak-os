@@ -150,7 +150,7 @@ fn input_window(
     on_submit: impl FnOnce(String) + 'static,
 ) {
     let win = gtk::Window::new();
-    win.set_title(title);
+    win.set_title(Some(title));
     win.set_default_size(400, 140);
     win.set_transient_for(Some(parent));
     win.set_modal(true);
@@ -409,7 +409,7 @@ fn build_ui(app: &Application) {
     let selected = Rc::new(RefCell::new(None::<PathBuf>));
 
     let win = ApplicationWindow::new(app);
-    win.set_title("Mak Finder");
+    win.set_title(Some("Mak Finder"));
     win.set_default_size(960, 620);
     win.set_css_classes(&["mak-finder-window"]);
 
@@ -435,7 +435,7 @@ fn build_ui(app: &Application) {
     path_label.set_css_classes(&["mak-path"]);
 
     let search = SearchEntry::new();
-    search.set_placeholder_text("Pesquisar...");
+    search.set_placeholder_text(Some("Pesquisar..."));
 
     actions.append(&back);
     actions.append(&fwd);
@@ -528,7 +528,7 @@ fn build_ui(app: &Application) {
     gesture.connect_pressed(move |_g, _n, x, y| {
         if let Some(row) = list.row_at_y(y as i32) {
             if let Some(path) = unsafe { row.data::<PathBuf>("path") } {
-                *selected_g.borrow_mut() = Some(path.as_ref().clone());
+                *selected_g.borrow_mut() = Some(path.clone());
                 let rect = gtk::gdk::Rectangle::new(x as i32, y as i32, 1, 1);
                 context_g.set_pointing_to(Some(&rect));
                 context_g.popup();
@@ -584,7 +584,7 @@ fn build_ui(app: &Application) {
         let refresh = refresh.clone();
         move |_, row| {
             if let Some(path) = unsafe { row.data::<PathBuf>("path") } {
-                open_path(&mut state.borrow_mut(), path.as_ref().clone(), &refresh);
+                open_path(&mut state.borrow_mut(), path.clone(), &refresh);
             }
         }
     });
