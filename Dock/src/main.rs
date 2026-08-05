@@ -68,7 +68,7 @@ fn populate_dock(box_: &gtk::Box) {
             let scale = 1.0 + (1.0 - (dist / total).min(1.0)) * 0.35;
             let size = (48.0 * scale) as i32;
             if let Ok(btn) = child.downcast::<Button>() {
-                if let Some(image) = btn.child().and_then(|c| c.and_downcast::<Image>().ok()) {
+                if let Some(image) = btn.child().and_then(|c| c.downcast::<Image>().ok()) {
                     image.set_pixel_size(size);
                 }
             }
