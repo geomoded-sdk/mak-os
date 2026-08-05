@@ -3,12 +3,12 @@
 
   <schema id="org.makos.desktop" path="/org/makos/desktop/">
     <key name="theme-name" type="s">
-      <default>'Mak-Dark'</default>
+      <default>'Mak-HighSierra'</default>
       <summary>Tema GTK ativo</summary>
       <description>Nome do tema GTK usado pelo Mak OS.</description>
     </key>
     <key name="color-scheme" type="s">
-      <default>'prefer-dark'</default>
+      <default>'prefer-light'</default>
       <choices>
         <choice value='prefer-light'/>
         <choice value='prefer-dark'/>
@@ -16,7 +16,7 @@
       </choices>
     </key>
     <key name="background" type="s">
-      <default>'/usr/share/backgrounds/makos/wallpaper.svg'</default>
+      <default>'/usr/share/backgrounds/makos/highsierra.svg'</default>
       <summary>Imagem de fundo da área de trabalho</summary>
     </key>
     <key name="primary-color" type="s">

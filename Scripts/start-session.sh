@@ -8,7 +8,7 @@ export XDG_CURRENT_DESKTOP=MakOS
 export XDG_SESSION_TYPE=wayland
 export GDK_BACKEND=wayland
 export GTK_CSD=0
-export GTK_THEME=Mak-Dark
+export GTK_THEME=Mak-HighSierra
 export QT_QPA_PLATFORM=wayland
 export MOZ_ENABLE_WAYLAND=1
 

@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use crate::{menu, status, workspace};
+use crate::{menu, status};
 use glib::clone;
 use gtk::prelude::*;
 use gtk::{gdk, Box as GtkBox, CenterBox, Label, Orientation, Widget};
@@ -19,14 +19,14 @@ impl ShellBar {
         container.set_orientation(Orientation::Horizontal);
         container.set_css_classes(&["mak-bar"]);
 
-        // ---- lado esquerdo: logo + menu ----
+        // ---- lado esquerdo: logo + menus (estilo macOS) ----
         let left = GtkBox::new(Orientation::Horizontal, 0);
         let logo = gtk::Button::new();
         logo.set_css_classes(&["mak-logo-button"]);
         let logo_image = gtk::Image::from_icon_name("mak-logo");
-        logo_image.set_pixel_size(20);
+        logo_image.set_pixel_size(16);
         logo.set_child(Some(&logo_image));
-        logo.set_tooltip_text(Some("Mak OS"));
+        logo.set_tooltip_text(Some("MaK"));
         menu::attach(&logo);
 
         let title = Label::new(Some("MaK"));
@@ -35,15 +35,17 @@ impl ShellBar {
         left.append(&logo);
         left.append(&title);
 
-        // ---- centro: indicador de áreas de trabalho ----
-        let center = workspace::center_widget();
+        for name in ["Arquivo", "Editar", "Exibir", "Ir", "Janela", "Ajuda"] {
+            let item = gtk::Button::with_label(name);
+            item.set_css_classes(&["mak-menubar-item"]);
+            left.append(&item);
+        }
 
         // ---- lado direito: status (som, rede, bateria, relógio) ----
         let clock_label = status::clock_label();
         let right = status::build_status_area(&clock_label);
 
         container.set_start_widget(Some(&left));
-        container.set_center_widget(Some(&center));
         container.set_end_widget(Some(&right));
 
         Rc::new(Self {

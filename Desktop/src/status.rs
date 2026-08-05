@@ -10,7 +10,7 @@ pub fn clock_label() -> Label {
 }
 
 pub fn now_string() -> String {
-    Local::now().format("%H:%M  •  %a %d/%m").to_string()
+    Local::now().format("%a %e %b  %H:%M").to_string()
 }
 
 /// Constrói a área de status à direita: som, rede, energia e relógio.

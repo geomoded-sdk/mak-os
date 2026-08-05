@@ -4,9 +4,10 @@ Temas GTK próprios com identidade visual única (nada de marcas alheias).
 
 | Tema       | Uso                            |
 |------------|--------------------------------|
-| `Mak-Dark` | Escuro (padrão): grafite + azul-petróleo + coral |
+| `Mak-HighSierra` | Claro (padrão): aqua estilo macOS High Sierra + dock de vidro |
+| `Mak-Dark` | Escuro: grafite + azul-petróleo + coral |
 | `Mak-Light`| Claro: superfícies brancas e acentos azul/coral  |
-| `wallpapers/` | Papel de parede oficial (SVG)              |
+| `wallpapers/` | Papéis de parede oficiais (SVG): `wallpaper.svg`, `highsierra.svg` |
 
 ## Estrutura de um tema GTK4
 
@@ -20,10 +21,10 @@ Mak-Dark/
 ## Instalar
 
 ```bash
-sudo cp -r Themes/Mak-Dark Themes/Mak-Light /usr/share/themes/
+sudo cp -r Themes/Mak-Dark Themes/Mak-Light Themes/Mak-HighSierra /usr/share/themes/
 # ativar:
-gsettings set org.gnome.desktop.interface gtk-theme Mak-Dark
-gsettings set org.gnome.desktop.interface color-scheme prefer-dark
+gsettings set org.gnome.desktop.interface gtk-theme Mak-HighSierra
+gsettings set org.gnome.desktop.interface color-scheme prefer-light
 ```
 
 ## Componentes estilizados

@@ -76,7 +76,7 @@ fn main() -> glib::ExitCode {
         ("XDG_CURRENT_DESKTOP", "MakOS"),
         ("XDG_SESSION_TYPE", "wayland"),
         ("GDK_BACKEND", "wayland"),
-        ("GTK_THEME", "Mak-Dark"),
+        ("GTK_THEME", "Mak-HighSierra"),
     ];
 
     let mut procs: HashMap<&'static str, Managed> = HashMap::new();

@@ -14,7 +14,7 @@ sudo cp -r "$STAGE/usr/local/bin/"* /usr/local/bin/
 sudo cp -r "$STAGE/usr/bin/"* /usr/bin/
 sudo cp -r "$STAGE/usr/share/makos" /usr/share/
 sudo cp -r "$STAGE/usr/share/applications/"* /usr/share/applications/
-sudo cp -r "$STAGE/usr/share/themes/Mak-Dark" "$STAGE/usr/share/themes/Mak-Light" /usr/share/themes/
+sudo cp -r "$STAGE/usr/share/themes/Mak-Dark" "$STAGE/usr/share/themes/Mak-Light" "$STAGE/usr/share/themes/Mak-HighSierra" /usr/share/themes/
 sudo cp -r "$STAGE/usr/share/icons/mak-icons" /usr/share/icons/
 
 echo "==> Atualizando caches"
@@ -30,7 +30,7 @@ echo "==> Configurando sessão do usuário"
 mkdir -p "$HOME/.config"
 cat > "$HOME/.config/makos.env" <<EOF
 export XDG_CURRENT_DESKTOP=MakOS
-export GTK_THEME=Mak-Dark
+export GTK_THEME=Mak-HighSierra
 export XDG_DATA_DIRS=/usr/share:/usr/local/share
 EOF
 grep -q "makos.env" "$HOME/.bashrc" 2>/dev/null || \

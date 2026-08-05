@@ -47,12 +47,12 @@ install -m644 "$ROOT/AI/mak_ai.py" "$ROOT/AI/voice.py" "$APPS/AI/"
 
 echo "==> Instalando temas e ícones"
 mkdir -p "$STAGE/usr/share/themes" "$STAGE/usr/share/icons"
-cp -r "$ROOT/Themes/Mak-Dark" "$ROOT/Themes/Mak-Light" "$STAGE/usr/share/themes/"
+cp -r "$ROOT/Themes/Mak-Dark" "$ROOT/Themes/Mak-Light" "$ROOT/Themes/Mak-HighSierra" "$STAGE/usr/share/themes/"
 cp -r "$ROOT/Icons/mak-icons" "$STAGE/usr/share/icons/"
 
 echo "==> Instalando wallpaper"
 mkdir -p "$STAGE/usr/share/backgrounds/makos"
-cp "$ROOT/Themes/wallpapers/wallpaper.svg" "$STAGE/usr/share/backgrounds/makos/"
+cp "$ROOT/Themes/wallpapers/wallpaper.svg" "$ROOT/Themes/wallpapers/highsierra.svg" "$STAGE/usr/share/backgrounds/makos/"
 
 echo "==> Instalando schemas GSettings"
 mkdir -p "$STAGE/usr/share/glib-2.0/schemas"

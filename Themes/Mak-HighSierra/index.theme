@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=Mak-HighSierra
+Comment=Tema claro estilo macOS High Sierra
+Encoding=UTF-8
+
+[X-GNOME-Metatheme]
+GtkTheme=Mak-HighSierra
+IconTheme=mak-icons
+CursorTheme=Adwaita
+ButtonLayout=close,minimize,maximize

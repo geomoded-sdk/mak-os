@@ -80,8 +80,9 @@ class SettingsWindow(Gtk.ApplicationWindow):
         page.append(self._row("Modo de exibição", mode))
 
         theme = Gtk.ComboBoxText()
-        theme.append_text("Mak-Dark")
+        theme.append_text("Mak-HighSierra")
         theme.append_text("Mak-Light")
+        theme.append_text("Mak-Dark")
         theme.set_active(0)
         page.append(self._row("Tema GTK", theme))
 
@@ -157,7 +158,7 @@ class SettingsWindow(Gtk.ApplicationWindow):
 
     def _set_mode(self, combo):
         mode = combo.get_active()
-        target = "Mak-Light" if mode == 0 else "Mak-Dark"
+        target = "Mak-HighSierra" if mode == 0 else "Mak-Dark"
         subprocess.Popen(["gsettings", "set", "org.gnome.desktop.interface", "color-scheme",
                           "prefer-light" if mode == 0 else "prefer-dark"])
         subprocess.Popen(["gsettings", "set", "org.gnome.desktop.interface", "gtk-theme", target])

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Mak OS — papel de parede "High Sierra"
+  Paisagem de dunas ao pôr do sol, no espírito do macOS High Sierra.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="2560" height="1440" viewBox="0 0 2560 1440">
+  <defs>
+    <!-- céu: azul profundo -> bege quente no horizonte -->
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0"    stop-color="#143551"/>
+      <stop offset="0.30" stop-color="#2b6280"/>
+      <stop offset="0.48" stop-color="#7e7873"/>
+      <stop offset="0.56" stop-color="#d9975f"/>
+      <stop offset="0.62" stop-color="#f2b477"/>
+    </linearGradient>
+
+    <!-- brilho do sol -->
+    <radialGradient id="sun-glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0"    stop-color="#fff3d6" stop-opacity="0.95"/>
+      <stop offset="0.35" stop-color="#ffd9a0" stop-opacity="0.55"/>
+      <stop offset="1"    stop-color="#ffd9a0" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sun-core" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0"    stop-color="#fffbe8"/>
+      <stop offset="0.7"  stop-color="#ffe9b8" stop-opacity="0.9"/>
+      <stop offset="1"    stop-color="#ffdf9e" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- céu -->
+  <rect width="2560" height="1440" fill="url(#sky)"/>
+
+  <!-- halo quente acima do horizonte -->
+  <rect y="560" width="2560" height="420" fill="url(#sun-glow)" opacity="0.5"/>
+
+  <!-- sol -->
+  <ellipse cx="1390" cy="806" rx="300" ry="110" fill="url(#sun-core)" opacity="0.9"/>
+  <ellipse cx="1390" cy="806" rx="150" ry="55" fill="#fff6df" opacity="0.95"/>
+
+  <!-- dunas ao fundo -->
+  <g fill="#8a5f42">
+    <path d="M0 760
+             C 420 700, 900 726, 1280 652
+             C 1700 572, 2140 640, 2560 590
+             L 2560 820 L 0 820 Z"/>
+  </g>
+
+  <g fill="#b07a4f">
+    <path d="M0 840
+             C 460 786, 900 830, 1350 742
+             C 1800 654, 2140 760, 2560 700
+             L 2560 930 L 0 930 Z"/>
+  </g>
+
+  <!-- duna principal iluminada -->
+  <g fill="#d99a63">
+    <path d="M0 980
+             C 480 908, 920 978, 1400 872
+             C 1900 770, 2320 896, 2560 830
+             L 2560 1130 L 0 1130 Z"/>
+  </g>
+
+  <!-- duna frontal -->
+  <g fill="#e8b47d">
+    <path d="M0 1120
+             C 420 1048, 900 1118, 1400 1016
+             C 1900 924, 2340 1042, 2560 978
+             L 2560 1440 L 0 1440 Z"/>
+
+    <!-- ondulações do vento na duna frontal -->
+    <g fill="none" stroke="#f7cfa0" stroke-opacity="0.55" stroke-width="2">
+      <path d="M0 1090 C 420 1022, 900 1086, 1400 990"/>
+      <path d="M0 1080 C 420 1012, 900 1076, 1400 980"/>
+      <path d="M640 1124 C 1000 1078, 1380 1110, 1900 1030"/>
+      <path d="M700 1110 C 1040 1066, 1400 1096, 1880 1020"/>
+    </g>
+  </g>
+
+  <!-- sombra escura na base frontal -->
+  <g fill="#a56f45">
+    <path d="M0 1360
+             C 500 1300, 1100 1350, 1700 1280
+             C 2100 1230, 2380 1290, 2560 1240
+             L 2560 1440 L 0 1440 Z" opacity="0.55"/>
+  </g>
+</svg>
