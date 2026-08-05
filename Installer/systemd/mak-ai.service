@@ -1,0 +1,16 @@
+[Unit]
+Description=Mak OS Assistente local (Ollama agent)
+PartOf=makos-session.target
+After=makos-session.target mak-ollama.service
+
+[Service]
+Type=simple
+Environment=OLLAMA_URL=http://127.0.0.1:11434
+Environment=MAK_AI_MODEL=llama3.1
+ExecStart=/usr/bin/mak-ai --daemon
+Restart=always
+RestartSec=5
+Slice=session.slice
+
+[Install]
+WantedBy=makos-session.target

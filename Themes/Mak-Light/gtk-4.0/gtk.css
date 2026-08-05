@@ -1,0 +1,160 @@
+/* =========================================================================
+   Mak OS — Tema claro (Mak-Light)
+   Versão clara da identidade do Mak OS.
+   ========================================================================= */
+
+@define-color mak-bg            #f5f6f8;
+@define-color mak-bg-alt        #ffffff;
+@define-color mak-surface       #ffffff;
+@define-color mak-surface-2     #eceef2;
+@define-color mak-border        #dcdfe6;
+@define-color mak-fg            #1a1c21;
+@define-color mak-fg-dim        #6b7280;
+@define-color mak-accent        #2f7fc4;
+@define-color mak-accent-2      #d96a5f;
+@define-color mak-danger        #d9534f;
+@define-color mak-ok            #3fae74;
+@define-color mak-transparent   rgba(255,255,255,0.55);
+
+window, dialog, messagedialog, popover, menu, tooltip {
+  background-color: @mak-bg;
+  color: @mak-fg;
+}
+label, entry, button, textview, treeview, list, row { color: @mak-fg; }
+
+entry, spinbutton, searchbar, searchentry {
+  background-color: @mak-bg-alt;
+  border: 1px solid @mak-border;
+  border-radius: 10px;
+  padding: 6px 10px;
+  caret-color: @mak-accent;
+}
+entry:focus, searchentry:focus {
+  border-color: @mak-accent;
+  box-shadow: 0 0 0 3px alpha(@mak-accent, 0.15);
+}
+
+button {
+  background-color: @mak-surface;
+  border: 1px solid @mak-border;
+  border-radius: 10px;
+  padding: 6px 12px;
+  transition: all 120ms ease-out;
+}
+button:hover { background-color: @mak-surface-2; }
+button:active { background-color: @mak-border; }
+button.suggested-action { background-color: @mak-accent; border-color: @mak-accent; color: white; }
+
+/* ---- Barra superior ---- */
+.mak-shell-window { background-color: transparent; }
+.mak-bar {
+  background-color: alpha(@mak-surface, 0.85);
+  border-bottom: 1px solid @mak-border;
+  padding: 0 10px;
+}
+.mak-logo-button { background: none; border: none; }
+.mak-logo-button image { color: @mak-accent; }
+.mak-brand { font-weight: 700; font-size: 15px; letter-spacing: 0.5px; }
+.mak-status-button { background: none; border: none; border-radius: 8px; padding: 4px 7px; min-width: 0; }
+.mak-status-button:hover { background-color: @mak-surface-2; }
+.mak-status-button image { color: @mak-fg-dim; }
+.mak-clock { font-weight: 500; padding: 0 10px; }
+.mak-workspace-indicator { letter-spacing: 2px; padding: 0 8px; }
+
+.mak-menu { background-color: @mak-bg-alt; padding: 6px; }
+.mak-menu-item { background: none; border: none; border-radius: 8px; padding: 8px 12px; }
+.mak-menu-item:hover { background-color: @mak-surface-2; }
+
+/* ---- Dock ---- */
+.mak-dock-window { background-color: transparent; }
+.mak-dock {
+  background-color: alpha(@mak-surface, 0.9);
+  border: 1px solid @mak-border;
+  border-radius: 22px;
+  padding: 8px 14px;
+  box-shadow: 0 10px 30px alpha(black, 0.12);
+}
+.mak-dock-icon { background: none; border: none; border-radius: 14px; padding: 0; min-width: 0; min-height: 0; }
+.mak-dock-icon:hover { background-color: alpha(@mak-surface-2, 0.8); }
+
+/* ---- Launcher ---- */
+.mak-launcher-window { background-color: transparent; }
+.mak-launcher {
+  background-color: alpha(@mak-bg-alt, 0.96);
+  border: 1px solid @mak-border;
+  border-radius: 18px;
+  padding: 14px;
+  box-shadow: 0 20px 50px alpha(black, 0.18);
+}
+.mak-launcher-list { background: none; }
+.mak-launcher-list row { background: none; border-radius: 10px; }
+.mak-launcher-list row:selected { background-color: @mak-surface-2; }
+.mak-launcher-comment { font-size: 11px; color: @mak-fg-dim; }
+
+/* ---- Finder ---- */
+.mak-sidebar { background-color: @mak-bg-alt; border-right: 1px solid @mak-border; }
+.mak-sidebar row { background: none; }
+.mak-sidebar row:selected { background-color: @mak-surface-2; }
+.mak-file-list { background: none; }
+.mak-file-list row { background: none; border-radius: 10px; }
+.mak-file-list row:selected { background-color: @mak-surface-2; }
+.mak-file-meta { font-size: 11px; color: @mak-fg-dim; }
+.mak-empty { color: @mak-fg-dim; }
+
+/* ---- Settings ---- */
+.mak-settings-sidebar { background-color: @mak-bg-alt; border-right: 1px solid @mak-border; }
+.mak-settings-sidebar row { background: none; border-radius: 8px; }
+.mak-settings-sidebar row:selected { background-color: @mak-surface-2; }
+.mak-settings-title { font-size: 20px; font-weight: 700; }
+.mak-settings-subtitle { color: @mak-fg-dim; margin-bottom: 12px; }
+
+/* ---- Store ---- */
+.mak-store-card { background-color: @mak-bg-alt; border: 1px solid @mak-border; border-radius: 14px; }
+.mak-store-desc { font-size: 11px; color: @mak-fg-dim; }
+
+/* ---- Monitor ---- */
+.mak-cpu > trough, .mak-mem > trough { background-color: @mak-surface-2; border-radius: 8px; min-height: 12px; }
+.mak-cpu > trough > progress { background-color: @mak-accent; border-radius: 8px; }
+.mak-mem > trough > progress { background-color: @mak-accent-2; border-radius: 8px; }
+.mak-chart { background-color: @mak-bg-alt; border: 1px solid @mak-border; border-radius: 14px; }
+
+/* ---- Calculator ---- */
+.mak-calc-window { background-color: @mak-bg; }
+.mak-calc-display { background: none; border: none; font-size: 34px; font-weight: 600; box-shadow: none; }
+.mak-calc-num { font-size: 20px; min-height: 52px; }
+.mak-calc-fn { font-size: 18px; min-height: 52px; background-color: @mak-surface-2; }
+.mak-calc-op { font-size: 20px; min-height: 52px; color: @mak-accent; }
+.mak-calc-accent { font-size: 22px; min-height: 52px; background-color: @mak-accent; color: white; border-color: @mak-accent; }
+
+/* ---- Notes ---- */
+.mak-notes-list { background: none; }
+.mak-notes-list row { background: none; }
+.mak-notes-list row:selected { background-color: @mak-surface-2; }
+.mak-notes-title { font-size: 18px; font-weight: 700; }
+
+/* ---- Photos ---- */
+.mak-photo-view { background-color: @mak-bg; }
+
+/* ---- Assistant ---- */
+.mak-assistant-window { background-color: @mak-bg; }
+.mak-chat-view { background-color: @mak-bg; color: @mak-fg; }
+
+scrollbar { background-color: transparent; }
+scrollbar slider { background-color: @mak-border; border-radius: 6px; min-width: 8px; }
+
+/* ---- Central de Controle ---- */
+.mak-control-window { background-color: transparent; }
+.mak-control-panel {
+  background-color: alpha(@mak-bg-alt, 0.96);
+  border: 1px solid @mak-border;
+  border-radius: 18px;
+  box-shadow: 0 16px 40px alpha(black, 0.16);
+}
+.mak-control-title { font-weight: 700; font-size: 15px; }
+.mak-control-toggle {
+  background-color: @mak-bg-alt;
+  border: 1px solid @mak-border;
+  border-radius: 14px;
+  padding: 10px;
+}
+.mak-control-toggle label { font-size: 11px; color: @mak-fg-dim; }

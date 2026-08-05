@@ -1,0 +1,13 @@
+[Unit]
+Description=Mak OS Shell (barra superior)
+PartOf=makos-session.target
+After=makos-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/mak-shell
+Restart=on-failure
+Slice=session.slice
+
+[Install]
+WantedBy=makos-session.target

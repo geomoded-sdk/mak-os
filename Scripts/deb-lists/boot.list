@@ -1,0 +1,14 @@
+# GRUB
+boot/grub/themes/makos/*
+
+# Plymouth
+usr/share/plymouth/themes/makos/*
+
+# SDDM
+usr/share/sddm/themes/makos/*
+
+# Instalador Calamares
+usr/share/calamares/*
+
+# Versão
+etc/makos-version

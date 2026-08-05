@@ -1,0 +1,25 @@
+# Artefatos de build
+build/
+Kernel/build/
+Desktop/target/
+Dock/target/
+Launcher/target/
+Finder/target/
+Installer/live-build/build/
+Installer/live-build/*.log
+*.iso
+*.pyc
+__pycache__/
+
+# Dados locais
+*.swp
+*.swo
+.idea/
+.vscode/
+.DS_Store
+
+# Segredos
+.env
+.env.*
+*.key
+*.pem

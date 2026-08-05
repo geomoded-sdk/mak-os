@@ -1,0 +1,106 @@
+# ============================================================
+#  Kernel config — Mak OS (x86_64)
+#  Base: Debian/Ubuntu + otimizações para desempenho/RAM
+# ============================================================
+
+# ---------- Identidade ----------
+CONFIG_LOCALVERSION="-makos"
+CONFIG_KERNEL_GZIP=y
+
+# ---------- Otimizações de desempenho ----------
+CONFIG_HZ_1000=y                  # baixa latência para UI fluida
+CONFIG_PREEMPT=y                  # preempção para desktop responsivo
+CONFIG_SCHED_AUTOGROUP=y
+CONFIG_SCHED_MC_PRIO=y
+CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE=y
+CONFIG_NR_CPUS=32
+CONFIG_IRQ_ALL_CPUS=y
+
+# ---------- Compilador ----------
+CONFIG_CC_VERSION_TEXT="gcc (Debian 13.2.0) 13.2.0"
+CONFIG_GCC_VERSION=130200
+CONFIG_GCC11=y
+CONFIG_CC_HAS_SANE_STACKPROTECTOR=y
+CONFIG_STACKPROTECTOR=y
+CONFIG_STACKPROTECTOR_STRONG=y
+
+# ---------- Genérico / hardware comum ----------
+CONFIG_X86_64=y
+CONFIG_GENERIC_CPU=y
+CONFIG_X86_INTEL_UMIP=y
+CONFIG_ACPI=y
+CONFIG_EFI=y
+CONFIG_EFI_STUB=y
+CONFIG_BLK_DEV_NVME=y
+CONFIG_ATA=y
+CONFIG_SATA_AHCI=y
+CONFIG_USB_SUPPORT=y
+CONFIG_USB_XHCI_HCD=y
+CONFIG_HID=y
+CONFIG_HID_GENERIC=y
+
+# ---------- GPU (aceleração de interface) ----------
+CONFIG_DRM=y
+CONFIG_DRM_KMS_HELPER=y
+CONFIG_DRM_AMDGPU=y               # AMD
+CONFIG_DRM_RADEON=y
+CONFIG_DRM_NOUVEAU=y              # NVIDIA (open)
+CONFIG_DRM_I915=y                 # Intel
+CONFIG_DRM_SIMPLEDRM=y            # framebuffer simples (fallback)
+CONFIG_DRM_VIRTIO_GPU=y           # VMs
+CONFIG_DRM_VMWGFX=y
+CONFIG_DRM_QXL=y
+
+# ---------- Áudio (PipeWire) ----------
+CONFIG_SND=y
+CONFIG_SND_PCM=y
+CONFIG_SND_HDA_INTEL=y
+CONFIG_SND_HDA_CODEC_HDMI=y
+CONFIG_SND_HDA_GENERIC=y
+CONFIG_SND_USB_AUDIO=y
+CONFIG_SND_SOC=y
+
+# ---------- Rede ----------
+CONFIG_NET=y
+CONFIG_WIRELESS=y
+CONFIG_CFG80211=y
+CONFIG_MAC80211=y
+CONFIG_WLAN=y
+CONFIG_BT=y
+CONFIG_BT_BREDR=y
+CONFIG_BT_LE=y
+
+# ---------- Sistemas de arquivos ----------
+CONFIG_EXT4_FS=y
+CONFIG_BTRFS_FS=y
+CONFIG_XFS_FS=y
+CONFIG_F2FS_FS=y
+CONFIG_NTFS3_FS=y
+CONFIG_EXFAT_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_ISO9660_FS=y
+CONFIG_FUSE_FS=y                  # Flatpak/AppImage
+
+# ---------- Segurança ----------
+CONFIG_SECURITY=y
+CONFIG_SECURITY_APPARMOR=y
+CONFIG_LSM="landlock,lockdown,yama,integrity,apparmor,bpf"
+
+# ---------- Contêineres (Waydroid) ----------
+CONFIG_ANDROID_BINDER_IPC=y
+CONFIG_ANDROID_BINDERFS=y
+CONFIG_BINDERFS=y
+CONFIG_MEMCG=y
+CONFIG_NAMESPACES=y
+CONFIG_NET_NS=y
+CONFIG_USER_NS=y
+CONFIG_OVERLAY_FS=y
+
+# ---------- Kernel Config no GRUB ----------
+# initramfs: mkinitcpio não se aplica (Debian usa initramfs-tools)
+CONFIG_BLK_DEV_INITRD=y
+
+# ---------- Desabilitar coisas desnecessárias para reduzir RAM ----------
+# CONFIG_CAN is not set
+# CONFIG_WIREGUARD is not set   (habilitar como módulo se necessário)
+# CONFIG_DRM_LEGACY is not set

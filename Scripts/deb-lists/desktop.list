@@ -1,0 +1,15 @@
+# Binários do shell
+usr/local/bin/mak-shell
+usr/local/bin/mak-dock
+usr/local/bin/mak-launcher
+usr/local/bin/mak-finder
+usr/local/bin/mak-session
+
+# Configurações do compositor
+usr/share/makos/Desktop/data/*
+
+# Desktop entries do sistema
+usr/share/applications/mak-shell.desktop
+usr/share/applications/mak-dock.desktop
+usr/share/applications/mak-launcher.desktop
+usr/share/applications/mak-finder.desktop

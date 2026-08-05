@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  python-tests:
+    name: Testes Python
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar dependências de teste
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3 python3-gi gir1.2-gtk-4.0
+          python3 -m compileall Apps AI
+
+      - name: Rodar testes
+        run: python3 -m unittest discover -s tests -v
+
+  rust-shell:
+    name: Rust (shell/dock/launcher/finder)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar dependências GTK
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgtk-4-dev libgtk-4-layer-shell-dev libadwaita-1-dev \
+            pkg-config
+
+      - name: Verificar formatação
+        run: |
+          cargo fmt --manifest-path Desktop/Cargo.toml -- --check || true
+          cargo fmt --manifest-path Dock/Cargo.toml -- --check || true
+          cargo fmt --manifest-path Launcher/Cargo.toml -- --check || true
+          cargo fmt --manifest-path Finder/Cargo.toml -- --check || true
+
+      - name: Build (check sem compilar binários nativos)
+        run: |
+          for crate in Desktop Dock Launcher Finder; do
+            cargo check --manifest-path $crate/Cargo.toml
+          done
+
+  icons:
+    name: Geração de ícones
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Gerar ícones e validar XML
+        run: |
+          python3 Scripts/gen-icons.py
+          python3 - <<'EOF'
+          import glob, xml.etree.ElementTree as ET
+          for f in glob.glob("Icons/mak-icons/**/*.svg", recursive=True):
+              ET.parse(f)
+          print("todos os SVGs válidos")
+          EOF

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=Mak-Dark
+Comment=Tema escuro do Mak OS
+Encoding=UTF-8
+
+[X-GNOME-Metatheme]
+GtkTheme=Mak-Dark
+IconTheme=mak-icons
+CursorTheme=Adwaita
+ButtonLayout=close,minimize,maximize

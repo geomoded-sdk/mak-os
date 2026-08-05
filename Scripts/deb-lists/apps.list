@@ -1,0 +1,25 @@
+# Apps Python
+usr/bin/mak-*.py
+usr/bin/mak_calculator.py
+usr/bin/mak_store_categories.py
+usr/bin/mak_notes_io.py
+
+# Assistente IA
+usr/bin/mak-ai
+usr/bin/mak-assistant
+usr/bin/mak-voice
+usr/share/makos/AI/*
+
+# Desktop entries dos apps
+usr/share/applications/mak-terminal.desktop
+usr/share/applications/mak-calculator.desktop
+usr/share/applications/mak-notes.desktop
+usr/share/applications/mak-settings.desktop
+usr/share/applications/mak-monitor.desktop
+usr/share/applications/mak-photos.desktop
+usr/share/applications/mak-music.desktop
+usr/share/applications/mak-browser.desktop
+usr/share/applications/mak-store.desktop
+usr/share/applications/mak-assistant.desktop
+usr/share/applications/mak-control-center.desktop
+usr/share/applications/mak-notifyd.desktop

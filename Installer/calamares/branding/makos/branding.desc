@@ -1,0 +1,49 @@
+---
+# =============================================================================
+#  Calamares — branding do Mak OS
+# =============================================================================
+componentName: makos-branding
+
+welcomeStyleCss: |
+  .welcome-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: #4f9dde;
+  }
+  .welcome-message {
+    font-size: 16px;
+    color: #9aa0ad;
+  }
+
+welcomeWindowTitle: Mak OS
+
+welcomeHeader: Bem-vindo ao Mak OS
+
+welcomeMessage: |
+  Obrigado por escolher o Mak OS.<br/>
+  Um sistema operacional rápido, bonito e focado em você.<br/><br/>
+  <strong>Nota:</strong> este instalador apagará o conteúdo do disco selecionado.
+
+welcomeImage: mak-logo
+
+supportUrl: https://example.org/makos/support
+
+knownIssuesUrl: https://example.org/makos/issues
+
+releaseNotesUrl: https://example.org/makos/release-notes
+
+styleName: Mak OS
+
+brandingShort: Mak OS
+
+productName: Mak OS
+
+version: 0.1.0
+
+shortVersion: 0.1
+
+bootloaderEntryName: Mak OS
+
+slideShowPath: show.qml
+
+slideShowDelay: 3000

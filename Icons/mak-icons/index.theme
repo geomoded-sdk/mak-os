@@ -1,0 +1,14 @@
+[Icon Theme]
+Name=Mak Icons
+Comment=Ícones próprios do Mak OS
+Example=mak-finder
+
+Directory=scalable/apps
+Size=128
+MinSize=16
+MaxSize=512
+Type=Scalable
+
+Directory=symbolic/apps
+Size=16
+Type=Scalable

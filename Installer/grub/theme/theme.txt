@@ -1,0 +1,60 @@
+# =============================================================================
+#  GRUB theme — Mak OS
+#  Identidade: grafite + azul-petróleo + coral
+# =============================================================================
+
+desktop-image: "background.png"
+desktop-color: "#17181c"
+
+title-text: "Mak OS"
+
++ boot_menu {
+  left = 200
+  top = 300
+  width = 400
+  height = 200
+  item_color = "#9aa0ad"
+  selected_item_color = "#4f9dde"
+  item_height = 40
+  item_padding = 10
+  selected_item_pixmap_style = "select_*.png"
+  item_font = "Sora 16"
+  item_spacing = 12
+}
+
++ label {
+  left = 200
+  top = 250
+  text = "Mak OS"
+  color = "#f2f3f7"
+  font = "Sora 28"
+}
+
++ label {
+  left = 202
+  top = 292
+  width = 4
+  height = 4
+  text = " "
+  color = "#e2776f"
+}
+
++ boot_menu {
+  left = 200
+  top = 330
+  width = 480
+  item_color = "#9aa0ad"
+  selected_item_color = "#4f9dde"
+  item_height = 40
+  item_padding = 8
+  item_spacing = 10
+  item_font = "Sora 16"
+}
+
++ label {
+  left = 200
+  bottom = 40
+  text = "Mak OS 0.1 — GNU/Linux"
+  color = "#4a505c"
+  font = "Sora 12"
+}

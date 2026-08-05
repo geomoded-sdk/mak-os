@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<labwc_config>
+  <core>
+    <decoration>none</decoration>
+    <focus>strict</focus>
+    <adaptiveSync>true</adaptiveSync>
+  </core>
+
+  <resistance>
+    <edges>15</edges>
+  </resistance>
+
+  <theme>
+    <name>Mak-Dark</name>
+    <cornerRadius>12</cornerRadius>
+    <font place="Title">Sora 10</font>
+    <font place="ActiveWindow">Sora 10</font>
+  </theme>
+
+  <screenEdges>
+    <int>10</int>
+  </screenEdges>
+
+  <workspaces>
+    <names>1 2 3 4</names>
+  </workspaces>
+
+  <windowRules>
+    <!-- Barra superior / dock devem ignorar decoração -->
+    <windowRule identifier="org.makos.shell">
+      <skipTaskbar>yes</skipTaskbar>
+      <skipWindowSwitcher>yes</skipWindowSwitcher>
+      <decorate>no</decorate>
+    </windowRule>
+    <windowRule identifier="org.makos.dock">
+      <skipTaskbar>yes</skipTaskbar>
+      <skipWindowSwitcher>yes</skipWindowSwitcher>
+      <decorate>no</decorate>
+    </windowRule>
+  </windowRules>
+
+  <keyboard>
+    <default />
+
+    <!-- Login -->
+    <keybind key="W-Return"><action name="Execute"><command>mak-terminal</command></action></keybind>
+    <keybind key="W-Space"><action name="Execute"><command>mak-launcher</command></action></keybind>
+    <keybind key="W-E"><action name="Execute"><command>mak-finder</command></action></keybind>
+    <keybind key="W-S"><action name="Execute"><command>mak-settings</command></action></keybind>
+    <keybind key="W-A"><action name="Execute"><command>mak-assistant</command></action></keybind>
+    <keybind key="Sys-F1"><action name="Execute"><command>mak-control-center</command></action></keybind>
+
+    <!-- Áreas de Trabalho Virtuais -->
+    <keybind key="W-1"><action name="Workspace"><desktop>1</desktop></action></keybind>
+    <keybind key="W-2"><action name="Workspace"><desktop>2</desktop></action></keybind>
+    <keybind key="W-3"><action name="Workspace"><desktop>3</desktop></action></keybind>
+    <keybind key="W-4"><action name="Workspace"><desktop>4</desktop></action></keybind>
+    <keybind key="W-Right"><action name="WorkspaceNext"/></keybind>
+    <keybind key="W-Left"><action name="WorkspacePrev"/></keybind>
+
+    <!-- Janelas -->
+    <keybind key="W-LeftArrow"><action name="Left"/></keybind>
+    <keybind key="W-RightArrow"><action name="Right"/></keybind>
+    <keybind key="W-Down"><action name="Down"/></keybind>
+    <keybind key="W-Up"><action name="Up"/></keybind>
+    <keybind key="W-q"><action name="Close"/></keybind>
+    <keybind key="Alt-Tab"><action name="CycleNextWindow"/></keybind>
+  </keyboard>
+
+  <mouse />
+</labwc_config>

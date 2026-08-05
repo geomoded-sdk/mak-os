@@ -1,0 +1,13 @@
+[Unit]
+Description=Mak OS Dock (dock inferior)
+PartOf=makos-session.target
+After=makos-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/mak-dock
+Restart=on-failure
+Slice=session.slice
+
+[Install]
+WantedBy=makos-session.target

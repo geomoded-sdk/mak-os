@@ -1,0 +1,13 @@
+[Unit]
+Description=Mak OS Central de Controle
+PartOf=makos-session.target
+After=makos-session.target mak-notifyd.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/mak-control-center.py --daemon
+Restart=on-failure
+Slice=session.slice
+
+[Install]
+WantedBy=makos-session.target

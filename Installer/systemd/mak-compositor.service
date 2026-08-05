@@ -1,0 +1,13 @@
+[Unit]
+Description=Mak OS compositor Wayland (labwc)
+PartOf=makos-session.target
+
+[Service]
+Type=simple
+ExecStartPre=/usr/share/makos/Desktop/data/prepare.sh
+ExecStart=/usr/bin/labwc -c /usr/share/makos/Desktop/data/labwc/rc.xml
+Restart=on-failure
+Slice=session.slice
+
+[Install]
+WantedBy=makos-session.target

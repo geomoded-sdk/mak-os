@@ -1,0 +1,12 @@
+# Temas GTK
+usr/share/themes/Mak-Dark/*
+usr/share/themes/Mak-Light/*
+
+# Ícones
+usr/share/icons/mak-icons/*
+
+# Wallpaper
+usr/share/backgrounds/makos/*
+
+# Schemas GSettings
+usr/share/glib-2.0/schemas/org.makos.gschema.xml
