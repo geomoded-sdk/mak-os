@@ -163,6 +163,19 @@ write(os.path.join(APPS, "mak-assistant.svg"), app_svg(
     '<path d="M40 92 c0 -16 48 -16 48 0"/>',
 ))
 
+write(os.path.join(APPS, "mak-launchpad.svg"), app_svg(
+    "launchpad",
+    '<rect x="30" y="30" width="20" height="20" rx="5"/>'
+    '<rect x="54" y="30" width="20" height="20" rx="5"/>'
+    '<rect x="78" y="30" width="20" height="20" rx="5"/>'
+    '<rect x="30" y="54" width="20" height="20" rx="5"/>'
+    '<rect x="54" y="54" width="20" height="20" rx="5"/>'
+    '<rect x="78" y="54" width="20" height="20" rx="5"/>'
+    '<rect x="30" y="78" width="20" height="20" rx="5"/>'
+    '<rect x="54" y="78" width="20" height="20" rx="5"/>'
+    '<rect x="78" y="78" width="20" height="20" rx="5"/>',
+))
+
 # ------------------------------- simbólicos (status) -------------------------------
 write(os.path.join(SYM, "mak-volume-high-symbolic.svg"), symbolic_svg(
     "vol",

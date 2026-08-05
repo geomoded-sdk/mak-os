@@ -132,6 +132,31 @@ button.suggested-action { background-color: @mak-accent; border-color: @mak-acce
 .mak-launcher-name { font-weight: 600; }
 .mak-launcher-comment { font-size: 11px; color: @mak-fg-dim; }
 
+/* ---- Launchpad (grade de apps em tela cheia) ---- */
+.mak-launchpad-window { background-color: transparent; }
+.mak-launchpad {
+  background: linear-gradient(to bottom, alpha(black, 0.35), alpha(@mak-bg, 0.88));
+}
+.mak-launchpad-search {
+  font-size: 16px;
+  min-height: 40px;
+  padding: 4px 16px;
+  border-radius: 20px;
+  background-color: alpha(@mak-surface, 0.85);
+  color: @mak-fg;
+}
+.mak-launchpad-grid { background: none; }
+.mak-launchpad-tile {
+  background: none;
+  border: none;
+  border-radius: 18px;
+  padding: 14px 10px;
+  min-width: 110px;
+  min-height: 122px;
+}
+.mak-launchpad-tile:hover { background-color: alpha(white, 0.12); }
+.mak-launchpad-name { font-size: 13px; font-weight: 500; color: @mak-fg; }
+
 /* ---- Finder ---- */
 .mak-finder-window { background-color: @mak-bg; }
 .mak-path { color: @mak-fg-dim; padding: 0 8px; }

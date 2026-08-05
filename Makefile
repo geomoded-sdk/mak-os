@@ -31,6 +31,7 @@ rust:
 	cargo build --release --manifest-path Desktop/Cargo.toml
 	cargo build --release --manifest-path Dock/Cargo.toml
 	cargo build --release --manifest-path Launcher/Cargo.toml
+	cargo build --release --manifest-path Launchpad/Cargo.toml
 	cargo build --release --manifest-path Finder/Cargo.toml
 
 icons:
@@ -56,6 +57,7 @@ fmt:
 	-cargo fmt --manifest-path Desktop/Cargo.toml
 	-cargo fmt --manifest-path Dock/Cargo.toml
 	-cargo fmt --manifest-path Launcher/Cargo.toml
+	-cargo fmt --manifest-path Launchpad/Cargo.toml
 	-cargo fmt --manifest-path Finder/Cargo.toml
 	@echo "formatação aplicada"
 
@@ -63,6 +65,7 @@ check: test
 	-cargo clippy --manifest-path Desktop/Cargo.toml -- -D warnings
 	-cargo clippy --manifest-path Dock/Cargo.toml -- -D warnings
 	-cargo clippy --manifest-path Launcher/Cargo.toml -- -D warnings
+	-cargo clippy --manifest-path Launchpad/Cargo.toml -- -D warnings
 	-cargo clippy --manifest-path Finder/Cargo.toml -- -D warnings
 
 clean:
@@ -70,6 +73,7 @@ clean:
 	cargo clean --manifest-path Desktop/Cargo.toml 2>/dev/null || true
 	cargo clean --manifest-path Dock/Cargo.toml 2>/dev/null || true
 	cargo clean --manifest-path Launcher/Cargo.toml 2>/dev/null || true
+	cargo clean --manifest-path Launchpad/Cargo.toml 2>/dev/null || true
 	cargo clean --manifest-path Finder/Cargo.toml 2>/dev/null || true
 	find . -name '__pycache__' -type d -prune -exec rm -rf {} + 2>/dev/null || true
 	@echo "limpo"

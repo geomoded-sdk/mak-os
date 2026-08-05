@@ -3,7 +3,7 @@
 #  build-debs.sh — empacota o Mak OS em pacotes .deb (dpkg-deb)
 #
 #  Pacotes gerados em dist/:
-#   - mak-os-desktop_<ver>.deb   (shell, dock, launcher, finder)
+#   - mak-os-desktop_<ver>.deb   (shell, dock, launcher, launchpad, finder)
 #   - mak-os-apps_<ver>.deb      (apps Python + IA)
 #   - mak-os-themes_<ver>.deb    (temas, ícones, wallpaper)
 #   - mak-os-boot_<ver>.deb      (GRUB + Plymouth + Calamares)
@@ -58,7 +58,7 @@ makedeb() {
 }
 
 echo "==> mak-os-desktop"
-makedeb mak-os-desktop "Mak OS desktop components (shell, dock, launcher, finder)" \
+makedeb mak-os-desktop "Mak OS desktop components (shell, dock, launcher, launchpad, finder)" \
   "libgtk-4-1, libgtk-4-layer-shell0, libadwaita-1-0" desktop.list
 
 echo "==> mak-os-apps"

@@ -36,6 +36,9 @@ log "iniciando mak-dock"
 log "iniciando mak-launcher (oculto)"
 /usr/lib/makos/mak-launcher --hidden &
 
+log "iniciando mak-launchpad (oculto)"
+/usr/lib/makos/mak-launchpad --hidden &
+
 log "iniciando mak-ai (assistente)"
 /usr/lib/makos/mak-ai &
 

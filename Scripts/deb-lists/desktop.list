@@ -2,6 +2,7 @@
 usr/local/bin/mak-shell
 usr/local/bin/mak-dock
 usr/local/bin/mak-launcher
+usr/local/bin/mak-launchpad
 usr/local/bin/mak-finder
 usr/local/bin/mak-session
 
@@ -12,4 +13,5 @@ usr/share/makos/Desktop/data/*
 usr/share/applications/mak-shell.desktop
 usr/share/applications/mak-dock.desktop
 usr/share/applications/mak-launcher.desktop
+usr/share/applications/mak-launchpad.desktop
 usr/share/applications/mak-finder.desktop

@@ -14,7 +14,7 @@ DESKTOP="$STAGE/usr/share/applications"
 
 mkdir -p "$BIN" "$APP_BIN" "$APPS" "$DESKTOP"
 
-echo "==> Compilando componentes Rust (shell, dock, launcher, finder)"
+echo "==> Compilando componentes Rust (shell, dock, launcher, launchpad, finder)"
 
 # shell
 (cd "$ROOT/Desktop" && cargo build --release 2>/dev/null) && \
@@ -30,6 +30,11 @@ echo "==> Compilando componentes Rust (shell, dock, launcher, finder)"
 (cd "$ROOT/Launcher" && cargo build --release 2>/dev/null) && \
   cp "$ROOT/Launcher/target/release/mak-launcher" "$BIN/" || \
   echo "   [aviso] mak-launcher não compilado"
+
+# launchpad
+(cd "$ROOT/Launchpad" && cargo build --release 2>/dev/null) && \
+  cp "$ROOT/Launchpad/target/release/mak-launchpad" "$BIN/" || \
+  echo "   [aviso] mak-launchpad não compilado"
 
 # finder
 (cd "$ROOT/Finder" && cargo build --release 2>/dev/null) && \

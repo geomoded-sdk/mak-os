@@ -19,7 +19,7 @@ echo "==> Habilitando a sessão"
 systemctl --user enable --now makos-session.target || true
 
 echo "==> Serviços habilitados:"
-for u in mak-shell mak-dock mak-launcher mak-notifyd mak-control-center mak-ai; do
+for u in mak-shell mak-dock mak-launcher mak-launchpad mak-notifyd mak-control-center mak-ai; do
   systemctl --user enable "$u" 2>/dev/null || true
 done
 

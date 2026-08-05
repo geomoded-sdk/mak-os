@@ -29,6 +29,7 @@ EOF
 desktop mak-shell        "Mak Shell"        "/usr/local/bin/mak-shell"       "mak-logo"      "Barra superior do Mak OS"
 desktop mak-dock         "Mak Dock"         "/usr/local/bin/mak-dock"        "mak-logo"      "Dock do Mak OS"
 desktop mak-launcher     "Mak Launcher"     "/usr/local/bin/mak-launcher"    "mak-logo"      "Lançador de aplicativos"
+desktop mak-launchpad    "Mak Launchpad"    "/usr/local/bin/mak-launchpad"   "mak-launchpad" "Grade de aplicativos"
 desktop mak-finder       "Mak Finder"       "/usr/local/bin/mak-finder"      "mak-finder"    "Gerenciador de arquivos"
 desktop mak-terminal     "Mak Terminal"     "/usr/bin/mak-terminal.py"       "mak-terminal"  "Terminal do Mak OS"
 desktop mak-calculator   "Mak Calculator"   "/usr/bin/mak-calculator.py"     "mak-calc"      "Calculadora"

@@ -1,0 +1,16 @@
+[package]
+name = "mak-launchpad"
+version = "0.1.0"
+edition = "2021"
+description = "Mak OS — tela de aplicativos estilo Launchpad"
+license = "GPL-3.0"
+
+[dependencies]
+gtk = { package = "gtk4", version = "0.8" }
+gtk4-layer-shell = "0.3"
+glib = "0.19"
+gio = "0.19"
+
+[[bin]]
+name = "mak-launchpad"
+path = "src/main.rs"

@@ -29,7 +29,7 @@ gsettings set org.gnome.desktop.interface color-scheme prefer-light
 
 ## Componentes estilizados
 
-- Barra superior (`.mak-bar`), menu, dock, launcher.
+- Barra superior (`.mak-bar`), menu, dock, launcher, launchpad.
 - Finder, Settings, Store, Monitor, Notes, Calculator.
 - Central de Controle (`.mak-control-panel`).
 

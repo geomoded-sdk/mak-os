@@ -41,6 +41,7 @@ fn session_components() -> Vec<(&'static str, Vec<&'static str>)> {
         ("mak-shell", vec![]),
         ("mak-dock", vec![]),
         ("mak-launcher", vec!["--hidden"]),
+        ("mak-launchpad", vec!["--hidden"]),
         ("mak-control-center", vec!["--daemon"]),
         ("mak-notifyd", vec![]),
         ("mak-ai", vec!["--daemon"]),

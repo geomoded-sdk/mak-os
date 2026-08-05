@@ -12,7 +12,7 @@ falhas), gerenciado pelo `mak-session` (session manager).
 │                       Compositor                        │
 │               (labwc / wlroots, GPU)                    │
 ├──────────────┬───────────────┬─────────────┬────────────┤
-│  mak-bar     │    mak-dock   │ mak-launcher│  mak-shell │
+│  mak-bar    │   mak-dock   │ mak-launcher │ mak-shell │ mak-launchpad │
 │  (topo)      │  (inferior)   │ (apps)      │ (controle) │
 ├──────────────┴───────────────┴─────────────┴────────────┤
 │  Aplicativos nativos (GTK4) │ Flatpak │ AppImage │ Wine │
@@ -39,19 +39,23 @@ falhas), gerenciado pelo `mak-session` (session manager).
 - Busca por aplicativos, arquivos e comandos.
 - Navegação por teclado (incremental), abre apps via D-Bus/`.desktop`.
 
-### 4. `Finder` — Gerenciador de arquivos (Rust/GTK4)
+### 4. `Launchpad` — Grade de aplicativos (Rust/GTK4)
+- Overlay em tela cheia estilo macOS (grid de ícones + busca).
+- Acesso por `F4`, gesto de 3 dedos ou ícone no dock; alterna mostrar/ocultar.
+
+### 5. `Finder` — Gerenciador de arquivos (Rust/GTK4)
 - Visualizações ícones/listas, favoritos, montagens, pesquisa.
 - Integração com `GVfs` para protocolos remotos.
 
-### 5. `AI` — Assistente local (Python + Ollama)
+### 6. `AI` — Assistente local (Python + Ollama)
 - Daemon `mak-ai` que fala com o Ollama (API REST local).
 - Ações: abrir apps, pesquisar arquivos, resumir documentos, executar scripts.
 - Interface GTK4 `mak-assistant`.
 
-### 6. `Settings`, `Store`, apps — ver `Apps/`
+### 7. `Settings`, `Store`, apps — ver `Apps/`
 - Apps simples em Python/GTK4; os principais em Rust/GTK4.
 
-### 7. Serviços
+### 8. Serviços
 - `mak-notifyd`: central de notificações (D-Bus `org.freedesktop.Notifications`).
 - `mak-audio`: controle de volume/dispositivos (PipeWire).
 - `mak-power`: brilho e gerenciamento de energia.
@@ -86,7 +90,7 @@ Usamos **labwc** (compositor wlroots leve e estável) como base. Alternativa:
 
 ## Padrões de código
 
-- Rust: componentes críticos (shell, dock, launcher, finder).
+- Rust: componentes críticos (shell, dock, launcher, launchpad, finder).
 - Python: apps utilitários e daemons de integração.
 - C: módulos de baixo nível e integração com o kernel.
 

@@ -22,7 +22,7 @@ jobs:
         run: python3 -m unittest discover -s tests -v
 
   rust-shell:
-    name: Rust (shell/dock/launcher/finder)
+    name: Rust (shell/dock/launcher/launchpad/finder)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -46,11 +46,12 @@ jobs:
           cargo fmt --manifest-path Desktop/Cargo.toml -- --check || true
           cargo fmt --manifest-path Dock/Cargo.toml -- --check || true
           cargo fmt --manifest-path Launcher/Cargo.toml -- --check || true
+          cargo fmt --manifest-path Launchpad/Cargo.toml -- --check || true
           cargo fmt --manifest-path Finder/Cargo.toml -- --check || true
 
       - name: Build (check sem compilar binários nativos)
         run: |
-          for crate in Desktop Dock Launcher Finder; do
+          for crate in Desktop Dock Launcher Launchpad Finder; do
             cargo check --manifest-path $crate/Cargo.toml
           done
 

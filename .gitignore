@@ -4,6 +4,7 @@ Kernel/build/
 Desktop/target/
 Dock/target/
 Launcher/target/
+Launchpad/target/
 Finder/target/
 Installer/live-build/build/
 Installer/live-build/*.log
