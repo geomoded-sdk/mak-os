@@ -1,9 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400">
-  <rect width="800" height="400" fill="#17181c"/>
-  <g stroke="#ffffff" stroke-opacity="0.08" stroke-width="1">
-    <line x1="0" y1="133" x2="800" y2="133"/><line x1="0" y1="266" x2="800" y2="266"/>
-  </g>
-  <text x="400" y="170" text-anchor="middle" fill="#5cc98a" font-size="34" font-family="sans-serif" font-weight="bold">100% livre e aberto</text>
-  <text x="400" y="215" text-anchor="middle" fill="#9aa0ad" font-size="18" font-family="sans-serif">Open source, temas e ícones próprios, sem marcas de terceiros.</text>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0"    stop-color="#143551"/>
+      <stop offset="0.45" stop-color="#8a7d6f"/>
+      <stop offset="0.60" stop-color="#d9975f"/>
+      <stop offset="0.68" stop-color="#f2b477"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="400" fill="url(#sky)"/>
+
+  <path d="M0 210 C 140 196, 300 204, 420 186 C 560 168, 680 196, 800 180 L 800 270 L 0 270 Z" fill="#b07a4f"/>
+  <path d="M0 250 C 150 232, 300 252, 460 220 C 620 188, 720 232, 800 214 L 800 330 L 0 330 Z" fill="#d99a63"/>
+  <path d="M0 300 C 140 282, 300 300, 460 270 C 620 240, 740 280, 800 260 L 800 400 L 0 400 Z" fill="#e8b47d"/>
+
+  <text x="400" y="176" text-anchor="middle" fill="#3a2415" font-size="34" font-family="sans-serif" font-weight="bold">Apps e compatibilidade</text>
+  <text x="400" y="214" text-anchor="middle" fill="#4a3a26" font-size="17" font-family="sans-serif">Com Darling pré-instalado para rodar aplicativos macOS.</text>
 </svg>

@@ -32,11 +32,11 @@ SlideShow {
 
     Text {
         id: caption
-        color: "#f2f3f7"
+        color: "#3a2415"
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
-        font.pixelSize: 22
+        font.pixelSize: 20
         font.bold: true
-        text: qsTr("Mak OS — rápido, bonito e livre.")
+        text: qsTr("Mak OS — a experiência que você esperava.")
     }
 }

@@ -1,28 +1,28 @@
 ---
 # =============================================================================
-#  Calamares — branding do Mak OS
+#  Calamares — branding do Mak OS (estilo instalador macOS)
 # =============================================================================
 componentName: makos-branding
 
 welcomeStyleCss: |
   .welcome-title {
-    font-size: 36px;
+    font-size: 34px;
     font-weight: 700;
-    color: #4f9dde;
+    color: #1d1d1f;
   }
   .welcome-message {
-    font-size: 16px;
-    color: #9aa0ad;
+    font-size: 15px;
+    color: #6e6e73;
   }
 
-welcomeWindowTitle: Mak OS
+welcomeWindowTitle: Instalar Mak OS
 
-welcomeHeader: Bem-vindo ao Mak OS
+welcomeHeader: Bem-vindo ao instalador do Mak OS
 
 welcomeMessage: |
-  Obrigado por escolher o Mak OS.<br/>
-  Um sistema operacional rápido, bonito e focado em você.<br/><br/>
-  <strong>Nota:</strong> este instalador apagará o conteúdo do disco selecionado.
+  Para instalar o Mak OS você precisará de um disco com espaço livre.<br/>
+  O instalador apagará o conteúdo do disco selecionado antes de continuar.<br/><br/>
+  <strong>Importante:</strong> faça backup dos seus dados antes de instalar.
 
 welcomeImage: mak-logo
 
