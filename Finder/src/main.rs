@@ -111,11 +111,12 @@ fn make_row(path: &Path, name: &str, size: u64) -> ListBoxRow {
     name_label.set_css_classes(&["mak-file-name"]);
     vbox.append(&name_label);
 
-    let sub = Label::new(Some(if path.is_dir() {
-        "Pasta"
+    let sub_text = if path.is_dir() {
+        "Pasta".to_string()
     } else {
-        &human_size(size)
-    }));
+        human_size(size)
+    };
+    let sub = Label::new(Some(&sub_text));
     sub.set_xalign(0.0);
     sub.set_css_classes(&["mak-file-meta"]);
     vbox.append(&sub);
@@ -137,14 +138,15 @@ fn open_path(state: &mut FinderState, target: PathBuf, refresh: &dyn Fn()) {
     if target.is_dir() {
         state.go(target);
         refresh();
-    } else if let Ok(file) = gio::File::for_path(&target) {
+    } else {
+        let file = gio::File::for_path(&target);
         let _ = gio::AppInfo::launch_default_for_uri(&file.uri(), None::<&gio::AppLaunchContext>);
     }
 }
 
 /// Janela modal simples para digitar um nome (renomear / nova pasta).
 fn input_window(
-    parent: &gtk::Window,
+    parent: &impl IsA<gtk::Window>,
     title: &str,
     initial: &str,
     on_submit: impl FnOnce(String) + 'static,
@@ -185,9 +187,9 @@ fn input_window(
 
     let ok_close = win.clone();
     let entry2 = entry.clone();
-    let mut on_submit = Some(on_submit);
+    let on_submit = RefCell::new(Some(on_submit));
     ok.connect_clicked(move |_| {
-        if let Some(f) = on_submit.take() {
+        if let Some(f) = on_submit.borrow_mut().take() {
             f(entry2.text().to_string());
         }
         ok_close.close();
@@ -236,7 +238,7 @@ fn build_context_menu(
         let pop2 = pop.clone();
         vbox.append(&menu_button("Abrir", "document-open-symbolic", move || {
             if let Some(p) = (*selected.borrow()).clone() {
-                open_path(&mut state.borrow_mut(), p, &refresh);
+                open_path(&mut state.borrow_mut(), p, &*refresh);
             }
             pop2.popdown();
         }));
@@ -528,7 +530,7 @@ fn build_ui(app: &Application) {
     gesture.connect_pressed(move |_g, _n, x, y| {
         if let Some(row) = list.row_at_y(y as i32) {
             if let Some(path) = unsafe { row.data::<PathBuf>("path") } {
-                *selected_g.borrow_mut() = Some(path.clone());
+                *selected_g.borrow_mut() = Some(unsafe { path.as_ref() }.clone());
                 let rect = gtk::gdk::Rectangle::new(x as i32, y as i32, 1, 1);
                 context_g.set_pointing_to(Some(&rect));
                 context_g.popup();
@@ -584,7 +586,7 @@ fn build_ui(app: &Application) {
         let refresh = refresh.clone();
         move |_, row| {
             if let Some(path) = unsafe { row.data::<PathBuf>("path") } {
-                open_path(&mut state.borrow_mut(), path.clone(), &refresh);
+                open_path(&mut state.borrow_mut(), unsafe { path.as_ref() }.clone(), &*refresh);
             }
         }
     });
