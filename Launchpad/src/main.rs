@@ -177,14 +177,14 @@ fn build(app: &gtk::Application) -> Ui {
             spawn(&cmd);
             win.set_visible(false);
         });
-        flow.append(&tile);
+        flow.insert(&tile, -1);
     }
 
     flow.set_filter_func({
         let apps = apps.clone();
         let entry = entry.clone();
         move |child| {
-            let Ok(button) = child.child().and_then(|c| c.downcast::<gtk::Button>().ok()) else {
+            let Some(button) = child.child().and_then(|c| c.downcast::<gtk::Button>().ok()) else {
                 return true;
             };
             let Ok(index) = button
