@@ -1,8 +1,8 @@
 use gtk::prelude::*;
-use gtk::Button;
+use gtk::MenuButton;
 
 /// Anexa um menu popover ao botão de logo.
-pub fn attach(logo: &Button) {
+pub fn attach(logo: &MenuButton) {
     let popover = gtk::Popover::new();
     let menu = menu_box();
     popover.set_child(Some(&menu));
@@ -21,7 +21,7 @@ fn menu_box() -> gtk::Box {
         ("Bloquear", "mak-lock"),
         ("Sair...", "mak-logout"),
     ] {
-        let btn = gtk::Button::new_with_label(label);
+        let btn = gtk::Button::with_label(label);
         btn.set_css_classes(&["mak-menu-item"]);
         btn.set_hexpand(true);
         let cmd = cmd.to_string();

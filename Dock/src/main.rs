@@ -53,17 +53,27 @@ fn populate_dock(box_: &gtk::Box) {
     // Magnificação suave: ícones próximos ao centro ficam maiores.
     let children_box = box_.clone();
     glib::timeout_add_local(std::time::Duration::from_millis(16), move || {
-        let children = children_box.children();
-        let total = children.len().max(1) as f64;
-        for (i, child) in children.iter().enumerate() {
-            let dist = (i as f64 - (total - 1.0) / 2.0).abs();
+        let mut total = 0i32;
+        let mut c = children_box.first_child();
+        while let Some(child) = c {
+            total += 1;
+            c = child.next_sibling();
+        }
+        let total = total.max(1) as f64;
+
+        let mut index = 0i32;
+        let mut c = children_box.first_child();
+        while let Some(child) = c {
+            let dist = (index as f64 - (total - 1.0) / 2.0).abs();
             let scale = 1.0 + (1.0 - (dist / total).min(1.0)) * 0.35;
             let size = (48.0 * scale) as i32;
-            if let Ok(btn) = child.clone().downcast::<Button>() {
+            if let Ok(btn) = child.downcast::<Button>() {
                 if let Some(image) = btn.child().and_then(|c| c.and_downcast::<Image>().ok()) {
                     image.set_pixel_size(size);
                 }
             }
+            index += 1;
+            c = child.next_sibling();
         }
         glib::ControlFlow::Continue
     });

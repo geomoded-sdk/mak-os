@@ -1,8 +1,9 @@
 use std::rc::Rc;
 
+use crate::{menu, status, workspace};
 use glib::clone;
 use gtk::prelude::*;
-use gtk::{gdk, Box as GtkBox, Button, CenterBox, Label, Orientation, Widget};
+use gtk::{gdk, Box as GtkBox, CenterBox, Label, Orientation, Widget};
 use gtk4_layer_shell::{Edge, Layer, LayerShell};
 
 /// Cria a barra superior do Mak OS.
@@ -20,11 +21,13 @@ impl ShellBar {
 
         // ---- lado esquerdo: logo + menu ----
         let left = GtkBox::new(Orientation::Horizontal, 0);
-        let logo = Button::new();
+        let logo = gtk::MenuButton::new();
         logo.set_css_classes(&["mak-logo-button"]);
-        logo.set_icon_name("mak-logo");
+        let logo_image = gtk::Image::from_icon_name("mak-logo");
+        logo_image.set_pixel_size(20);
+        logo.set_child(Some(&logo_image));
         logo.set_tooltip_text(Some("Mak OS"));
-        menu::attach(logo);
+        menu::attach(&logo);
 
         let title = Label::new(Some("MaK"));
         title.set_css_classes(&["mak-brand"]);

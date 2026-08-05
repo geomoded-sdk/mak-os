@@ -352,7 +352,7 @@ fn build_context_menu(
 }
 
 fn load_directory(state: &FinderState, list: &ListBox, stack: &Stack, search: &SearchEntry) {
-    for child in list.children() {
+    while let Some(child) = list.first_child() {
         list.remove(&child);
     }
 
