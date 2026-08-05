@@ -21,7 +21,7 @@ impl ShellBar {
 
         // ---- lado esquerdo: logo + menu ----
         let left = GtkBox::new(Orientation::Horizontal, 0);
-        let logo = gtk::MenuButton::new();
+        let logo = gtk::Button::new();
         logo.set_css_classes(&["mak-logo-button"]);
         let logo_image = gtk::Image::from_icon_name("mak-logo");
         logo_image.set_pixel_size(20);

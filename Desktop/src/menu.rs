@@ -1,13 +1,21 @@
 use gtk::prelude::*;
-use gtk::MenuButton;
+use gtk::Button;
 
 /// Anexa um menu popover ao botão de logo.
-pub fn attach(logo: &MenuButton) {
+pub fn attach(logo: &Button) {
     let popover = gtk::Popover::new();
     let menu = menu_box();
     popover.set_child(Some(&menu));
     popover.set_position(gtk::PositionType::Bottom);
-    logo.set_popover(Some(&popover));
+    popover.set_parent(logo);
+
+    logo.connect_clicked(move |_| {
+        if popover.is_visible() {
+            popover.popdown();
+        } else {
+            popover.popup();
+        }
+    });
 }
 
 fn menu_box() -> gtk::Box {

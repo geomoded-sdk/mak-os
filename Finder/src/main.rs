@@ -529,12 +529,7 @@ fn build_ui(app: &Application) {
         if let Some(row) = list.row_at_y(y as i32) {
             if let Some(path) = unsafe { row.data::<PathBuf>("path") } {
                 *selected_g.borrow_mut() = Some(path.as_ref().clone());
-                let rect = gtk::gdk::Rectangle {
-                    x: x as i32,
-                    y: y as i32,
-                    width: 1,
-                    height: 1,
-                };
+                let rect = gtk::gdk::Rectangle::new(x as i32, y as i32, 1, 1);
                 context_g.set_pointing_to(Some(&rect));
                 context_g.popup();
             }
