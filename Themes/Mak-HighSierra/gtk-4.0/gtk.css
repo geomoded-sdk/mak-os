@@ -144,6 +144,15 @@ button.titlebutton:backdrop { background-color: #dcdddf; border-color: #c2c4ca; 
 .mak-settings-title { font-size: 20px; font-weight: 700; }
 .mak-settings-subtitle { color: @hs-fg-dim; margin-bottom: 12px; }
 
+/* ---- Preferências do Sistema (grid estilo macOS) ---- */
+.mak-pref-title { font-size: 28px; font-weight: 700; }
+.mak-pref-tile { background: none; border: none; border-radius: 14px; padding: 12px; min-width: 100px; min-height: 104px; }
+.mak-pref-tile:hover { background-color: @hs-surface-2; }
+.mak-pref-tile image { margin-bottom: 8px; }
+.mak-pref-tile label { font-size: 12px; color: @hs-fg; }
+.mak-back-button { background: none; border: none; border-radius: 8px; padding: 4px 10px; color: @hs-accent; font-weight: 600; }
+.mak-back-button:hover { background-color: @hs-surface-2; }
+
 /* ---- Store ---- */
 .mak-store-card { background-color: @hs-bg-alt; border: 1px solid @hs-border; border-radius: 12px; }
 .mak-store-desc { font-size: 11px; color: @hs-fg-dim; }

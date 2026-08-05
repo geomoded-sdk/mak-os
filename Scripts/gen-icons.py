@@ -130,6 +130,33 @@ write(os.path.join(APPS, "mak-monitor.svg"), app_svg(
     '<path d="M64 86 v14"/><line x1="50" y1="100" x2="78" y2="100"/>',
 ))
 
+write(os.path.join(APPS, "mak-appearance.svg"), app_svg(
+    "appearance",
+    '<line x1="32" y1="44" x2="96" y2="44"/><circle cx="44" cy="44" r="7"/>'
+    '<line x1="32" y1="64" x2="96" y2="64"/><circle cx="80" cy="64" r="7"/>'
+    '<line x1="32" y1="84" x2="96" y2="84"/><circle cx="56" cy="84" r="7"/>',
+))
+
+write(os.path.join(APPS, "mak-network.svg"), app_svg(
+    "network",
+    '<circle cx="64" cy="64" r="34"/>'
+    '<path d="M64 30 a34 34 0 0 1 0 68 M64 30 a34 34 0 0 0 0 68"/>'
+    '<ellipse cx="64" cy="64" rx="14" ry="34"/>',
+))
+
+write(os.path.join(APPS, "mak-user.svg"), app_svg(
+    "user",
+    '<circle cx="64" cy="48" r="20"/>'
+    '<path d="M36 100 c0 -24 56 -24 56 0"/>',
+))
+
+write(os.path.join(APPS, "mak-about.svg"), app_svg(
+    "about",
+    '<circle cx="64" cy="64" r="32"/>'
+    '<line x1="64" y1="60" x2="64" y2="86"/>'
+    '<circle cx="64" cy="46" r="3" fill="#fff" stroke="none"/>',
+))
+
 write(os.path.join(APPS, "mak-assistant.svg"), app_svg(
     "assistant",
     '<circle cx="64" cy="50" r="24"/>'

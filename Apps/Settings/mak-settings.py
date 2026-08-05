@@ -26,46 +26,125 @@ class MakSettings(Gtk.Application):
 class SettingsWindow(Gtk.ApplicationWindow):
     def __init__(self, **kw):
         super().__init__(**kw)
-        self.set_title("Mak Settings")
-        self.set_default_size(900, 600)
+        self.set_title("Preferências do Sistema")
+        self.set_default_size(860, 560)
 
-        root = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
+        root = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
 
-        # ---- sidebar de categorias ----
+        # ---- grid de categorias (estilo Preferências do Sistema) ----
         self.stack = Gtk.Stack()
         self.stack.set_transition_type(Gtk.StackTransitionType.SLIDE_LEFT)
 
+        self.stack.add_named(self._grid_page(), "grid")
+
         categories = [
             ("mak-appearance", "Aparência", self._appearance_page),
-            ("mak-display", "Tela", self._display_page),
+            ("mak-monitor", "Tela", self._display_page),
             ("mak-network", "Rede", self._network_page),
-            ("mak-account", "Conta", self._account_page),
+            ("mak-user", "Conta", self._account_page),
             ("mak-about", "Sobre", self._about_page),
         ]
 
-        sidebar = Gtk.ListBox()
-        sidebar.set_css_classes(["mak-settings-sidebar"])
-        sidebar.set_width_request(220)
-        for ident, title, _factory in categories:
-            row = Gtk.ListBoxRow()
-            lbl = Gtk.Label(label=title, xalign=0.0)
-            lbl.set_margin_top(10)
-            lbl.set_margin_bottom(10)
-            lbl.set_margin_start(12)
-            row.set_child(lbl)
-            row.set_data("ident", ident)
-            sidebar.append(row)
-            self.stack.add_named(_factory(self), ident)
+        for ident, title, factory in categories:
+            self.stack.add_named(self._category_page(title, factory), ident)
 
-        sidebar.connect("row-selected", self._on_category)
-
-        root.append(sidebar)
+        self.stack.set_visible_child_name("grid")
         root.append(self.stack)
         self.set_child(root)
 
-    def _on_category(self, _list, row):
-        if row is not None:
-            self.stack.set_visible_child_name(row.get_data("ident"))
+    # ------------------------------ grid principal ------------------------------
+    def _grid_page(self):
+        page = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=16)
+        page.set_margin_top(32)
+        page.set_margin_bottom(32)
+        page.set_margin_start(40)
+        page.set_margin_end(40)
+
+        t = Gtk.Label(label="Preferências do Sistema", xalign=0.0)
+        t.add_css_class("mak-pref-title")
+
+        search = Gtk.SearchEntry()
+        search.set_placeholder_text("Pesquisar")
+        search.set_width_request(280)
+        search.set_halign(Gtk.Align.START)
+        search.connect("search-changed", self._on_search)
+
+        flow = Gtk.FlowBox()
+        flow.set_max_children_per_line(6)
+        flow.set_min_children_per_line(3)
+        flow.set_row_spacing(10)
+        flow.set_column_spacing(10)
+        flow.set_selection_mode(Gtk.SelectionMode.NONE)
+        flow.set_vexpand(True)
+
+        for icon, title, ident in [
+            ("mak-appearance", "Aparência", "mak-appearance"),
+            ("mak-monitor", "Tela", "mak-monitor"),
+            ("mak-network", "Rede", "mak-network"),
+            ("mak-user", "Conta", "mak-user"),
+            ("mak-about", "Sobre", "mak-about"),
+        ]:
+            flow.append(self._grid_tile(icon, title, ident))
+
+        page.append(t)
+        page.append(search)
+        page.append(flow)
+        return page
+
+    def _grid_tile(self, icon, title, ident):
+        btn = Gtk.Button()
+        btn.set_css_classes(["mak-pref-tile"])
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+        img = Gtk.Image(icon_name=icon, pixel_size=72)
+        lbl = Gtk.Label(label=title)
+        box.append(img)
+        box.append(lbl)
+        btn.set_child(box)
+        btn.set_tooltip_text(title)
+        btn.connect("clicked", lambda _w, name=ident: self._show_category(name))
+        return btn
+
+    def _category_page(self, title, factory):
+        page = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+
+        header = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        header.set_margin_top(14)
+        header.set_margin_bottom(6)
+        header.set_margin_start(20)
+        header.set_margin_end(20)
+
+        back = Gtk.Button(label="‹ Todos")
+        back.set_css_classes(["mak-back-button"])
+        back.set_tooltip_text("Voltar às categorias")
+        back.connect("clicked", lambda _w: self._show_grid())
+
+        header.append(back)
+        page.append(header)
+        page.append(factory(self))
+        return page
+
+    def _show_grid(self):
+        self.stack.set_visible_child_name("grid")
+
+    def _show_category(self, name):
+        self.stack.set_visible_child_name(name)
+
+    def _on_search(self, entry):
+        q = entry.get_text().strip().lower()
+        target = None
+        for ident in ("mak-appearance", "mak-monitor", "mak-network", "mak-user", "mak-about"):
+            name = {
+                "mak-appearance": "Aparência",
+                "mak-monitor": "Tela",
+                "mak-network": "Rede",
+                "mak-user": "Conta",
+                "mak-about": "Sobre",
+            }[ident]
+            if q and q in name.lower():
+                target = ident
+                break
+        if target:
+            self.stack.set_visible_child_name(target)
 
     # ------------------------------ páginas ------------------------------
     def _appearance_page(self, _win):
@@ -75,7 +154,7 @@ class SettingsWindow(Gtk.ApplicationWindow):
         mode.append_text("Claro")
         mode.append_text("Escuro")
         mode.append_text("Automático")
-        mode.set_active(1)  # padrão escuro
+        mode.set_active(0)  # padrão claro
         mode.connect("changed", self._set_mode)
         page.append(self._row("Modo de exibição", mode))
 
