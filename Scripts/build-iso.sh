@@ -121,6 +121,15 @@ cp -r "$ROOT"/Desktop "$ROOT"/Dock "$ROOT"/Launcher "$ROOT"/Finder \
       "$ROOT"/AI "$ROOT"/Settings "$ROOT"/Store "$ROOT"/Apps \
       "$ROOT"/Themes "$ROOT"/Icons config/includes.chroot/usr/share/makos/
 
+# ------------------------------------------------------------ Darling pré-instalado
+# Se houver .debs pré-compilados (gerados por build-darling-deb.sh), o
+# live-build os instala na imagem → Darling já vem instalado na ISO.
+if ls "$ROOT"/Scripts/debs/*.deb >/dev/null 2>&1; then
+  echo "==> Incluindo Darling pré-compilado na imagem"
+  mkdir -p config/packages.chroot
+  cp "$ROOT"/Scripts/debs/*.deb config/packages.chroot/
+fi
+
 # ------------------------------------------------------------ build
 echo "==> Gerando a ISO (isso pode levar vários minutos)"
 lb build 2>&1 | tee "$ROOT/Installer/live-build/build.log"

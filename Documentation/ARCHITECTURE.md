@@ -80,7 +80,7 @@ Usamos **labwc** (compositor wlroots leve e estável) como base. Alternativa:
 
 ## Temas e identidade
 
-- Temas GTK próprios em `Themes/` (`Mak-Dark`, `Mak-Light`).
+- Temas GTK próprios em `Themes/` (`Mak-HighSierra` padrão, `Mak-Dark`, `Mak-Light`).
 - Ícones próprios em `Icons/mak-icons` (SVG).
 - Fonte padrão: `Inter` ou `Sora` (open source).
 

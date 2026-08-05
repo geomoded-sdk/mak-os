@@ -28,8 +28,8 @@ Roda compositor + barra + dock + launcher em uma sessão Wayland própria:
 Para rodar em um servidor X existente (teste rápido de componentes):
 
 ```bash
-GTK_THEME=Mak-Dark python3 Apps/Settings/mak-settings.py
-GTK_THEME=Mak-Dark cargo run --manifest-path Dock/Cargo.toml
+GTK_THEME=Mak-HighSierra python3 Apps/Settings/mak-settings.py
+GTK_THEME=Mak-HighSierra cargo run --manifest-path Dock/Cargo.toml
 ```
 
 > Nota: barra e dock usam `gtk4-layer-shell` e precisam de um compositor Wayland
@@ -57,13 +57,14 @@ Apenas perguntas gerais exigem o Ollama (`ollama serve`).
 
 ## Tema e ícones
 
-- Temas: copie `Themes/Mak-Dark` e `Themes/Mak-Light` para `~/.themes/`.
+- Temas: copie `Themes/Mak-HighSierra` (padrão) e os demais para `~/.themes/`.
 - Ícones: `Scripts/gen-icons.py` gera o set; instale em `~/.local/share/icons/mak-icons`.
-- Aplique: `gsettings set org.gnome.desktop.interface gtk-theme Mak-Dark`.
+- Aplique: `gsettings set org.gnome.desktop.interface gtk-theme Mak-HighSierra`.
 
 ## Build da ISO
 
 ```bash
-./Scripts/build-iso.sh            # Debian stable
+./Scripts/build-darling-deb.sh   # opcional: Darling pré-instalado (.deb)
+./Scripts/build-iso.sh           # Debian stable
 DISTRO=ubuntu SUITE=noble ./Scripts/build-iso.sh
 ```

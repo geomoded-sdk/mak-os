@@ -54,6 +54,24 @@ jobs:
             cargo check --manifest-path $crate/Cargo.toml
           done
 
+  shell-scripts:
+    name: Scripts shell
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Validar sintaxe dos scripts
+        run: |
+          fail=0
+          while IFS= read -r f; do
+            if ! bash -n "$f"; then
+              echo "ERRO de sintaxe: $f"
+              fail=1
+            else
+              echo "OK: $f"
+            fi
+          done < <(git ls-files '*.sh')
+          [ "$fail" -eq 0 ] || exit 1
+
   icons:
     name: Geração de ícones
     runs-on: ubuntu-latest

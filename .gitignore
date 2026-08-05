@@ -11,6 +11,9 @@ Installer/live-build/*.log
 *.pyc
 __pycache__/
 
+# Pacotes .deb pré-compilados (gerados por build-darling-deb.sh)
+Scripts/debs/
+
 # Dados locais
 *.swp
 *.swo

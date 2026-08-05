@@ -33,7 +33,10 @@ permitindo rodar aplicativos de outros ecossistemas.
 
 ### Darling
 - Camada de compatibilidade para executar binários macOS.
-- **Status:** experimental — compilação manual requerida (veja o script).
+- **Status:** pré-instalado na ISO do Mak OS.
+- O `Scripts/build-darling-deb.sh` compila o Darling e gera `Scripts/debs/darling_*.deb`,
+  que é incluído automaticamente na imagem pelo `build-iso.sh`. Para instalação manual
+  fora da ISO, veja `Compatibility/Darling/setup-darling.sh`.
 
 ### Waydroid
 - Android em contêiner (LXC) com Wayland.

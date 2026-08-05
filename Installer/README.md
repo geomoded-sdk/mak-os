@@ -27,12 +27,25 @@ sudo apt install -y live-build debootstrap calamares
 DISTRO=ubuntu SUITE=noble ./Scripts/build-iso.sh
 ```
 
+## Darling pré-instalado
+
+O Mak OS já vem com o **Darling** (camada para aplicativos macOS) na ISO.
+Compile e gere o pacote antes de montar a imagem:
+
+```bash
+./Scripts/build-darling-deb.sh        # Debian (detecta dependências)
+DISTRO=ubuntu ./Scripts/build-darling-deb.sh
+```
+
+O `.deb` gerado em `Scripts/debs/` é incluído automaticamente pelo `build-iso.sh`
+(em `config/packages.chroot/`). O build exige clang e demora de 30 a 60 minutos.
+
 ## O que a imagem inclui
 
 - Kernel otimizado (`linux-image-amd64`) + firmware.
 - Compositor **labwc**, GTK4, PipeWire, NetworkManager.
 - Todos os componentes do Mak OS em `/usr/share/makos`.
-- Flatpak, Wine, AppArmor e o instalador **Calamares**.
+- Flatpak, Wine, **Darling**, AppArmor e o instalador **Calamares**.
 
 ## Instalar no disco
 
