@@ -22,12 +22,16 @@ e aproveitar o assistente de IA.
 
 - **Barra superior**: relógio, status do sistema (rede, bateria, volume) e menu.
 - **Dock**: na parte inferior, mostra seus aplicativos favoritos e os em execução.
-  Passe o mouse para ver o efeito de aumento; clique para abrir.
+  Passe o mouse para ver o efeito de aumento; clique para abrir. Janelas
+  minimizadas aparecem no Dock após a divisória (com animação); clique na
+  miniatura para restaurar.
 - **Mission Control**: com **F3** ou **Ctrl+Seta acima** você vê todas as janelas
   e as áreas de trabalho; clique em um card para focar a janela, clique em uma
   área para trocar de área, e `Esc` fecha. No touchpad, deslize 3 dedos para
   cima para abrir.
 - **Áreas de trabalho**: use **Super (Win) + 1..4** para alternar entre áreas.
+- **Minimizar janelas**: use **Super + M** para minimizar a janela ativa; ela
+  "colapsa" para o Dock e pode ser restaurada clicando na miniatura.
 - **Atalhos úteis**:
   | Ação                | Atalho             |
   |---------------------|--------------------|
@@ -35,6 +39,7 @@ e aproveitar o assistente de IA.
   | Abrir o Terminal    | `Ctrl+Alt+T`       |
   | Abrir o Finder      | `Super+F`          |
   | Mission Control     | `F3` ou `Ctrl+Up`  |
+  | Minimizar janela    | `Super+M`          |
   | Mudar de área       | `Super+1..4`       |
   | Bloquear a tela     | `Super+L`          |
 

@@ -112,6 +112,16 @@ button.titlebutton:backdrop { background-color: #dcdddf; border-color: #c2c4ca; 
 }
 .mak-dock-icon { background: none; border: none; border-radius: 12px; padding: 0; min-width: 0; min-height: 0; }
 .mak-dock-icon:hover { background-color: alpha(white, 0.55); }
+.mak-dock-sep {
+  background-color: alpha(black, 0.18);
+  border-radius: 1px;
+  min-width: 1px;
+  min-height: 40px;
+  margin-left: 8px;
+  margin-right: 8px;
+}
+.mak-dock-tile { background: none; border: none; border-radius: 12px; padding: 2px; min-width: 0; min-height: 0; }
+.mak-dock-tile:hover { background-color: alpha(white, 0.55); }
 
 /* ---- Launcher ---- */
 .mak-launcher-window { background-color: transparent; }

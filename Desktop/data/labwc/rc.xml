@@ -77,6 +77,7 @@
     <keybind key="W-Down"><action name="Down"/></keybind>
     <keybind key="W-Up"><action name="Up"/></keybind>
     <keybind key="W-q"><action name="Close"/></keybind>
+    <keybind key="W-m"><action name="Iconify"/></keybind>
     <keybind key="Alt-Tab"><action name="CycleNextWindow"/></keybind>
   </keyboard>
 

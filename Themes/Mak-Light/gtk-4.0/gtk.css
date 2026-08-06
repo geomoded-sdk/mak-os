@@ -76,6 +76,23 @@ button.suggested-action { background-color: @mak-accent; border-color: @mak-acce
 }
 .mak-dock-icon { background: none; border: none; border-radius: 14px; padding: 0; min-width: 0; min-height: 0; }
 .mak-dock-icon:hover { background-color: alpha(@mak-surface-2, 0.8); }
+.mak-dock-sep {
+  background-color: alpha(black, 0.14);
+  border-radius: 1px;
+  min-width: 1px;
+  min-height: 40px;
+  margin-left: 8px;
+  margin-right: 8px;
+}
+.mak-dock-tile {
+  background: none;
+  border: none;
+  border-radius: 14px;
+  padding: 2px;
+  min-width: 0;
+  min-height: 0;
+}
+.mak-dock-tile:hover { background-color: alpha(@mak-surface-2, 0.8); }
 
 /* ---- Launcher ---- */
 .mak-launcher-window { background-color: transparent; }

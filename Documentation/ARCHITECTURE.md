@@ -33,6 +33,10 @@ falhas), gerenciado pelo `mak-session` (session manager).
 ### 2. `Dock` — Biblioteca + componente (Rust/GTK4)
 - Biblioteca `mak-dock-lib` reutilizável e processo `mak-dock`.
 - Animações suaves (magnificação suave), indicador de apps em execução.
+- Bandeja de janelas minimizadas estilo macOS via
+  `wlr-foreign-toplevel-management-v1`: janelas minimizadas (`Super+M`) aparecem
+  após o separador com animação de "colapso" para o Dock; clicar numa miniatura
+  restaura a janela (`activate` + foco).
 - Se comunica com o shell via D-Bus para abrir/ocultar apps.
 
 ### 3. `Launcher` — Lançador (Rust/GTK4)
