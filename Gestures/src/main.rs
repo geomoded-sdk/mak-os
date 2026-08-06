@@ -17,8 +17,10 @@ use std::process::Command;
 use std::thread;
 use std::time::Duration;
 
-use input::event::gesture::{GestureEndEvent, GestureEventCoordinates, GestureEventTrait};
-use input::event::{Event, GestureEvent, GestureSwipeEvent};
+use input::event::gesture::{
+    GestureEndEvent, GestureEvent, GestureEventCoordinates, GestureEventTrait, GestureSwipeEvent,
+};
+use input::event::Event;
 use input::{Libinput, LibinputInterface};
 use libc::{O_ACCMODE, O_RDONLY, O_RDWR, O_WRONLY};
 
