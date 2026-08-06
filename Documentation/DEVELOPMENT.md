@@ -19,7 +19,7 @@ sudo apt install -y \
 
 ## Sessão de desenvolvimento
 
-Roda compositor + barra + dock + launcher + launchpad em uma sessão Wayland própria:
+Roda compositor + barra + dock + launcher + launchpad + gestos em uma sessão Wayland própria:
 
 ```bash
 ./Scripts/start-session.sh

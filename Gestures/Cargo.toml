@@ -1,0 +1,14 @@
+[package]
+name = "mak-gestures"
+version = "0.1.0"
+edition = "2021"
+description = "Mak OS — daemon de gestos no touchpad (3 dedos para o Launchpad)"
+license = "GPL-3.0"
+
+[dependencies]
+input = "0.10"
+libc = "0.2"
+
+[[bin]]
+name = "mak-gestures"
+path = "src/main.rs"

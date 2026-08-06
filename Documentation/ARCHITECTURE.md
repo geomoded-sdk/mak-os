@@ -43,6 +43,11 @@ falhas), gerenciado pelo `mak-session` (session manager).
 - Overlay em tela cheia estilo macOS (grid de ícones + busca).
 - Acesso por `F4`, gesto de 3 dedos ou ícone no dock; alterna mostrar/ocultar.
 
+### 4b. `Gestures` — Daemon de gestos (Rust/libinput)
+- Lê os dispositivos de entrada via libinput (independente do compositor).
+- Reconhece gestos do touchpad: swipe up com 3 dedos abre o Launchpad.
+- Gerenciado pelo `mak-session`/systemd junto com os demais componentes.
+
 ### 5. `Finder` — Gerenciador de arquivos (Rust/GTK4)
 - Visualizações ícones/listas, favoritos, montagens, pesquisa.
 - Integração com `GVfs` para protocolos remotos.
@@ -90,7 +95,7 @@ Usamos **labwc** (compositor wlroots leve e estável) como base. Alternativa:
 
 ## Padrões de código
 
-- Rust: componentes críticos (shell, dock, launcher, launchpad, finder).
+- Rust: componentes críticos (shell, dock, launcher, launchpad, finder, gestures).
 - Python: apps utilitários e daemons de integração.
 - C: módulos de baixo nível e integração com o kernel.
 

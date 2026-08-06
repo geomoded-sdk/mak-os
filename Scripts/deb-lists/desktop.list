@@ -4,6 +4,7 @@ usr/local/bin/mak-dock
 usr/local/bin/mak-launcher
 usr/local/bin/mak-launchpad
 usr/local/bin/mak-finder
+usr/local/bin/mak-gestures
 usr/local/bin/mak-session
 
 # Configurações do compositor
