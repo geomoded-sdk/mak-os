@@ -24,7 +24,7 @@ sudo apt install -y \
 
 ## Padrões de código
 
-### Rust (shell, dock, launcher, launchpad, finder, gestures)
+### Rust (shell, dock, launcher, launchpad, mission, finder, gestures)
 - Use `cargo fmt` e `cargo clippy -- -D warnings`.
 - GTK4: siga o padrão `gio::Application` / `gtk4::Application`.
 - Nunca bloqueie a thread principal; use async (glib MainContext).

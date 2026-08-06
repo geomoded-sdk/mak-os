@@ -63,6 +63,5 @@
 
 ## Fase 7 — Experiência macOS (v0.7)
 - [x] Launchpad (grade de apps em tela cheia; F4 + ícone do dock)
-- [x] Gesto de 3 dedos (daemon libinput) para abrir o Launchpad
-- [ ] Mission Control / Spaces
+- [x] Mission Control / Spaces (F3, Ctrl+Up, gesto de 3 dedos)
 - [ ] Efeito de minimizar estilo macOS

@@ -176,6 +176,14 @@ write(os.path.join(APPS, "mak-launchpad.svg"), app_svg(
     '<rect x="78" y="78" width="20" height="20" rx="5"/>',
 ))
 
+write(os.path.join(APPS, "mak-mission.svg"), app_svg(
+    "mission",
+    '<rect x="36" y="36" width="56" height="44" rx="9"/>'
+    '<rect x="44" y="50" width="56" height="44" rx="9" opacity="0.75"/>'
+    '<rect x="52" y="64" width="56" height="44" rx="9"/>'
+    '<circle cx="80" cy="40" r="3" fill="#ffffff" stroke="none"/>',
+))
+
 # ------------------------------- simbólicos (status) -------------------------------
 write(os.path.join(SYM, "mak-volume-high-symbolic.svg"), symbolic_svg(
     "vol",

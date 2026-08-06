@@ -1,0 +1,13 @@
+[Unit]
+Description=Mak OS Mission Control
+PartOf=makos-session.target
+After=makos-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/mak-mission --hidden
+Restart=on-failure
+Slice=session.slice
+
+[Install]
+WantedBy=makos-session.target

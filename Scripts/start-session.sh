@@ -39,6 +39,9 @@ log "iniciando mak-launcher (oculto)"
 log "iniciando mak-launchpad (oculto)"
 /usr/lib/makos/mak-launchpad --hidden &
 
+log "iniciando mak-mission (oculto)"
+/usr/lib/makos/mak-mission --hidden &
+
 log "iniciando mak-gestures (daemon de gestos)"
 /usr/lib/makos/mak-gestures &
 

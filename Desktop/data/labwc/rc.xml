@@ -42,6 +42,11 @@
       <skipWindowSwitcher>yes</skipWindowSwitcher>
       <decorate>no</decorate>
     </windowRule>
+    <windowRule identifier="org.makos.mission">
+      <skipTaskbar>yes</skipTaskbar>
+      <skipWindowSwitcher>yes</skipWindowSwitcher>
+      <decorate>no</decorate>
+    </windowRule>
   </windowRules>
 
   <keyboard>
@@ -51,6 +56,8 @@
     <keybind key="W-Return"><action name="Execute"><command>mak-terminal</command></action></keybind>
     <keybind key="W-Space"><action name="Execute"><command>mak-launcher</command></action></keybind>
     <keybind key="F4"><action name="Execute"><command>mak-launchpad</command></action></keybind>
+    <keybind key="F3"><action name="Execute"><command>mak-mission</command></action></keybind>
+    <keybind key="C-Up"><action name="Execute"><command>mak-mission</command></action></keybind>
     <keybind key="W-E"><action name="Execute"><command>mak-finder</command></action></keybind>
     <keybind key="W-S"><action name="Execute"><command>mak-settings</command></action></keybind>
     <keybind key="W-A"><action name="Execute"><command>mak-assistant</command></action></keybind>

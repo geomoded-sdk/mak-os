@@ -3,7 +3,7 @@
 //
 //  Lê os dispositivos de entrada via libinput (independente do compositor) e
 //  dispara comandos do Mak OS quando um gesto é reconhecido:
-//   - swipe up com 3 dedos → mak-launchpad
+//   - swipe up com 3 dedos → mak-mission (Mission Control, como no macOS)
 //
 //  O eixo Y do libinput cresce para baixo; um swipe "para cima" acumula dy
 //  negativo. As deltas são normalizadas para um dispositivo de 1000dpi.
@@ -24,7 +24,7 @@ use input::event::Event;
 use input::{Libinput, LibinputInterface};
 use libc::{O_ACCMODE, O_RDONLY, O_RDWR, O_WRONLY};
 
-/// Número de dedos do gesto que abre o Launchpad (como no macOS).
+/// Número de dedos do gesto que abre o Mission Control (como no macOS).
 const GESTURE_FINGERS: i32 = 3;
 /// Deslocamento mínimo (em unidades normalizadas 1000dpi) para validar o swipe.
 const SWIPE_THRESHOLD: f64 = 60.0;
@@ -80,7 +80,7 @@ fn handle_event(event: Event, state: &mut SwipeState) -> Option<&'static str> {
                 && state.dy < -SWIPE_THRESHOLD
                 && state.dy.abs() > state.dx.abs() * 1.2
             {
-                return Some("mak-launchpad");
+                return Some("mak-mission");
             }
         }
         _ => {}
@@ -101,7 +101,7 @@ fn main() {
         eprintln!("[mak-gestures] falha ao atribuir o seat '{seat}'");
         std::process::exit(1);
     }
-    println!("[mak-gestures] aguardando gestos no seat '{seat}' ({GESTURE_FINGERS} dedos p/ cima = Launchpad)");
+    println!("[mak-gestures] aguardando gestos no seat '{seat}' ({GESTURE_FINGERS} dedos p/ cima = Mission Control)");
 
     let mut state = SwipeState::default();
     loop {

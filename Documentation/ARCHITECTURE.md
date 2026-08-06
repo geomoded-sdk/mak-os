@@ -12,7 +12,7 @@ falhas), gerenciado pelo `mak-session` (session manager).
 │                       Compositor                        │
 │               (labwc / wlroots, GPU)                    │
 ├──────────────┬───────────────┬─────────────┬────────────┤
-│  mak-bar    │   mak-dock   │ mak-launcher │ mak-shell │ mak-launchpad │
+│  mak-bar    │  mak-dock │ mak-launcher │ mak-launchpad │ mak-mission │
 │  (topo)      │  (inferior)   │ (apps)      │ (controle) │
 ├──────────────┴───────────────┴─────────────┴────────────┤
 │  Aplicativos nativos (GTK4) │ Flatpak │ AppImage │ Wine │
@@ -41,12 +41,20 @@ falhas), gerenciado pelo `mak-session` (session manager).
 
 ### 4. `Launchpad` — Grade de aplicativos (Rust/GTK4)
 - Overlay em tela cheia estilo macOS (grid de ícones + busca).
-- Acesso por `F4`, gesto de 3 dedos ou ícone no dock; alterna mostrar/ocultar.
+- Acesso por `F4`, ícone no dock; alterna mostrar/ocultar.
 
 ### 4b. `Gestures` — Daemon de gestos (Rust/libinput)
 - Lê os dispositivos de entrada via libinput (independente do compositor).
-- Reconhece gestos do touchpad: swipe up com 3 dedos abre o Launchpad.
+- Reconhece gestos do touchpad: swipe up com 3 dedos abre o Mission Control.
 - Gerenciado pelo `mak-session`/systemd junto com os demais componentes.
+
+### 4c. `Mission` — Mission Control e Spaces (Rust/GTK4)
+- Overlay em tela cheia com a faixa de áreas de trabalho (Spaces) e a grade de
+  janelas abertas, como no macOS.
+- Spaces via `ext-workspace-v1`; janelas via `wlr-foreign-toplevel-management-v1`
+  (protocolos Wayland do labwc/wlroots).
+- Acesso por `F3`, `Ctrl+Up` ou gesto de 3 dedos; clique num card foca a janela,
+  clique num Space troca a área; `Esc` fecha.
 
 ### 5. `Finder` — Gerenciador de arquivos (Rust/GTK4)
 - Visualizações ícones/listas, favoritos, montagens, pesquisa.
@@ -95,7 +103,7 @@ Usamos **labwc** (compositor wlroots leve e estável) como base. Alternativa:
 
 ## Padrões de código
 
-- Rust: componentes críticos (shell, dock, launcher, launchpad, finder, gestures).
+- Rust: componentes críticos (shell, dock, launcher, launchpad, mission, finder, gestures).
 - Python: apps utilitários e daemons de integração.
 - C: módulos de baixo nível e integração com o kernel.
 

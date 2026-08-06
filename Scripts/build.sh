@@ -14,7 +14,7 @@ DESKTOP="$STAGE/usr/share/applications"
 
 mkdir -p "$BIN" "$APP_BIN" "$APPS" "$DESKTOP"
 
-echo "==> Compilando componentes Rust (shell, dock, launcher, launchpad, finder, gestures)"
+echo "==> Compilando componentes Rust (shell, dock, launcher, launchpad, finder, gestures, mission)"
 
 # shell
 (cd "$ROOT/Desktop" && cargo build --release 2>/dev/null) && \
@@ -45,6 +45,11 @@ echo "==> Compilando componentes Rust (shell, dock, launcher, launchpad, finder,
 (cd "$ROOT/Gestures" && cargo build --release 2>/dev/null) && \
   cp "$ROOT/Gestures/target/release/mak-gestures" "$BIN/" || \
   echo "   [aviso] mak-gestures não compilado"
+
+# mission control (janelas + areas de trabalho em tela cheia)
+(cd "$ROOT/Mission" && cargo build --release 2>/dev/null) && \
+  cp "$ROOT/Mission/target/release/mak-mission" "$BIN/" || \
+  echo "   [aviso] mak-mission não compilado"
 
 echo "==> Instalando aplicativos Python"
 install -m755 "$ROOT"/Apps/*/*.py "$APP_BIN/"

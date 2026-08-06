@@ -151,6 +151,40 @@ button.titlebutton:backdrop { background-color: #dcdddf; border-color: #c2c4ca; 
 .mak-launchpad-tile:hover { background-color: alpha(white, 0.4); }
 .mak-launchpad-name { font-size: 13px; font-weight: 500; color: @hs-fg; }
 
+/* ---- Mission Control (janelas e Spaces em tela cheia) ---- */
+.mak-mission-window { background-color: transparent; }
+.mak-mission {
+  background: linear-gradient(to bottom, alpha(@hs-bg-alt, 0.45), alpha(@hs-bg-alt, 0.85));
+}
+.mak-mission-title { font-size: 30px; font-weight: 700; }
+.mak-mission-spaces { background: none; }
+.mak-mission-space {
+  background-color: alpha(white, 0.6);
+  border: 1px solid @hs-border;
+  border-radius: 10px;
+  padding: 8px 18px;
+  font-weight: 600;
+}
+.mak-mission-space-active {
+  background-color: @hs-accent;
+  border-color: @hs-accent;
+  color: white;
+}
+.mak-mission-hint { color: @hs-fg-dim; }
+.mak-mission-grid { background: none; }
+.mak-mission-card {
+  background-color: alpha(white, 0.65);
+  border: 1px solid @hs-border;
+  border-radius: 16px;
+  padding: 14px 12px;
+  min-width: 130px;
+  min-height: 130px;
+  box-shadow: 0 8px 22px alpha(black, 0.10);
+}
+.mak-mission-card:hover { background-color: alpha(white, 0.9); }
+.mak-mission-card-title { font-size: 12px; color: @hs-fg; }
+.mak-mission-empty { color: @hs-fg-dim; font-size: 14px; }
+
 /* ---- Finder ---- */
 .mak-sidebar { background-color: @hs-bg-alt; border-right: 1px solid @hs-border; }
 .mak-sidebar row { background: none; }

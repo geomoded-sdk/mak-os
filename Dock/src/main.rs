@@ -18,6 +18,7 @@ fn default_icons() -> Vec<(&'static str, &'static str, &'static str)> {
     vec![
         ("mak-finder", "Mak Finder", "mak-finder"),
         ("mak-launchpad", "Launchpad", "mak-launchpad"),
+        ("mak-mission", "Mission Control", "mak-mission"),
         ("mak-terminal", "Mak Terminal", "mak-terminal"),
         ("mak-browser", "Mak Browser", "mak-browser"),
         ("mak-music", "Mak Music", "mak-music"),

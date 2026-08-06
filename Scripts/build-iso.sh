@@ -117,8 +117,8 @@ chmod +x config/includes.chroot/usr/share/makos/scripts/setup-flatpak.sh
 
 # ------------------------------------------------------------ incluir Mak OS
 echo "==> Copiando componentes do Mak OS para a imagem"
-cp -r "$ROOT"/Desktop "$ROOT"/Dock "$ROOT"/Launcher "$ROOT"/Launchpad "$ROOT"/Finder \
-      "$ROOT"/Gestures "$ROOT"/AI "$ROOT"/Settings "$ROOT"/Store "$ROOT"/Apps \
+cp -r "$ROOT"/Desktop "$ROOT"/Dock "$ROOT"/Launcher "$ROOT"/Launchpad "$ROOT"/Mission \
+      "$ROOT"/Finder "$ROOT"/Gestures "$ROOT"/AI "$ROOT"/Settings "$ROOT"/Store "$ROOT"/Apps \
       "$ROOT"/Themes "$ROOT"/Icons config/includes.chroot/usr/share/makos/
 
 # ------------------------------------------------------------ Darling pré-instalado

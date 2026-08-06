@@ -22,7 +22,7 @@ jobs:
         run: python3 -m unittest discover -s tests -v
 
   rust-shell:
-    name: Rust (shell/dock/launcher/launchpad/finder/gestures)
+    name: Rust (shell/dock/launcher/launchpad/mission/finder/gestures)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -48,12 +48,13 @@ jobs:
           cargo fmt --manifest-path Dock/Cargo.toml -- --check || true
           cargo fmt --manifest-path Launcher/Cargo.toml -- --check || true
           cargo fmt --manifest-path Launchpad/Cargo.toml -- --check || true
+          cargo fmt --manifest-path Mission/Cargo.toml -- --check || true
           cargo fmt --manifest-path Finder/Cargo.toml -- --check || true
           cargo fmt --manifest-path Gestures/Cargo.toml -- --check || true
 
       - name: Build (check sem compilar binários nativos)
         run: |
-          for crate in Desktop Dock Launcher Launchpad Finder Gestures; do
+          for crate in Desktop Dock Launcher Launchpad Mission Finder Gestures; do
             cargo check --manifest-path $crate/Cargo.toml
           done
 
