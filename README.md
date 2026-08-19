@@ -132,6 +132,9 @@ POWERBOOK_ID=SEU_ID ./Scripts/build-iso.sh  # gera a ISO live (live-build)
 Veja [Documentation/ARCHITECTURE.md](Documentation/ARCHITECTURE.md) e
 [Documentation/CONTRIBUTING.md](Documentation/CONTRIBUTING.md).
 
+Para a evolucao da navegacao e da estrutura de pastas mac-like, consulte
+[Documentation/MACLIKE_ARCHITECTURE.md](Documentation/MACLIKE_ARCHITECTURE.md).
+
 ## Licença
 
 Open source — veja o arquivo `LICENSE` na raiz do repositório.

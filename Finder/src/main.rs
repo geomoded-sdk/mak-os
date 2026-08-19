@@ -455,14 +455,49 @@ fn build_ui(app: &Application) {
     let sidebar = ListBox::new();
     sidebar.set_css_classes(&["pineapple-sidebar"]);
     sidebar.set_width_request(180);
-    let places: [(&str, &str); 4] = [
-        ("folder-home-symbolic", "Início"),
-        ("folder-documents-symbolic", "Documentos"),
-        ("folder-download-symbolic", "Downloads"),
-        ("folder-pictures-symbolic", "Imagens"),
+    let places: [(&str, &str, PathBuf); 11] = [
+        (
+            "drive-harddisk-symbolic",
+            "Macintosh HD",
+            PathBuf::from("/"),
+        ),
+        ("user-home-symbolic", "Users", PathBuf::from("/home")),
+        (
+            "applications-system-symbolic",
+            "Applications",
+            PathBuf::from("/usr/share/applications"),
+        ),
+        ("computer-symbolic", "System", PathBuf::from("/usr")),
+        ("folder-library-symbolic", "Library", PathBuf::from("/usr/share")),
+        (
+            "drive-removable-media-symbolic",
+            "Volumes",
+            PathBuf::from("/media"),
+        ),
+        (
+            "user-trash-symbolic",
+            "Trash",
+            home_dir().join(".local/share/Trash/files"),
+        ),
+        ("folder-home-symbolic", "Início", home_dir()),
+        (
+            "folder-documents-symbolic",
+            "Documentos",
+            home_dir().join("Documentos"),
+        ),
+        (
+            "folder-download-symbolic",
+            "Downloads",
+            home_dir().join("Downloads"),
+        ),
+        (
+            "folder-pictures-symbolic",
+            "Imagens",
+            home_dir().join("Imagens"),
+        ),
     ];
     let mut place_rows: Vec<PathBuf> = Vec::new();
-    for (icon, name) in places {
+    for (icon, name, base) in places {
         let row = ListBoxRow::new();
         let box_ = gtk::Box::new(Orientation::Horizontal, 8);
         box_.set_margin_top(8);
@@ -475,11 +510,6 @@ fn build_ui(app: &Application) {
         box_.append(&lbl);
         row.set_child(Some(&box_));
         sidebar.append(&row);
-        let base = if name == "Início" {
-            home_dir()
-        } else {
-            home_dir().join(name.to_lowercase())
-        };
         place_rows.push(base);
     }
 
