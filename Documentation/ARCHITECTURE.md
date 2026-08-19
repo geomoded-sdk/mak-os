@@ -1,23 +1,23 @@
-# Arquitetura do Mak OS
+# Arquitetura do Pineapple OS
 
 ## Visão geral
 
-O Mak OS é construído sobre uma base Debian/Ubuntu. A camada de interface é um
+O Pineapple OS é construído sobre uma base Debian/Ubuntu. A camada de interface é um
 shell Wayland composto por componentes GTK4 independentes que se comunicam por
 D-Bus. Cada componente é um processo separado (modularidade e isolamento de
-falhas), gerenciado pelo `mak-session` (session manager).
+falhas), gerenciado pelo `pineapple-session` (session manager).
 
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                       Compositor                        │
 │               (labwc / wlroots, GPU)                    │
 ├──────────────┬───────────────┬─────────────┬────────────┤
-│  mak-bar    │  mak-dock │ mak-launcher │ mak-launchpad │ mak-mission │
+│  pineapple-bar    │  pineapple-dock │ pineapple-launcher │ pineapple-launchpad │ pineapple-mission │
 │  (topo)      │  (inferior)   │ (apps)      │ (controle) │
 ├──────────────┴───────────────┴─────────────┴────────────┤
 │  Aplicativos nativos (GTK4) │ Flatpak │ AppImage │ Wine │
 ├─────────────────────────────┴───────────────────────────┤
-│  mak-services (D-Bus): notificações, áudio, energia, IA │
+│  pineapple-services (D-Bus): notificações, áudio, energia, IA │
 ├─────────────────────────────────────────────────────────┤
 │                    GNU/Linux (Debian)                   │
 └─────────────────────────────────────────────────────────┘
@@ -26,12 +26,12 @@ falhas), gerenciado pelo `mak-session` (session manager).
 ## Componentes
 
 ### 1. `Desktop` — Shell do sistema (Rust/GTK4)
-- `mak-shell`: barra superior (menu MaK, relógio, status, centro de controle).
-- `mak-session`: gerenciador de sessão (inicia/compositor, apps de inicialização).
+- `pineapple-shell`: barra superior (menu Pineapple, relógio, status, centro de controle).
+- `pineapple-session`: gerenciador de sessão (inicia/compositor, apps de inicialização).
 - Integra-se ao compositor via `gtk4-layer-shell` (camadas `top`, `bottom`).
 
 ### 2. `Dock` — Biblioteca + componente (Rust/GTK4)
-- Biblioteca `mak-dock-lib` reutilizável e processo `mak-dock`.
+- Biblioteca `pineapple-dock-lib` reutilizável e processo `pineapple-dock`.
 - Animações suaves (magnificação suave), indicador de apps em execução.
 - Bandeja de janelas minimizadas estilo macOS via
   `wlr-foreign-toplevel-management-v1`: janelas minimizadas (`Super+M`) aparecem
@@ -50,7 +50,7 @@ falhas), gerenciado pelo `mak-session` (session manager).
 ### 4b. `Gestures` — Daemon de gestos (Rust/libinput)
 - Lê os dispositivos de entrada via libinput (independente do compositor).
 - Reconhece gestos do touchpad: swipe up com 3 dedos abre o Mission Control.
-- Gerenciado pelo `mak-session`/systemd junto com os demais componentes.
+- Gerenciado pelo `pineapple-session`/systemd junto com os demais componentes.
 
 ### 4c. `Mission` — Mission Control e Spaces (Rust/GTK4)
 - Overlay em tela cheia com a faixa de áreas de trabalho (Spaces) e a grade de
@@ -65,25 +65,25 @@ falhas), gerenciado pelo `mak-session` (session manager).
 - Integração com `GVfs` para protocolos remotos.
 
 ### 6. `AI` — Assistente local (Python + Ollama)
-- Daemon `mak-ai` que fala com o Ollama (API REST local).
+- Daemon `pineapple-ai` que fala com o Ollama (API REST local).
 - Ações: abrir apps, pesquisar arquivos, resumir documentos, executar scripts.
-- Interface GTK4 `mak-assistant`.
+- Interface GTK4 `pineapple-assistant`.
 
 ### 7. `Settings`, `Store`, apps — ver `Apps/`
 - Apps simples em Python/GTK4; os principais em Rust/GTK4.
 
 ### 8. Serviços
-- `mak-notifyd`: central de notificações (D-Bus `org.freedesktop.Notifications`).
-- `mak-audio`: controle de volume/dispositivos (PipeWire).
-- `mak-power`: brilho e gerenciamento de energia.
+- `pineapple-notifyd`: central de notificações (D-Bus `org.freedesktop.Notifications`).
+- `pineapple-audio`: controle de volume/dispositivos (PipeWire).
+- `pineapple-power`: brilho e gerenciamento de energia.
 
 ## Compositor
 
 Usamos **labwc** (compositor wlroots leve e estável) como base. Alternativa:
-`wayfire`. O compositor é iniciado por `mak-session`:
+`wayfire`. O compositor é iniciado por `pineapple-session`:
 
 ```
-/usr/lib/makos/session/start-compositor.sh
+/usr/lib/pineappleos/session/start-compositor.sh
 ```
 
 ## Comunicação entre componentes
@@ -94,16 +94,44 @@ Usamos **labwc** (compositor wlroots leve e estável) como base. Alternativa:
 
 ## Inicialização (boot)
 
-1. GRUB → kernel + initramfs.
-2. `systemd` inicia `makos-session.target` (multi-user).
-3. `mak-session` detecta GPU, inicia compositor e componentes.
-4. Apps de inicialização do usuário são abertos.
+1. GRUB (fundo claro + abacaxi) carrega o kernel com argumentos estilo macOS:
+   `quiet loglevel=0 splash` e `-pineapplepowerbookid=<ID>`.
+2. No initramfs, `pineapple-powerbook-check` valida o ID contra `ids.txt`.
+   Ausente/inválido → **kernel panic** (SysRq) e o boot é interrompido.
+3. Plymouth exibe o abacaxi + barra de progresso sobre o fundo claro.
+4. `systemd` inicia `pineappleos-session.target` (multi-user).
+5. `pineapple-session` detecta GPU, inicia compositor e componentes.
+6. Apps de inicialização do usuário são abertos.
 
 ## Temas e identidade
 
-- Temas GTK próprios em `Themes/` (`Mak-HighSierra` padrão, `Mak-Dark`, `Mak-Light`).
-- Ícones próprios em `Icons/mak-icons` (SVG).
+- Temas GTK próprios em `Themes/` (`Pineapple-HighSierra` padrão,
+  `Pineapple-Dark`, `Pineapple-Light`).
+- Ícones próprios em `Icons/pineapple-icons` (SVG), gerados por
+  `Scripts/gen-icons.py`.
 - Fonte padrão: `Inter` ou `Sora` (open source).
+- Wallpapers em `Themes/wallpapers/`: High Sierra (estático), Catalina
+  (**dinâmico** — trocado por horário pelo daemon `pineapple-wallpaper`,
+  ver `Apps/Wallpaper/`) e Sequoia.
+- Identidade de plataforma: `os-release` (Installer/os-release) e kernel
+  `6.1.0-pineappleos` (ver `Kernel/README.md`). A marca Linux é ocultada do
+  usuário (boot limpo, sem logs de kernel).
+
+## Sistema de arquivos (BFS)
+
+Volumes exFAT ganham uma camada estilo APFS/HFS+ via `Filesystem/pineapplefs`
+e o CLI `Scripts/pineapplefs.py`:
+
+- Sidecars **AppleDouble `._*`** (xattrs, Finder Info, resource fork) — o mesmo
+  formato do macOS, legível por qualquer leitor AppleDouble.
+- **`.bfsprivate/`** guarda uuid, snapshots, clones e checksums do volume.
+- Artefatos que o macOS criaria no volume: `.Spotlight-V100`, `.fseventsd`,
+  `.Trashes`, `.DS_Store`, `.metadata_never_index`, `.localized`.
+- Snapshots e clones **copy-on-write** (dedup por sha256 + hardlinks).
+- Arquivos esparsos "expandidos" (container `PFSS01` com extents).
+- `.zip` estilo macOS: `pack` gera a pasta `_PINEAPPLE` com `._*`, `unpack` aplica.
+
+Detalhes em `Filesystem/README.md`.
 
 ## Padrões de código
 

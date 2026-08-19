@@ -20,17 +20,17 @@ pub fn attach(logo: &Button) {
 
 fn menu_box() -> gtk::Box {
     let box_ = gtk::Box::new(gtk::Orientation::Vertical, 0);
-    box_.set_css_classes(&["mak-menu"]);
+    box_.set_css_classes(&["pineapple-menu"]);
 
     for (label, cmd) in [
-        ("Sobre o Mak OS", "mak-about"),
-        ("Preferências do Sistema", "mak-settings"),
-        ("Terminal", "mak-terminal"),
-        ("Bloquear", "mak-lock"),
-        ("Sair...", "mak-logout"),
+        ("Sobre o Pineapple OS", "pineapple-about"),
+        ("Preferências do Sistema", "pineapple-settings"),
+        ("Terminal", "pineapple-terminal"),
+        ("Bloquear", "pineapple-lock"),
+        ("Sair...", "pineapple-logout"),
     ] {
         let btn = gtk::Button::with_label(label);
-        btn.set_css_classes(&["mak-menu-item"]);
+        btn.set_css_classes(&["pineapple-menu-item"]);
         btn.set_hexpand(true);
         let cmd = cmd.to_string();
         btn.connect_clicked(move |_| {

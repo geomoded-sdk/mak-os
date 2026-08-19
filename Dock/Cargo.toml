@@ -1,8 +1,8 @@
 [package]
-name = "mak-dock"
+name = "pineapple-dock"
 version = "0.1.0"
 edition = "2021"
-description = "Mak OS — dock inferior com animações"
+description = "Pineapple OS — dock inferior com animações"
 license = "GPL-3.0"
 
 [dependencies]
@@ -14,5 +14,5 @@ wayland-client = "0.31"
 wayland-protocols-wlr = { version = "0.3", features = ["client"] }
 
 [[bin]]
-name = "mak-dock"
+name = "pineapple-dock"
 path = "src/main.rs"

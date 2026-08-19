@@ -1,0 +1,13 @@
+[Unit]
+Description=Pineapple OS Central de Notificações (D-Bus)
+PartOf=pineappleos-session.target
+After=pineappleos-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/pineapple-notifyd.py
+Restart=on-failure
+Slice=session.slice
+
+[Install]
+WantedBy=pineappleos-session.target

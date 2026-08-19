@@ -1,6 +1,6 @@
-# Mak Finder
+# Pineapple Finder
 
-Gerenciador de arquivos do Mak OS (Rust/GTK4).
+Gerenciador de arquivos do Pineapple OS (Rust/GTK4).
 
 ## Funcionalidades
 

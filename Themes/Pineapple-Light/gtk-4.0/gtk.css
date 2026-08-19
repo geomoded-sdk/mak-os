@@ -1,0 +1,235 @@
+/* =========================================================================
+   Pineapple OS — Tema claro (Pineapple-Light)
+   Versão clara da identidade do Pineapple OS.
+   ========================================================================= */
+
+@define-color pineapple-bg            #f5f6f8;
+@define-color pineapple-bg-alt        #ffffff;
+@define-color pineapple-surface       #ffffff;
+@define-color pineapple-surface-2     #eceef2;
+@define-color pineapple-border        #dcdfe6;
+@define-color pineapple-fg            #1a1c21;
+@define-color pineapple-fg-dim        #6b7280;
+@define-color pineapple-accent        #2f7fc4;
+@define-color pineapple-accent-2      #d96a5f;
+@define-color pineapple-danger        #d9534f;
+@define-color pineapple-ok            #3fae74;
+@define-color pineapple-transparent   rgba(255,255,255,0.55);
+
+window, dialog, messagedialog, popover, menu, tooltip {
+  background-color: @pineapple-bg;
+  color: @pineapple-fg;
+}
+label, entry, button, textview, treeview, list, row { color: @pineapple-fg; }
+
+entry, spinbutton, searchbar, searchentry {
+  background-color: @pineapple-bg-alt;
+  border: 1px solid @pineapple-border;
+  border-radius: 10px;
+  padding: 6px 10px;
+  caret-color: @pineapple-accent;
+}
+entry:focus, searchentry:focus {
+  border-color: @pineapple-accent;
+  box-shadow: 0 0 0 3px alpha(@pineapple-accent, 0.15);
+}
+
+button {
+  background-color: @pineapple-surface;
+  border: 1px solid @pineapple-border;
+  border-radius: 10px;
+  padding: 6px 12px;
+  transition: all 120ms ease-out;
+}
+button:hover { background-color: @pineapple-surface-2; }
+button:active { background-color: @pineapple-border; }
+button.suggested-action { background-color: @pineapple-accent; border-color: @pineapple-accent; color: white; }
+
+/* ---- Barra superior ---- */
+.pineapple-shell-window { background-color: transparent; }
+.pineapple-bar {
+  background-color: alpha(@pineapple-surface, 0.85);
+  border-bottom: 1px solid @pineapple-border;
+  padding: 0 10px;
+}
+.pineapple-logo-button { background: none; border: none; }
+.pineapple-logo-button image { color: @pineapple-accent; }
+.pineapple-brand { font-weight: 700; font-size: 15px; letter-spacing: 0.5px; }
+.pineapple-status-button { background: none; border: none; border-radius: 8px; padding: 4px 7px; min-width: 0; }
+.pineapple-status-button:hover { background-color: @pineapple-surface-2; }
+.pineapple-status-button image { color: @pineapple-fg-dim; }
+.pineapple-clock { font-weight: 500; padding: 0 10px; }
+.pineapple-workspace-indicator { letter-spacing: 2px; padding: 0 8px; }
+
+.pineapple-menu { background-color: @pineapple-bg-alt; padding: 6px; }
+.pineapple-menu-item { background: none; border: none; border-radius: 8px; padding: 8px 12px; }
+.pineapple-menu-item:hover { background-color: @pineapple-surface-2; }
+
+/* ---- Dock ---- */
+.pineapple-dock-window { background-color: transparent; }
+.pineapple-dock {
+  background-color: alpha(@pineapple-surface, 0.9);
+  border: 1px solid @pineapple-border;
+  border-radius: 22px;
+  padding: 8px 14px;
+  box-shadow: 0 10px 30px alpha(black, 0.12);
+}
+.pineapple-dock-icon { background: none; border: none; border-radius: 14px; padding: 0; min-width: 0; min-height: 0; }
+.pineapple-dock-icon:hover { background-color: alpha(@pineapple-surface-2, 0.8); }
+.pineapple-dock-sep {
+  background-color: alpha(black, 0.14);
+  border-radius: 1px;
+  min-width: 1px;
+  min-height: 40px;
+  margin-left: 8px;
+  margin-right: 8px;
+}
+.pineapple-dock-tile {
+  background: none;
+  border: none;
+  border-radius: 14px;
+  padding: 2px;
+  min-width: 0;
+  min-height: 0;
+}
+.pineapple-dock-tile:hover { background-color: alpha(@pineapple-surface-2, 0.8); }
+
+/* ---- Launcher ---- */
+.pineapple-launcher-window { background-color: transparent; }
+.pineapple-launcher {
+  background-color: alpha(@pineapple-bg-alt, 0.96);
+  border: 1px solid @pineapple-border;
+  border-radius: 18px;
+  padding: 14px;
+  box-shadow: 0 20px 50px alpha(black, 0.18);
+}
+.pineapple-launcher-list { background: none; }
+.pineapple-launcher-list row { background: none; border-radius: 10px; }
+.pineapple-launcher-list row:selected { background-color: @pineapple-surface-2; }
+.pineapple-launcher-comment { font-size: 11px; color: @pineapple-fg-dim; }
+
+/* ---- Launchpad (grade de apps em tela cheia) ---- */
+.pineapple-launchpad-window { background-color: transparent; }
+.pineapple-launchpad {
+  background: linear-gradient(to bottom, alpha(@pineapple-bg, 0.55), alpha(@pineapple-bg, 0.9));
+}
+.pineapple-launchpad-search {
+  font-size: 16px;
+  min-height: 40px;
+  padding: 4px 16px;
+  border-radius: 20px;
+  background-color: alpha(white, 0.8);
+}
+.pineapple-launchpad-grid { background: none; }
+.pineapple-launchpad-tile {
+  background: none;
+  border: none;
+  border-radius: 18px;
+  padding: 14px 10px;
+  min-width: 110px;
+  min-height: 122px;
+}
+.pineapple-launchpad-tile:hover { background-color: alpha(black, 0.06); }
+.pineapple-launchpad-name { font-size: 13px; font-weight: 500; color: @pineapple-fg; }
+
+/* ---- Mission Control (janelas e Spaces em tela cheia) ---- */
+.pineapple-mission-window { background-color: transparent; }
+.pineapple-mission {
+  background: linear-gradient(to bottom, alpha(@pineapple-bg-alt, 0.45), alpha(@pineapple-bg-alt, 0.9));
+}
+.pineapple-mission-title { font-size: 30px; font-weight: 700; }
+.pineapple-mission-spaces { background: none; }
+.pineapple-mission-space {
+  background-color: alpha(@pineapple-surface, 0.8);
+  border: 1px solid @pineapple-border;
+  border-radius: 10px;
+  padding: 8px 18px;
+  font-weight: 600;
+}
+.pineapple-mission-space-active {
+  background-color: @pineapple-accent;
+  border-color: @pineapple-accent;
+  color: white;
+}
+.pineapple-mission-hint { color: @pineapple-fg-dim; }
+.pineapple-mission-grid { background: none; }
+.pineapple-mission-card {
+  background-color: alpha(@pineapple-surface, 0.85);
+  border: 1px solid @pineapple-border;
+  border-radius: 16px;
+  padding: 14px 12px;
+  min-width: 130px;
+  min-height: 130px;
+  box-shadow: 0 8px 22px alpha(black, 0.10);
+}
+.pineapple-mission-card:hover { background-color: @pineapple-surface-2; }
+.pineapple-mission-card-title { font-size: 12px; color: @pineapple-fg; }
+.pineapple-mission-empty { color: @pineapple-fg-dim; font-size: 14px; }
+
+/* ---- Finder ---- */
+.pineapple-sidebar { background-color: @pineapple-bg-alt; border-right: 1px solid @pineapple-border; }
+.pineapple-sidebar row { background: none; }
+.pineapple-sidebar row:selected { background-color: @pineapple-surface-2; }
+.pineapple-file-list { background: none; }
+.pineapple-file-list row { background: none; border-radius: 10px; }
+.pineapple-file-list row:selected { background-color: @pineapple-surface-2; }
+.pineapple-file-meta { font-size: 11px; color: @pineapple-fg-dim; }
+.pineapple-empty { color: @pineapple-fg-dim; }
+
+/* ---- Settings ---- */
+.pineapple-settings-sidebar { background-color: @pineapple-bg-alt; border-right: 1px solid @pineapple-border; }
+.pineapple-settings-sidebar row { background: none; border-radius: 8px; }
+.pineapple-settings-sidebar row:selected { background-color: @pineapple-surface-2; }
+.pineapple-settings-title { font-size: 20px; font-weight: 700; }
+.pineapple-settings-subtitle { color: @pineapple-fg-dim; margin-bottom: 12px; }
+
+/* ---- Store ---- */
+.pineapple-store-card { background-color: @pineapple-bg-alt; border: 1px solid @pineapple-border; border-radius: 14px; }
+.pineapple-store-desc { font-size: 11px; color: @pineapple-fg-dim; }
+
+/* ---- Monitor ---- */
+.pineapple-cpu > trough, .pineapple-mem > trough { background-color: @pineapple-surface-2; border-radius: 8px; min-height: 12px; }
+.pineapple-cpu > trough > progress { background-color: @pineapple-accent; border-radius: 8px; }
+.pineapple-mem > trough > progress { background-color: @pineapple-accent-2; border-radius: 8px; }
+.pineapple-chart { background-color: @pineapple-bg-alt; border: 1px solid @pineapple-border; border-radius: 14px; }
+
+/* ---- Calculator ---- */
+.pineapple-calc-window { background-color: @pineapple-bg; }
+.pineapple-calc-display { background: none; border: none; font-size: 34px; font-weight: 600; box-shadow: none; }
+.pineapple-calc-num { font-size: 20px; min-height: 52px; }
+.pineapple-calc-fn { font-size: 18px; min-height: 52px; background-color: @pineapple-surface-2; }
+.pineapple-calc-op { font-size: 20px; min-height: 52px; color: @pineapple-accent; }
+.pineapple-calc-accent { font-size: 22px; min-height: 52px; background-color: @pineapple-accent; color: white; border-color: @pineapple-accent; }
+
+/* ---- Notes ---- */
+.pineapple-notes-list { background: none; }
+.pineapple-notes-list row { background: none; }
+.pineapple-notes-list row:selected { background-color: @pineapple-surface-2; }
+.pineapple-notes-title { font-size: 18px; font-weight: 700; }
+
+/* ---- Photos ---- */
+.pineapple-photo-view { background-color: @pineapple-bg; }
+
+/* ---- Assistant ---- */
+.pineapple-assistant-window { background-color: @pineapple-bg; }
+.pineapple-chat-view { background-color: @pineapple-bg; color: @pineapple-fg; }
+
+scrollbar { background-color: transparent; }
+scrollbar slider { background-color: @pineapple-border; border-radius: 6px; min-width: 8px; }
+
+/* ---- Central de Controle ---- */
+.pineapple-control-window { background-color: transparent; }
+.pineapple-control-panel {
+  background-color: alpha(@pineapple-bg-alt, 0.96);
+  border: 1px solid @pineapple-border;
+  border-radius: 18px;
+  box-shadow: 0 16px 40px alpha(black, 0.16);
+}
+.pineapple-control-title { font-weight: 700; font-size: 15px; }
+.pineapple-control-toggle {
+  background-color: @pineapple-bg-alt;
+  border: 1px solid @pineapple-border;
+  border-radius: 14px;
+  padding: 10px;
+}
+.pineapple-control-toggle label { font-size: 11px; color: @pineapple-fg-dim; }

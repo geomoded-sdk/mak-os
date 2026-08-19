@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Pineapple OS — papel de parede "Sequoia"
+  Abstrato suave em azul/turquesa, no espírito do macOS Sequoia.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="2560" height="1440" viewBox="0 0 2560 1440">
+  <defs>
+    <!-- fundo: azul profundo -> turquesa claro -->
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0"    stop-color="#0d2a4e"/>
+      <stop offset="0.45" stop-color="#12658f"/>
+      <stop offset="0.8"  stop-color="#3aa7b8"/>
+      <stop offset="1"    stop-color="#7fd4cf"/>
+    </linearGradient>
+
+    <!-- brilhos suaves (formas de luz abstratas) -->
+    <radialGradient id="glow1" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0"    stop-color="#b7f0ea" stop-opacity="0.65"/>
+      <stop offset="0.5"  stop-color="#5fc7cf" stop-opacity="0.28"/>
+      <stop offset="1"    stop-color="#5fc7cf" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0"    stop-color="#eafcff" stop-opacity="0.5"/>
+      <stop offset="0.6"  stop-color="#8fd7e4" stop-opacity="0.18"/>
+      <stop offset="1"    stop-color="#8fd7e4" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow3" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0"    stop-color="#0a3f6b" stop-opacity="0.7"/>
+      <stop offset="0.55" stop-color="#0d4f7c" stop-opacity="0.35"/>
+      <stop offset="1"    stop-color="#0d4f7c" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="2560" height="1440" fill="url(#bg)"/>
+
+  <!-- luz superior -->
+  <ellipse cx="1750" cy="180" rx="1250" ry="620" fill="url(#glow1)"/>
+  <!-- luz central -->
+  <ellipse cx="700" cy="760" rx="1100" ry="700" fill="url(#glow2)"/>
+  <!-- sombra inferior esquerda -->
+  <ellipse cx="150" cy="1250" rx="1300" ry="760" fill="url(#glow3)"/>
+
+  <!-- ondas suaves em frente (degradê translúcido) -->
+  <g opacity="0.55">
+    <path d="M0 980
+             C 380 900, 760 960, 1180 880
+             C 1600 800, 2100 900, 2560 820
+             L 2560 1440 L 0 1440 Z"
+          fill="#7fd4cf"/>
+  </g>
+  <g opacity="0.4">
+    <path d="M0 1120
+             C 440 1040, 900 1100, 1400 1010
+             C 1900 920, 2280 1030, 2560 950
+             L 2560 1440 L 0 1440 Z"
+          fill="#bfeef0"/>
+  </g>
+</svg>

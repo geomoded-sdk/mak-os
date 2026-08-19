@@ -1,8 +1,8 @@
 [package]
-name = "mak-mission"
+name = "pineapple-mission"
 version = "0.1.0"
 edition = "2021"
-description = "Mak OS — Mission Control e Spaces (visão geral de janelas e áreas de trabalho)"
+description = "Pineapple OS — Mission Control e Spaces (visão geral de janelas e áreas de trabalho)"
 license = "GPL-3.0"
 
 [dependencies]
@@ -16,5 +16,5 @@ wayland-protocols = { version = "0.32", features = ["client", "staging"] }
 wayland-protocols-wlr = { version = "0.3", features = ["client"] }
 
 [[bin]]
-name = "mak-mission"
+name = "pineapple-mission"
 path = "src/main.rs"

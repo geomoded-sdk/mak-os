@@ -1,4 +1,4 @@
-"""Testes do agente IA do Mak OS (sem exigir GTK ou Ollama)."""
+"""Testes do agente IA do Pineapple OS (sem exigir GTK ou Ollama)."""
 import os
 import sys
 import tempfile
@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "AI"))
-from mak_ai import Agent  # noqa: E402
+from pineapple_ai import Agent  # noqa: E402
 
 
 class FakeClient:
@@ -46,7 +46,7 @@ class TestDetectAction(unittest.TestCase):
         self.assertEqual(action["type"], "summarize")
 
     def test_run_command(self):
-        action = self.agent.detect_action("executar mak-finder")
+        action = self.agent.detect_action("executar pineapple-finder")
         self.assertEqual(action["type"], "run")
 
     def test_general_question(self):
@@ -69,7 +69,7 @@ class TestTools(unittest.TestCase):
 
     def test_search_files_finds_file(self):
         with tempfile.TemporaryDirectory() as tmp:
-            target = Path(tmp) / "relatorio-mak.txt"
+            target = Path(tmp) / "relatorio-pineapple.txt"
             target.write_text("conteúdo", encoding="utf-8")
             results = self.agent.search_files("relatorio", base=tmp)
             self.assertTrue(any("relatorio" in r for r in results))
@@ -81,7 +81,7 @@ class TestTools(unittest.TestCase):
 
     def test_run_command_whitelist(self):
         # autorizado pela whitelist: ou executa, ou informa que não está instalado
-        result = self.agent.run_command("mak-finder")
+        result = self.agent.run_command("pineapple-finder")
         self.assertTrue("abri" in result or "não está instalado" in result)
 
     def test_run_command_blocked(self):

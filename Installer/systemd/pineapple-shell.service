@@ -1,0 +1,13 @@
+[Unit]
+Description=Pineapple OS Shell (barra superior)
+PartOf=pineappleos-session.target
+After=pineappleos-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/pineapple-shell
+Restart=on-failure
+Slice=session.slice
+
+[Install]
+WantedBy=pineappleos-session.target

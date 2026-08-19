@@ -1,6 +1,6 @@
-# Desenvolvimento do Mak OS
+# Desenvolvimento do Pineapple OS
 
-Guia para rodar e testar os componentes do Mak OS em uma máquina Linux.
+Guia para rodar e testar os componentes do Pineapple OS em uma máquina Linux.
 
 ## Pré-requisitos
 
@@ -28,8 +28,8 @@ Roda compositor + barra + dock + launcher + launchpad + mission + gestos em uma 
 Para rodar em um servidor X existente (teste rápido de componentes):
 
 ```bash
-GTK_THEME=Mak-HighSierra python3 Apps/Settings/mak-settings.py
-GTK_THEME=Mak-HighSierra cargo run --manifest-path Dock/Cargo.toml
+GTK_THEME=Pineapple-HighSierra python3 Apps/Settings/pineapple-settings.py
+GTK_THEME=Pineapple-HighSierra cargo run --manifest-path Dock/Cargo.toml
 ```
 
 > Nota: barra e dock usam `gtk4-layer-shell` e precisam de um compositor Wayland
@@ -39,16 +39,16 @@ GTK_THEME=Mak-HighSierra cargo run --manifest-path Dock/Cargo.toml
 
 | Componente | Comando |
 |------------|---------|
-| Mak Calculator | `python3 Apps/Calculator/mak-calculator.py` |
-| Mak Terminal   | `python3 Apps/Terminal/mak-terminal.py` |
-| Mak Notes      | `python3 Apps/Notes/mak-notes.py` |
-| Mak Monitor    | `python3 Apps/Monitor/mak-monitor.py` |
-| Mak Photos     | `python3 Apps/Photos/mak-photos.py` |
-| Mak Music      | `python3 Apps/Music/mak-music.py` |
-| Mak Browser    | `python3 Apps/Browser/mak-browser.py` |
-| Mak Store      | `python3 Apps/Store/mak-store.py` |
-| Central Controle | `python3 Apps/ControlCenter/mak-control-center.py` |
-| Assistente IA  | `./AI/mak-ai.py "abrir o terminal"` |
+| Pineapple Calculator | `python3 Apps/Calculator/pineapple-calculator.py` |
+| Pineapple Terminal   | `python3 Apps/Terminal/pineapple-terminal.py` |
+| Pineapple Notes      | `python3 Apps/Notes/pineapple-notes.py` |
+| Pineapple Monitor    | `python3 Apps/Monitor/pineapple-monitor.py` |
+| Pineapple Photos     | `python3 Apps/Photos/pineapple-photos.py` |
+| Pineapple Music      | `python3 Apps/Music/pineapple-music.py` |
+| Pineapple Browser    | `python3 Apps/Browser/pineapple-browser.py` |
+| Pineapple Store      | `python3 Apps/Store/pineapple-store.py` |
+| Central Controle | `python3 Apps/ControlCenter/pineapple-control-center.py` |
+| Assistente IA  | `./AI/pineapple-ai.py "abrir o terminal"` |
 
 ## Testar o agente IA (sem Ollama)
 
@@ -57,9 +57,9 @@ Apenas perguntas gerais exigem o Ollama (`ollama serve`).
 
 ## Tema e ícones
 
-- Temas: copie `Themes/Mak-HighSierra` (padrão) e os demais para `~/.themes/`.
-- Ícones: `Scripts/gen-icons.py` gera o set; instale em `~/.local/share/icons/mak-icons`.
-- Aplique: `gsettings set org.gnome.desktop.interface gtk-theme Mak-HighSierra`.
+- Temas: copie `Themes/Pineapple-HighSierra` (padrão) e os demais para `~/.themes/`.
+- Ícones: `Scripts/gen-icons.py` gera o set; instale em `~/.local/share/icons/pineapple-icons`.
+- Aplique: `gsettings set org.gnome.desktop.interface gtk-theme Pineapple-HighSierra`.
 
 ## Build da ISO
 

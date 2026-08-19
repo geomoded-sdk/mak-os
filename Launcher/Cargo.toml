@@ -1,8 +1,8 @@
 [package]
-name = "mak-launcher"
+name = "pineapple-launcher"
 version = "0.1.0"
 edition = "2021"
-description = "Mak OS — lançador de aplicativos"
+description = "Pineapple OS — lançador de aplicativos"
 license = "GPL-3.0"
 
 [dependencies]
@@ -12,5 +12,5 @@ glib = "0.19"
 gio = "0.19"
 
 [[bin]]
-name = "mak-launcher"
+name = "pineapple-launcher"
 path = "src/main.rs"

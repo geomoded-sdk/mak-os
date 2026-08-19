@@ -1,16 +1,16 @@
-"""Testes das categorias da Mak Store."""
+"""Testes das categorias da Pineapple Store."""
 import os
 import sys
 import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "Apps", "Store"))
-from mak_store_categories import CATEGORIES, category_for, category_label  # noqa: E402
+from pineapple_store_categories import CATEGORIES, category_for, category_label  # noqa: E402
 
 
 class TestCategoryFor(unittest.TestCase):
     def test_native_apps(self):
-        self.assertEqual(category_for("org.makos.calculator"), "nativos")
-        self.assertEqual(category_for("org.makos.terminal"), "nativos")
+        self.assertEqual(category_for("org.pineappleos.calculator"), "nativos")
+        self.assertEqual(category_for("org.pineappleos.terminal"), "nativos")
 
     def test_graphics(self):
         self.assertEqual(category_for("org.gimp.GIMP"), "graficos")

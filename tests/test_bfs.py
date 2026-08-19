@@ -1,0 +1,220 @@
+"""Testes do BFS (Pineapple File System) — volume exFAT + recursos APFS/HFS+."""
+import os
+import shutil
+import sys
+import tempfile
+import unittest
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "Filesystem"))
+
+from pineapplefs import BFSVolume, archive, sparse  # noqa: E402
+
+
+class TestBFSInit(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+        self.root = os.path.join(self.tmp, "vol")
+        self.vol = BFSVolume(self.root).init()
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def test_bfsprivate_created(self):
+        self.assertTrue(os.path.isdir(os.path.join(self.root, ".bfsprivate")))
+        self.assertTrue(
+            os.path.exists(os.path.join(self.root, ".bfsprivate", "volume.info"))
+        )
+
+    def test_macos_artifacts(self):
+        for name in [".Spotlight-V100", ".fseventsd", ".Trashes",
+                     ".DS_Store", ".metadata_never_index", ".localized"]:
+            self.assertTrue(os.path.exists(os.path.join(self.root, name)), name)
+
+    def test_volume_info(self):
+        info = self.vol.info()
+        self.assertEqual(info["magic"], "BFS")
+        self.assertEqual(info["format"], "bfs-exfat")
+        self.assertTrue(info["case_insensitive"])
+
+
+class TestBFSFiles(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+        self.root = os.path.join(self.tmp, "vol")
+        self.vol = BFSVolume(self.root).init()
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def test_put_read(self):
+        self.vol.put("Docs/notas.txt", b"conteudo")
+        self.assertEqual(self.vol.read("Docs/notas.txt"), b"conteudo")
+
+    def test_case_insensitive_resolution(self):
+        self.vol.put("Fotos/TESTE.TXT", b"x")
+        self.assertIsNotNone(self.vol.resolve("fotos/teste.txt"))
+        self.assertIsNotNone(self.vol.resolve("FOTOS/Teste.Txt"))
+
+    def test_xattr_via_sidecar(self):
+        self.vol.put("f.txt", b"dados")
+        self.vol.set_xattr("f.txt", "org.pineappleos.autor", b"Pedro")
+        self.assertEqual(self.vol.get_xattr("f.txt", "org.pineappleos.autor"),
+                         b"Pedro")
+        self.assertIn("org.pineappleos.autor", self.vol.list_xattrs("f.txt"))
+        self.assertTrue(os.path.exists(os.path.join(self.root, "._f.txt")))
+        self.assertTrue(self.vol.del_xattr("f.txt", "org.pineappleos.autor"))
+        self.assertIsNone(self.vol.get_xattr("f.txt", "org.pineappleos.autor"))
+
+    def test_finder_invisible(self):
+        self.vol.put("secreto.txt", b"segredo")
+        self.assertFalse(self.vol.is_invisible("secreto.txt"))
+        self.vol.set_finder("secreto.txt", invisible=True)
+        self.assertTrue(self.vol.is_invisible("secreto.txt"))
+        self.vol.set_finder("secreto.txt", invisible=False)
+        self.assertFalse(self.vol.is_invisible("secreto.txt"))
+
+    def test_sync_sidecars(self):
+        self.vol.put("a.txt", b"a")
+        self.vol.put("b.txt", b"b")
+        n = self.vol.sync_sidecars()
+        self.assertGreaterEqual(n, 2)
+        self.assertTrue(os.path.exists(os.path.join(self.root, "._a.txt")))
+
+
+class TestBFSSparse(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+        self.root = os.path.join(self.tmp, "vol")
+        self.vol = BFSVolume(self.root).init()
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def test_sparse_roundtrip(self):
+        data = b"A" * 100 + b"\x00" * 9000 + b"B" * 50
+        container = sparse.sparse_from_bytes(data)
+        # o container é bem menor que os dados (buracos de zeros)
+        self.assertLess(len(container), len(data))
+        self.assertEqual(sparse.sparse_to_bytes(container), data)
+
+    def test_sparse_zero(self):
+        container = sparse.sparse_zero(8192)
+        self.assertEqual(sparse.sparse_to_bytes(container), b"\x00" * 8192)
+        self.assertEqual(sparse.logical_size(container), 8192)
+
+    def test_expand_arquivo(self):
+        self.vol.expand("imagem.img", 1_000_000)
+        self.assertEqual(self.vol.size("imagem.img"), 1_000_000)
+        self.assertEqual(self.vol.read("imagem.img"), b"\x00" * 1_000_000)
+
+    def test_put_sparse_read(self):
+        data = b"HEAD" + b"\x00" * 5000 + b"TAIL"
+        self.vol.put_sparse("dados.bin", data)
+        self.assertEqual(self.vol.read("dados.bin"), data)
+        self.assertEqual(self.vol.size("dados.bin"), len(data))
+
+
+class TestBFSClone(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+        self.root = os.path.join(self.tmp, "vol")
+        self.vol = BFSVolume(self.root).init()
+        self.vol.put("origem.bin", b"conteudo-compartilhado")
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def test_clone_e_refcount(self):
+        self.vol.clone("origem.bin", "clone.bin")
+        self.assertEqual(self.vol.read("clone.bin"), b"conteudo-compartilhado")
+        self.assertEqual(self.vol.refcount("clone.bin"), 2)
+
+    def test_unlink_libera_referencia(self):
+        self.vol.clone("origem.bin", "clone.bin")
+        self.vol.unlink("clone.bin")
+        self.assertEqual(self.vol.refcount("origem.bin"), 1)
+
+    def test_write_quebra_clone_cow(self):
+        self.vol.clone("origem.bin", "clone.bin")
+        self.vol.write("clone.bin", b"modificado")
+        self.assertEqual(self.vol.read("origem.bin"), b"conteudo-compartilhado")
+        self.assertEqual(self.vol.read("clone.bin"), b"modificado")
+        self.assertEqual(self.vol.refcount("origem.bin"), 1)
+
+
+class TestBFSSnapshot(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+        self.root = os.path.join(self.tmp, "vol")
+        self.vol = BFSVolume(self.root).init()
+        self.vol.put("arq.txt", b"versao-1")
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def test_snapshot_restore(self):
+        self.vol.snapshot("inicio")
+        self.assertIn("inicio", self.vol.snapshots())
+        self.vol.write("arq.txt", b"versao-2")
+        self.assertEqual(self.vol.read("arq.txt"), b"versao-2")
+        self.vol.restore("inicio")
+        self.assertEqual(self.vol.read("arq.txt"), b"versao-1")
+
+    def test_restore_snapshot_inexistente(self):
+        with self.assertRaises(FileNotFoundError):
+            self.vol.restore("nao-existe")
+
+
+class TestBFSChecksum(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+        self.root = os.path.join(self.tmp, "vol")
+        self.vol = BFSVolume(self.root).init()
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def test_verify_ok_e_corrupt(self):
+        self.vol.put("ok.txt", b"dados")
+        results = self.vol.verify()
+        self.assertEqual(results["ok.txt"], "ok")
+        with open(os.path.join(self.root, "ok.txt"), "ab") as f:
+            f.write(b"corrompido")
+        results = self.vol.verify()
+        self.assertEqual(results["ok.txt"], "corrupt")
+
+
+class TestBFSArchive(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+        self.vol_dir = os.path.join(self.tmp, "vol")
+        self.dest = os.path.join(self.tmp, "extraido")
+        self.zip_path = os.path.join(self.tmp, "pacote.zip")
+        self.vol = BFSVolume(self.vol_dir).init()
+        self.vol.put("Fotos/foto.jpg", b"JPEGBINARIO")
+        self.vol.set_xattr("Fotos/foto.jpg", "com.apple.metadata:kMDItemComment",
+                           b"da praia")
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def test_pack_tem_pasta_pineapple(self):
+        n = archive.pack(self.vol_dir, self.zip_path)
+        self.assertGreaterEqual(n, 1)
+        self.assertTrue(archive.has_pineapple_folder(self.zip_path))
+
+    def test_unpack_aplica_sidecar(self):
+        archive.pack(self.vol_dir, self.zip_path)
+        archive.unpack(self.zip_path, self.dest)
+        dst_vol = BFSVolume(self.dest)
+        # o .zip preserva a pasta de topo (como o ditto --keepParent)
+        self.assertEqual(dst_vol.read("vol/Fotos/foto.jpg"), b"JPEGBINARIO")
+        self.assertEqual(
+            dst_vol.get_xattr("vol/Fotos/foto.jpg",
+                              "com.apple.metadata:kMDItemComment"),
+            b"da praia",
+        )
+
+
+if __name__ == "__main__":
+    unittest.main()

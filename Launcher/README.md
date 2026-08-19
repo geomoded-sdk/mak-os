@@ -1,6 +1,6 @@
-# Mak Launcher
+# Pineapple Launcher
 
-Lançador de aplicativos do Mak OS (GTK4).
+Lançador de aplicativos do Pineapple OS (GTK4).
 
 ## Funcionalidades
 
@@ -13,8 +13,8 @@ Lançador de aplicativos do Mak OS (GTK4).
 
 ```bash
 cargo build --release --manifest-path Launcher/Cargo.toml
-./target/release/mak-launcher          # abre o launcher
-./target/release/mak-launcher --hidden # aguarda ativação (sessão)
+./target/release/pineapple-launcher          # abre o launcher
+./target/release/pineapple-launcher --hidden # aguarda ativação (sessão)
 ```
 
 ## Atalho

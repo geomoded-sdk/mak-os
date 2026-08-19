@@ -1,0 +1,273 @@
+/* =========================================================================
+   Pineapple OS — Tema "High Sierra" (claro, estilo aqua)
+   Visual do macOS High Sierra: luz, menus translúcidos e dock de vidro.
+   ========================================================================= */
+
+@define-color hs-bg            #dfe3e8;
+@define-color hs-bg-alt        #f2f3f5;
+@define-color hs-surface       #f7f7f8;
+@define-color hs-surface-2     #e6e8ec;
+@define-color hs-border        #c9ccd3;
+@define-color hs-fg            #1d1d1f;
+@define-color hs-fg-dim        #6e6e73;
+@define-color hs-accent        #147efb;
+@define-color hs-accent-2      #0a60cf;
+@define-color hs-danger        #ff5f57;
+@define-color hs-ok            #28c840;
+@define-color hs-warn          #febc2e;
+@define-color hs-glass         rgba(255,255,255,0.68);
+
+window, dialog, messagedialog, popover, menu, tooltip {
+  background-color: @hs-bg;
+  color: @hs-fg;
+}
+label, entry, button, textview, treeview, list, row { color: @hs-fg; }
+
+entry, spinbutton, searchbar, searchentry {
+  background-color: @hs-bg-alt;
+  border: 1px solid @hs-border;
+  border-radius: 8px;
+  padding: 6px 10px;
+  caret-color: @hs-accent;
+}
+entry:focus, searchentry:focus {
+  border-color: @hs-accent;
+  box-shadow: 0 0 0 3px alpha(@hs-accent, 0.16);
+}
+
+button {
+  background-color: @hs-surface;
+  border: 1px solid @hs-border;
+  border-radius: 8px;
+  padding: 6px 12px;
+  transition: all 120ms ease-out;
+}
+button:hover { background-color: @hs-surface-2; }
+button:active { background-color: @hs-border; }
+button.suggested-action { background-color: @hs-accent; border-color: @hs-accent; color: white; }
+
+/* ---- Janelas: barra de título aqua + botões de tráfego ---- */
+headerbar, .titlebar {
+  background: linear-gradient(to bottom, #f7f8fa, #e9ebee);
+  border-bottom: 1px solid #c9ccd3;
+  box-shadow: none;
+}
+headerbar button.titlebutton,
+.titlebar button.titlebutton {
+  border-radius: 50%;
+  min-width: 14px;
+  min-height: 14px;
+  padding: 0;
+  background: #e2e3e7;
+  border: 1px solid #c7c9cf;
+  background-image: none;
+}
+headerbar button.titlebutton image,
+.titlebar button.titlebutton image { opacity: 0; }
+headerbar button.titlebutton:hover,
+.titlebar button.titlebutton:hover { background-color: #d5d7dc; }
+button.titlebutton.close { background-color: @hs-danger; border-color: #e0443e; }
+button.titlebutton.minimize { background-color: @hs-warn; border-color: #e0a31f; }
+button.titlebutton.maximize { background-color: @hs-ok; border-color: #23a83a; }
+button.titlebutton:backdrop { background-color: #dcdddf; border-color: #c2c4ca; }
+
+/* ---- Barra superior (menu bar) ---- */
+.pineapple-shell-window { background-color: transparent; }
+.pineapple-bar {
+  background-color: @hs-glass;
+  border-bottom: 1px solid alpha(black, 0.12);
+  padding: 0 12px;
+}
+.pineapple-logo-button { background: none; border: none; border-radius: 8px; padding: 4px 7px; min-width: 0; }
+.pineapple-logo-button:hover { background-color: alpha(black, 0.06); }
+.pineapple-logo-button image { color: @hs-fg; }
+.pineapple-brand { font-weight: 700; font-size: 14px; letter-spacing: 0.3px; padding: 0 6px; }
+.pineapple-menubar-item {
+  background: none;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 9px;
+  font-size: 13px;
+  color: @hs-fg;
+  min-width: 0;
+}
+.pineapple-menubar-item:hover { background-color: alpha(black, 0.07); }
+.pineapple-status-button { background: none; border: none; border-radius: 8px; padding: 4px 7px; min-width: 0; }
+.pineapple-status-button:hover { background-color: alpha(black, 0.07); }
+.pineapple-status-button image { color: @hs-fg-dim; }
+.pineapple-clock { font-weight: 500; font-size: 13px; padding: 0 10px; }
+
+.pineapple-menu { background-color: @hs-bg-alt; padding: 6px; border-radius: 10px; }
+.pineapple-menu-item { background: none; border: none; border-radius: 7px; padding: 8px 12px; }
+.pineapple-menu-item:hover { background-color: @hs-accent; color: white; }
+
+/* ---- Dock de vidro ---- */
+.pineapple-dock-window { background-color: transparent; }
+.pineapple-dock {
+  background: linear-gradient(to bottom, alpha(white, 0.82), alpha(white, 0.55));
+  border: 1px solid alpha(white, 0.85);
+  border-radius: 18px;
+  padding: 8px 14px;
+  box-shadow: 0 0 0 1px alpha(black, 0.08), 0 10px 30px alpha(black, 0.22);
+}
+.pineapple-dock-icon { background: none; border: none; border-radius: 12px; padding: 0; min-width: 0; min-height: 0; }
+.pineapple-dock-icon:hover { background-color: alpha(white, 0.55); }
+.pineapple-dock-sep {
+  background-color: alpha(black, 0.18);
+  border-radius: 1px;
+  min-width: 1px;
+  min-height: 40px;
+  margin-left: 8px;
+  margin-right: 8px;
+}
+.pineapple-dock-tile { background: none; border: none; border-radius: 12px; padding: 2px; min-width: 0; min-height: 0; }
+.pineapple-dock-tile:hover { background-color: alpha(white, 0.55); }
+
+/* ---- Launcher ---- */
+.pineapple-launcher-window { background-color: transparent; }
+.pineapple-launcher {
+  background-color: alpha(@hs-bg-alt, 0.96);
+  border: 1px solid @hs-border;
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: 0 20px 50px alpha(black, 0.18);
+}
+.pineapple-launcher-list { background: none; }
+.pineapple-launcher-list row { background: none; border-radius: 10px; }
+.pineapple-launcher-list row:selected { background-color: @hs-surface-2; }
+.pineapple-launcher-comment { font-size: 11px; color: @hs-fg-dim; }
+
+/* ---- Launchpad (grade de apps em tela cheia) ---- */
+.pineapple-launchpad-window { background-color: transparent; }
+.pineapple-launchpad {
+  background: linear-gradient(to bottom, alpha(@hs-bg-alt, 0.55), alpha(@hs-bg-alt, 0.88));
+}
+.pineapple-launchpad-search {
+  font-size: 16px;
+  min-height: 40px;
+  padding: 4px 16px;
+  border-radius: 20px;
+  background-color: alpha(white, 0.75);
+}
+.pineapple-launchpad-grid { background: none; }
+.pineapple-launchpad-tile {
+  background: none;
+  border: none;
+  border-radius: 18px;
+  padding: 14px 10px;
+  min-width: 110px;
+  min-height: 122px;
+}
+.pineapple-launchpad-tile:hover { background-color: alpha(white, 0.4); }
+.pineapple-launchpad-name { font-size: 13px; font-weight: 500; color: @hs-fg; }
+
+/* ---- Mission Control (janelas e Spaces em tela cheia) ---- */
+.pineapple-mission-window { background-color: transparent; }
+.pineapple-mission {
+  background: linear-gradient(to bottom, alpha(@hs-bg-alt, 0.45), alpha(@hs-bg-alt, 0.85));
+}
+.pineapple-mission-title { font-size: 30px; font-weight: 700; }
+.pineapple-mission-spaces { background: none; }
+.pineapple-mission-space {
+  background-color: alpha(white, 0.6);
+  border: 1px solid @hs-border;
+  border-radius: 10px;
+  padding: 8px 18px;
+  font-weight: 600;
+}
+.pineapple-mission-space-active {
+  background-color: @hs-accent;
+  border-color: @hs-accent;
+  color: white;
+}
+.pineapple-mission-hint { color: @hs-fg-dim; }
+.pineapple-mission-grid { background: none; }
+.pineapple-mission-card {
+  background-color: alpha(white, 0.65);
+  border: 1px solid @hs-border;
+  border-radius: 16px;
+  padding: 14px 12px;
+  min-width: 130px;
+  min-height: 130px;
+  box-shadow: 0 8px 22px alpha(black, 0.10);
+}
+.pineapple-mission-card:hover { background-color: alpha(white, 0.9); }
+.pineapple-mission-card-title { font-size: 12px; color: @hs-fg; }
+.pineapple-mission-empty { color: @hs-fg-dim; font-size: 14px; }
+
+/* ---- Finder ---- */
+.pineapple-sidebar { background-color: @hs-bg-alt; border-right: 1px solid @hs-border; }
+.pineapple-sidebar row { background: none; }
+.pineapple-sidebar row:selected { background-color: @hs-surface-2; }
+.pineapple-file-list { background: none; }
+.pineapple-file-list row { background: none; border-radius: 10px; }
+.pineapple-file-list row:selected { background-color: @hs-surface-2; }
+.pineapple-file-meta { font-size: 11px; color: @hs-fg-dim; }
+.pineapple-empty { color: @hs-fg-dim; }
+
+/* ---- Settings ---- */
+.pineapple-settings-sidebar { background-color: @hs-bg-alt; border-right: 1px solid @hs-border; }
+.pineapple-settings-sidebar row { background: none; border-radius: 8px; }
+.pineapple-settings-sidebar row:selected { background-color: @hs-surface-2; }
+.pineapple-settings-title { font-size: 20px; font-weight: 700; }
+.pineapple-settings-subtitle { color: @hs-fg-dim; margin-bottom: 12px; }
+
+/* ---- Preferências do Sistema (grid estilo macOS) ---- */
+.pineapple-pref-title { font-size: 28px; font-weight: 700; }
+.pineapple-pref-tile { background: none; border: none; border-radius: 14px; padding: 12px; min-width: 100px; min-height: 104px; }
+.pineapple-pref-tile:hover { background-color: @hs-surface-2; }
+.pineapple-pref-tile image { margin-bottom: 8px; }
+.pineapple-pref-tile label { font-size: 12px; color: @hs-fg; }
+.pineapple-back-button { background: none; border: none; border-radius: 8px; padding: 4px 10px; color: @hs-accent; font-weight: 600; }
+.pineapple-back-button:hover { background-color: @hs-surface-2; }
+
+/* ---- Store ---- */
+.pineapple-store-card { background-color: @hs-bg-alt; border: 1px solid @hs-border; border-radius: 12px; }
+.pineapple-store-desc { font-size: 11px; color: @hs-fg-dim; }
+
+/* ---- Monitor ---- */
+.pineapple-cpu > trough, .pineapple-mem > trough { background-color: @hs-surface-2; border-radius: 8px; min-height: 12px; }
+.pineapple-cpu > trough > progress { background-color: @hs-accent; border-radius: 8px; }
+.pineapple-mem > trough > progress { background-color: @hs-accent-2; border-radius: 8px; }
+.pineapple-chart { background-color: @hs-bg-alt; border: 1px solid @hs-border; border-radius: 12px; }
+
+/* ---- Calculator ---- */
+.pineapple-calc-window { background-color: @hs-bg; }
+.pineapple-calc-display { background: none; border: none; font-size: 34px; font-weight: 600; box-shadow: none; }
+.pineapple-calc-num { font-size: 20px; min-height: 52px; }
+.pineapple-calc-fn { font-size: 18px; min-height: 52px; background-color: @hs-surface-2; }
+.pineapple-calc-op { font-size: 20px; min-height: 52px; color: @hs-accent; }
+.pineapple-calc-accent { font-size: 22px; min-height: 52px; background-color: @hs-accent; color: white; border-color: @hs-accent; }
+
+/* ---- Notes ---- */
+.pineapple-notes-list { background: none; }
+.pineapple-notes-list row { background: none; }
+.pineapple-notes-list row:selected { background-color: @hs-surface-2; }
+.pineapple-notes-title { font-size: 18px; font-weight: 700; }
+
+/* ---- Photos ---- */
+.pineapple-photo-view { background-color: @hs-bg; }
+
+/* ---- Assistant ---- */
+.pineapple-assistant-window { background-color: @hs-bg; }
+.pineapple-chat-view { background-color: @hs-bg; color: @hs-fg; }
+
+scrollbar { background-color: transparent; }
+scrollbar slider { background-color: @hs-border; border-radius: 6px; min-width: 8px; }
+
+/* ---- Central de Controle ---- */
+.pineapple-control-window { background-color: transparent; }
+.pineapple-control-panel {
+  background-color: alpha(@hs-bg-alt, 0.96);
+  border: 1px solid @hs-border;
+  border-radius: 16px;
+  box-shadow: 0 16px 40px alpha(black, 0.16);
+}
+.pineapple-control-title { font-weight: 700; font-size: 15px; }
+.pineapple-control-toggle {
+  background-color: @hs-bg-alt;
+  border: 1px solid @hs-border;
+  border-radius: 14px;
+  padding: 10px;
+}
+.pineapple-control-toggle label { font-size: 11px; color: @hs-fg-dim; }

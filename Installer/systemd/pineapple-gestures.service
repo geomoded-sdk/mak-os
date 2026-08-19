@@ -1,0 +1,13 @@
+[Unit]
+Description=Pineapple OS touchpad gestures
+PartOf=pineappleos-session.target
+After=pineappleos-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/pineapple-gestures
+Restart=on-failure
+Slice=session.slice
+
+[Install]
+WantedBy=pineappleos-session.target

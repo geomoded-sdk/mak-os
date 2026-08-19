@@ -1,0 +1,29 @@
+#!/bin/sh
+# =============================================================================
+#  Hook de initramfs — Pineapple OS / PowerBook ID
+#
+#  Função: embutir a lista de PowerBook IDs válidos (ids.txt) dentro do
+#  initramfs. Assim a verificação do boot (scripts/init-bottom) consegue
+#  validar o argumento "-pineapplepowerbookid=<ID>" antes mesmo do sistema
+#  de arquivos raiz ser montado.
+#
+#  Este arquivo deve ficar em /usr/share/initramfs-tools/hooks/ para que o
+#  update-initramfs o execute a cada regeneração.
+# =============================================================================
+
+PREREQ=""
+prereqs() { echo "$PREREQ"; }
+case $1 in
+    prereqs)
+        prereqs
+        exit 0
+        ;;
+esac
+
+# A lista de IDs é instalada pelo setup-powerbook-check.sh em
+# /usr/share/pineappleos/ids.txt. Aqui nós a copiamos para o initramfs.
+if [ -f /usr/share/pineappleos/ids.txt ]; then
+    cp /usr/share/pineappleos/ids.txt "${DESTDIR}/pineappleos-ids.txt"
+fi
+
+exit 0

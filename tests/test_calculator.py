@@ -1,10 +1,10 @@
-"""Testes da lógica da Calculadora do Mak OS (função pura evaluate)."""
+"""Testes da lógica da Calculadora do Pineapple OS (função pura evaluate)."""
 import os
 import sys
 import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "Apps", "Calculator"))
-from mak_calculator import evaluate  # noqa: E402
+from pineapple_calculator import evaluate  # noqa: E402
 
 
 class TestEvaluate(unittest.TestCase):

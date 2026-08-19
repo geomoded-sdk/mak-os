@@ -1,0 +1,49 @@
+---
+# =============================================================================
+#  Calamares — branding do Pineapple OS (estilo instalador macOS)
+# =============================================================================
+componentName: pineappleos-branding
+
+welcomeStyleCss: |
+  .welcome-title {
+    font-size: 34px;
+    font-weight: 700;
+    color: #1d1d1f;
+  }
+  .welcome-message {
+    font-size: 15px;
+    color: #6e6e73;
+  }
+
+welcomeWindowTitle: Instalar Pineapple OS
+
+welcomeHeader: Bem-vindo ao instalador do Pineapple OS
+
+welcomeMessage: |
+  Para instalar o Pineapple OS você precisará de um disco com espaço livre.<br/>
+  O instalador apagará o conteúdo do disco selecionado antes de continuar.<br/><br/>
+  <strong>Importante:</strong> faça backup dos seus dados antes de instalar.
+
+welcomeImage: pineapple-logo
+
+supportUrl: https://example.org/pineappleos/support
+
+knownIssuesUrl: https://example.org/pineappleos/issues
+
+releaseNotesUrl: https://example.org/pineappleos/release-notes
+
+styleName: Pineapple OS
+
+brandingShort: Pineapple OS
+
+productName: Pineapple OS
+
+version: 0.1.0
+
+shortVersion: 0.1
+
+bootloaderEntryName: Pineapple OS
+
+slideShowPath: show.qml
+
+slideShowDelay: 3000

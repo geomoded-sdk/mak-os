@@ -1,5 +1,5 @@
 // =============================================================================
-//  mak-dock — dock inferior do Mak OS
+//  pineapple-dock — dock inferior do Pineapple OS
 //
 //  Ícones de atalhos + bandeja de janelas minimizadas (estilo macOS):
 //   - via wlr-foreign-toplevel-management-v1 rastreia as janelas abertas;
@@ -188,8 +188,8 @@ fn icon_for(app_id: &str) -> String {
     if id.is_empty() {
         return "application-x-executable".to_string();
     }
-    if let Some(rest) = id.strip_prefix("org.makos.") {
-        return format!("mak-{}", rest.replace('.', "-"));
+    if let Some(rest) = id.strip_prefix("org.pineappleos.") {
+        return format!("pineapple-{}", rest.replace('.', "-"));
     }
     id
 }
@@ -203,22 +203,22 @@ fn place_dock(window: &gtk::ApplicationWindow) {
     window.set_margin(Edge::Bottom, 8);
     window.set_exclusive_zone(64);
     window.set_default_size(1, 64);
-    window.set_css_classes(&["mak-dock-window"]);
+    window.set_css_classes(&["pineapple-dock-window"]);
 }
 
 fn default_icons() -> Vec<(&'static str, &'static str, &'static str)> {
     vec![
-        ("mak-finder", "Mak Finder", "mak-finder"),
-        ("mak-launchpad", "Launchpad", "mak-launchpad"),
-        ("mak-mission", "Mission Control", "mak-mission"),
-        ("mak-terminal", "Mak Terminal", "mak-terminal"),
-        ("mak-browser", "Mak Browser", "mak-browser"),
-        ("mak-music", "Mak Music", "mak-music"),
-        ("mak-photos", "Mak Photos", "mak-photos"),
-        ("mak-notes", "Mak Notes", "mak-notes"),
-        ("mak-store", "Mak Store", "mak-store"),
-        ("mak-settings", "Mak Settings", "mak-settings"),
-        ("mak-calc", "Mak Calculator", "mak-calc"),
+        ("pineapple-finder", "Pineapple Finder", "pineapple-finder"),
+        ("pineapple-launchpad", "Launchpad", "pineapple-launchpad"),
+        ("pineapple-mission", "Mission Control", "pineapple-mission"),
+        ("pineapple-terminal", "Pineapple Terminal", "pineapple-terminal"),
+        ("pineapple-browser", "Pineapple Browser", "pineapple-browser"),
+        ("pineapple-music", "Pineapple Music", "pineapple-music"),
+        ("pineapple-photos", "Pineapple Photos", "pineapple-photos"),
+        ("pineapple-notes", "Pineapple Notes", "pineapple-notes"),
+        ("pineapple-store", "Pineapple Store", "pineapple-store"),
+        ("pineapple-settings", "Pineapple Settings", "pineapple-settings"),
+        ("pineapple-calc", "Pineapple Calculator", "pineapple-calc"),
     ]
 }
 
@@ -229,7 +229,7 @@ fn make_icon_button(icon: &str, label: &str, exec: &str) -> Button {
     let button = Button::new();
     button.set_child(Some(&image));
     button.set_tooltip_text(Some(label));
-    button.set_css_classes(&["mak-dock-icon"]);
+    button.set_css_classes(&["pineapple-dock-icon"]);
 
     let exec = exec.to_string();
     button.connect_clicked(move |_| {
@@ -255,7 +255,7 @@ fn make_minimized_tile(entry: &WindowEntry, seat: Option<wl_seat::WlSeat>) -> Bu
     let button = Button::new();
     button.set_child(Some(&image));
     button.set_tooltip_text(Some(&title));
-    button.set_css_classes(&["mak-dock-tile"]);
+    button.set_css_classes(&["pineapple-dock-tile"]);
     button.set_opacity(0.0);
 
     // Clique restaura a janela (desminimiza e traz para o foco).
@@ -298,7 +298,7 @@ fn rebuild_tray(tray: &gtk::Box, shared: &Shared) {
         return;
     }
     let sep = Label::new(None);
-    sep.set_css_classes(&["mak-dock-sep"]);
+    sep.set_css_classes(&["pineapple-dock-sep"]);
     tray.append(&sep);
     for w in minimized {
         tray.append(&make_minimized_tile(w, shared.seat.clone()));
@@ -346,14 +346,14 @@ fn main() -> glib::ExitCode {
         Some(s) => s,
         None => {
             eprintln!(
-                "[mak-dock] aviso: sem conexão Wayland — rodando sem bandeja de minimizadas"
+                "[pineapple-dock] aviso: sem conexão Wayland — rodando sem bandeja de minimizadas"
             );
             Arc::new(Mutex::new(Shared::default()))
         }
     };
 
     let app = gtk::Application::builder()
-        .application_id("org.makos.dock")
+        .application_id("org.pineappleos.dock")
         .build();
 
     app.connect_activate(move |app| {
@@ -361,7 +361,7 @@ fn main() -> glib::ExitCode {
         window.set_decorated(false);
 
         let container = gtk::Box::new(Orientation::Horizontal, 6);
-        container.set_css_classes(&["mak-dock"]);
+        container.set_css_classes(&["pineapple-dock"]);
         container.set_halign(gtk::Align::Center);
 
         for (name, label, exec) in default_icons() {

@@ -1,12 +1,12 @@
 #!/bin/bash
 # =============================================================================
-#  build-debs.sh — empacota o Mak OS em pacotes .deb (dpkg-deb)
+#  build-debs.sh — empacota o Pineapple OS em pacotes .deb (dpkg-deb)
 #
 #  Pacotes gerados em dist/:
-#   - mak-os-desktop_<ver>.deb   (shell, dock, launcher, launchpad, finder)
-#   - mak-os-apps_<ver>.deb      (apps Python + IA)
-#   - mak-os-themes_<ver>.deb    (temas, ícones, wallpaper)
-#   - mak-os-boot_<ver>.deb      (GRUB + Plymouth + Calamares)
+#   - pineapple-os-desktop_<ver>.deb   (shell, dock, launcher, launchpad, finder)
+#   - pineapple-os-apps_<ver>.deb      (apps Python + IA)
+#   - pineapple-os-themes_<ver>.deb    (temas, ícones, wallpaper)
+#   - pineapple-os-boot_<ver>.deb      (GRUB + Plymouth + Calamares)
 # =============================================================================
 set -euo pipefail
 
@@ -38,10 +38,10 @@ makedeb() {
     echo "Section: x11"
     echo "Priority: optional"
     echo "Architecture: amd64"
-    echo "Maintainer: Mak OS Project <dev@makos.example>"
+    echo "Maintainer: Pineapple OS Project <dev@pineappleos.example>"
     echo "Description: $desc"
     [ -n "$deps" ] && echo "Depends: $deps"
-    echo "Homepage: https://example.org/makos"
+    echo "Homepage: https://example.org/pineappleos"
   } > "$pdir/DEBIAN/control"
 
   while read -r rel; do
@@ -57,20 +57,20 @@ makedeb() {
   dpkg-deb --build --root-owner-group "$pdir" "$DIST_DIR/$pkg_$VERSION"
 }
 
-echo "==> mak-os-desktop"
-makedeb mak-os-desktop "Mak OS desktop components (shell, dock, launcher, launchpad, finder)" \
+echo "==> pineapple-os-desktop"
+makedeb pineapple-os-desktop "Pineapple OS desktop components (shell, dock, launcher, launchpad, finder)" \
   "libgtk-4-1, libgtk-4-layer-shell0, libadwaita-1-0" desktop.list
 
-echo "==> mak-os-apps"
-makedeb mak-os-apps "Mak OS applications and AI assistant" \
+echo "==> pineapple-os-apps"
+makedeb pineapple-os-apps "Pineapple OS applications and AI assistant" \
   "python3-gi, gir1.2-gtk-4.0" apps.list
 
-echo "==> mak-os-themes"
-makedeb mak-os-themes "Mak OS themes, icons and wallpaper" \
+echo "==> pineapple-os-themes"
+makedeb pineapple-os-themes "Pineapple OS themes, icons and wallpaper" \
   "librsvg2-common, hicolor-icon-theme" themes.list
 
-echo "==> mak-os-boot"
-makedeb mak-os-boot "Mak OS boot themes (GRUB, Plymouth) and Calamares" \
+echo "==> pineapple-os-boot"
+makedeb pineapple-os-boot "Pineapple OS boot themes (GRUB, Plymouth) and Calamares" \
   "" boot.list
 
 echo "==> Pacotes gerados:"

@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-#  make-desktops.sh — gera os arquivos .desktop dos aplicativos do Mak OS
+#  make-desktops.sh — gera os arquivos .desktop dos aplicativos do Pineapple OS
 #  Uso: make-desktops.sh [stage_dir]
 # =============================================================================
 set -euo pipefail
@@ -26,23 +26,23 @@ StartupNotify=true
 EOF
 }
 
-desktop mak-shell        "Mak Shell"        "/usr/local/bin/mak-shell"       "mak-logo"      "Barra superior do Mak OS"
-desktop mak-dock         "Mak Dock"         "/usr/local/bin/mak-dock"        "mak-logo"      "Dock do Mak OS"
-desktop mak-launcher     "Mak Launcher"     "/usr/local/bin/mak-launcher"    "mak-logo"      "Lançador de aplicativos"
-desktop mak-launchpad    "Mak Launchpad"    "/usr/local/bin/mak-launchpad"   "mak-launchpad" "Grade de aplicativos"
-desktop mak-mission      "Mak Mission"      "/usr/local/bin/mak-mission"     "mak-mission"   "Mission Control (janelas e áreas de trabalho)"
-desktop mak-finder       "Mak Finder"       "/usr/local/bin/mak-finder"      "mak-finder"    "Gerenciador de arquivos"
-desktop mak-terminal     "Mak Terminal"     "/usr/bin/mak-terminal.py"       "mak-terminal"  "Terminal do Mak OS"
-desktop mak-calculator   "Mak Calculator"   "/usr/bin/mak-calculator.py"     "mak-calc"      "Calculadora"
-desktop mak-notes        "Mak Notes"        "/usr/bin/mak-notes.py"          "mak-notes"     "Notas"
-desktop mak-settings     "Mak Settings"     "/usr/bin/mak-settings.py"       "mak-settings"  "Configurações do sistema"
-desktop mak-monitor      "Mak Monitor"      "/usr/bin/mak-monitor.py"        "mak-monitor"   "Monitor de recursos"
-desktop mak-photos       "Mak Photos"       "/usr/bin/mak-photos.py"         "mak-photos"    "Visualizador de fotos"
-desktop mak-music        "Mak Music"        "/usr/bin/mak-music.py"          "mak-music"     "Player de música"
-desktop mak-browser      "Mak Browser"      "/usr/bin/mak-browser.py"        "mak-browser"   "Navegador web"
-desktop mak-store        "Mak Store"        "/usr/bin/mak-store.py"          "mak-store"     "Loja de aplicativos"
-desktop mak-assistant    "Mak Assistant"    "/usr/bin/mak-assistant"         "mak-assistant" "Assistente local (IA)"
-desktop mak-control-center "Central de Controle" "/usr/bin/mak-control-center.py" "mak-control-center-symbolic" "Controles rápidos"
-desktop mak-notifyd      "Mak Notificações"  "/usr/bin/mak-notifyd.py"        "mak-logo"      "Central de notificações"
+desktop pineapple-shell        "Pineapple Shell"        "/usr/local/bin/pineapple-shell"       "pineapple-logo"      "Barra superior do Pineapple OS"
+desktop pineapple-dock         "Pineapple Dock"         "/usr/local/bin/pineapple-dock"        "pineapple-logo"      "Dock do Pineapple OS"
+desktop pineapple-launcher     "Pineapple Launcher"     "/usr/local/bin/pineapple-launcher"    "pineapple-logo"      "Lançador de aplicativos"
+desktop pineapple-launchpad    "Pineapple Launchpad"    "/usr/local/bin/pineapple-launchpad"   "pineapple-launchpad" "Grade de aplicativos"
+desktop pineapple-mission      "Pineapple Mission"      "/usr/local/bin/pineapple-mission"     "pineapple-mission"   "Mission Control (janelas e áreas de trabalho)"
+desktop pineapple-finder       "Pineapple Finder"       "/usr/local/bin/pineapple-finder"      "pineapple-finder"    "Gerenciador de arquivos"
+desktop pineapple-terminal     "Pineapple Terminal"     "/usr/bin/pineapple-terminal.py"       "pineapple-terminal"  "Terminal do Pineapple OS"
+desktop pineapple-calculator   "Pineapple Calculator"   "/usr/bin/pineapple-calculator.py"     "pineapple-calc"      "Calculadora"
+desktop pineapple-notes        "Pineapple Notes"        "/usr/bin/pineapple-notes.py"          "pineapple-notes"     "Notas"
+desktop pineapple-settings     "Pineapple Settings"     "/usr/bin/pineapple-settings.py"       "pineapple-settings"  "Configurações do sistema"
+desktop pineapple-monitor      "Pineapple Monitor"      "/usr/bin/pineapple-monitor.py"        "pineapple-monitor"   "Monitor de recursos"
+desktop pineapple-photos       "Pineapple Photos"       "/usr/bin/pineapple-photos.py"         "pineapple-photos"    "Visualizador de fotos"
+desktop pineapple-music        "Pineapple Music"        "/usr/bin/pineapple-music.py"          "pineapple-music"     "Player de música"
+desktop pineapple-browser      "Pineapple Browser"      "/usr/bin/pineapple-browser.py"        "pineapple-browser"   "Navegador web"
+desktop pineapple-store        "Pineapple Store"        "/usr/bin/pineapple-store.py"          "pineapple-store"     "Loja de aplicativos"
+desktop pineapple-assistant    "Pineapple Assistant"    "/usr/bin/pineapple-assistant"         "pineapple-assistant" "Assistente local (IA)"
+desktop pineapple-control-center "Central de Controle" "/usr/bin/pineapple-control-center.py" "pineapple-control-center-symbolic" "Controles rápidos"
+desktop pineapple-notifyd      "Pineapple Notificações"  "/usr/bin/pineapple-notifyd.py"        "pineapple-logo"      "Central de notificações"
 
 echo "==> $(ls "$DESKTOP" | wc -l) arquivos .desktop gerados em $DESKTOP"

@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-#  setup-wine.sh — instala Wine + Winetricks e configura o frontend mak-wine
+#  setup-wine.sh — instala Wine + Winetricks e configura o frontend pineapple-wine
 # =============================================================================
 set -euo pipefail
 
@@ -12,18 +12,18 @@ echo "==> Instalando Wine e Winetricks"
 sudo apt install -y wine wine64 winetricks
 
 echo "==> Inicializando o prefixo (wineboot)"
-export WINEPREFIX="${WINEPREFIX:-$HOME/.wine-makos}"
+export WINEPREFIX="${WINEPREFIX:-$HOME/.wine-pineappleos}"
 mkdir -p "$WINEPREFIX"
 wineboot -i || true
 
-cat > "$HOME/.local/bin/mak-wine" <<'EOF'
+cat > "$HOME/.local/bin/pineapple-wine" <<'EOF'
 #!/bin/bash
-# Frontend do Wine no Mak OS
-export WINEPREFIX="${WINEPREFIX:-$HOME/.wine-makos}"
+# Frontend do Wine no Pineapple OS
+export WINEPREFIX="${WINEPREFIX:-$HOME/.wine-pineappleos}"
 export WINEARCH=win64
 exec wine "$@"
 EOF
-chmod +x "$HOME/.local/bin/mak-wine"
+chmod +x "$HOME/.local/bin/pineapple-wine"
 
-echo "==> Wine pronto. Use:  mak-wine programa.exe"
+echo "==> Wine pronto. Use:  pineapple-wine programa.exe"
 echo "    (Winetricks: winetricks --gui)"

@@ -1,0 +1,202 @@
+#!/bin/sh
+# =============================================================================
+#  Verificador de boot — Pineapple OS / PowerBook ID + BFS
+#
+#  Roda no estágio "init-bottom" do initramfs (após /proc e /sys estarem
+#  montados, mas antes do chroot no sistema raiz).
+#
+#  Comportamento:
+#    * Lê /proc/cmdline em busca do argumento de boot
+#      "-pineapplepowerbookid=<ID>".
+#    * Se o argumento estiver AUSENTE ou o <ID> NÃO estiver na lista de
+#      PowerBooks válidos (pineappleos-ids.txt), dispara um KERNEL PANIC
+#      no estilo do macOS e o sistema NÃO inicia.
+#    * Fora do modo live (boot=live), também valida o volume de dados BFS
+#      obrigatório (exFAT + .bfsprivate), que pode ser indicado por
+#      "-pineapplefs=<dispositivo>" ou detectado no fstab (/home ou /data).
+#      Sem um volume BFS válido → KERNEL PANIC.
+#
+#  Por que um kernel panic? Para reproduzir fielmente o comportamento de
+#  bloqueio de um hardware não autorizado: sem o ID correto (e sem o volume
+#  BFS) o kernel se recusa a continuar. O panic é forçado via SysRq
+#  (CONFIG_MAGIC_SYSRQ=y). O kernel tem CONFIG_EXFAT_FS=y embutido, então o
+#  initramfs consegue montar volumes exFAT para validar o BFS.
+# =============================================================================
+
+PREREQ=""
+prereqs() { echo "$PREREQ"; }
+case $1 in
+    prereqs)
+        prereqs
+        exit 0
+        ;;
+esac
+
+# Lista de IDs válidos, embutida no initramfs pelo hook
+# pineapple-powerbook-check (ver Installer/initramfs/hooks/).
+VALID_IDS="/pineappleos-ids.txt"
+
+# ---------------------------------------------------------------------------
+#  Lê os argumentos de boot
+# ---------------------------------------------------------------------------
+boot_id=""
+boot_fs=""
+is_live="no"
+if [ -r /proc/cmdline ]; then
+    for arg in $(cat /proc/cmdline); do
+        case "$arg" in
+            -pineapplepowerbookid=*)
+                boot_id="${arg#-pineapplepowerbookid=}"
+                ;;
+            -pineapplefs=*)
+                boot_fs="${arg#-pineapplefs=}"
+                ;;
+            boot=live)
+                is_live="yes"
+                ;;
+        esac
+    done
+fi
+
+# ---------------------------------------------------------------------------
+#  Panic no estilo do macOS (tela de reinício forçado) + SysRq
+# ---------------------------------------------------------------------------
+panic() {
+    reason="$1"
+    {
+        echo ""
+        echo "*** Pineapple OS - kernel panic ***"
+        echo ""
+        echo "Você precisa reiniciar o computador."
+        echo "Mantenha pressionado o botão de energia até que ele desligue,"
+        echo "e depois pressione novamente."
+        echo ""
+        echo "Motivo: $reason."
+        echo ""
+    } > /dev/console 2>/dev/null
+
+    # Dá tempo de ler a mensagem.
+    sleep 5
+
+    # Força o kernel panic de verdade via SysRq.
+    echo c > /proc/sysrq-trigger 2>/dev/null
+
+    # Fallback: se o SysRq estiver desabilitado, trava o boot de propósito.
+    echo "Pineapple OS: boot negado - sistema parado." > /dev/console 2>/dev/null
+    while :; do
+        sleep 3600
+    done
+}
+
+# ---------------------------------------------------------------------------
+#  1. Validação do PowerBook ID
+# ---------------------------------------------------------------------------
+valid="no"
+if [ -n "$boot_id" ] && [ -f "$VALID_IDS" ]; then
+    if grep -qx "$boot_id" "$VALID_IDS" 2>/dev/null; then
+        valid="yes"
+    fi
+fi
+
+if [ "$valid" != "yes" ]; then
+    if [ -z "$boot_id" ]; then
+        reason="o argumento de boot '-pineapplepowerbookid=<ID>' não foi fornecido"
+    else
+        reason="o PowerBook ID '$boot_id' não é reconhecido"
+    fi
+    panic "$reason"
+fi
+
+# ---------------------------------------------------------------------------
+#  2. Validação do volume BFS (obrigatório fora do modo live)
+#
+#  O BFS (Pineapple File System) é o sistema de arquivos de dados do Pineapple
+#  OS (exFAT + .bfsprivate). Sem ele, o sistema se recusa a iniciar — como o
+#  macOS exige um volume APFS.
+# ---------------------------------------------------------------------------
+
+# Um diretório é um volume BFS válido? (deve ter .bfsprivate/volume.info)
+check_bfs_root() {
+    dir="$1"
+    [ -f "$dir/.bfsprivate/volume.info" ] || return 1
+    grep -q '"magic": "BFS"' "$dir/.bfsprivate/volume.info" 2>/dev/null || return 1
+    grep -q '"format": "bfs-exfat"' "$dir/.bfsprivate/volume.info" 2>/dev/null || return 1
+    return 0
+}
+
+# Monta (somente leitura) um dispositivo, valida o BFS e desmonta.
+mount_bfs_check() {
+    dev="$1"
+    i=0
+    while [ ! -e "$dev" ]; do
+        i=$((i + 1))
+        [ "$i" -gt 30 ] && return 1     # espera até ~30s pelo dispositivo
+        sleep 1
+    done
+    mkdir -p /bfs-check 2>/dev/null
+    if ! mount -o ro "$dev" /bfs-check 2>/dev/null; then
+        rmdir /bfs-check 2>/dev/null
+        return 1
+    fi
+    check_bfs_root /bfs-check
+    rc=$?
+    umount /bfs-check 2>/dev/null
+    rmdir /bfs-check 2>/dev/null
+    return $rc
+}
+
+# Traduz o campo de dispositivo do fstab em um caminho de bloco.
+resolve_dev() {
+    case "$1" in
+        UUID=*) echo "/dev/disk/by-uuid/${1#UUID=}" ;;
+        PARTUUID=*) echo "/dev/disk/by-partuuid/${1#PARTUUID=}" ;;
+        LABEL=*) echo "/dev/disk/by-label/${1#LABEL=}" ;;
+        PARTLABEL=*) echo "/dev/disk/by-partlabel/${1#PARTLABEL=}" ;;
+        *) echo "$1" ;;
+    esac
+}
+
+if [ "$is_live" = "yes" ]; then
+    # Modo live/demo: sem volume de dados obrigatório (a raiz é volátil).
+    :
+elif [ -n "$boot_fs" ]; then
+    # Dispositivo informado explicitamente.
+    if [ "$boot_fs" = "root" ]; then
+        if ! check_bfs_root "$rootmnt"; then
+            panic "o volume BFS obrigatório não foi encontrado no sistema raiz (rode Scripts/setup-bfs.sh)"
+        fi
+    else
+        if ! mount_bfs_check "$boot_fs"; then
+            panic "o volume BFS obrigatório '-pineapplefs=$boot_fs' não é um volume BFS válido (falta .bfsprivate/volume.info)"
+        fi
+    fi
+else
+    # Sem argumento: detecta /home ou /data no fstab do sistema raiz.
+    found="no"
+    if [ -r "$rootmnt/etc/fstab" ]; then
+        while read -r dev mnt fstype rest; do
+            case "$dev" in
+                \#*|"") continue ;;
+            esac
+            case "$mnt" in
+                /home|/home/*|/data)
+                    case "$fstype" in
+                        swap|tmpfs|proc|sysfs|devpts) continue ;;
+                    esac
+                    found="yes"
+                    if ! mount_bfs_check "$(resolve_dev "$dev")"; then
+                        panic "o volume de dados BFS montado em '$mnt' não é um volume BFS válido (falta .bfsprivate/volume.info)"
+                    fi
+                    ;;
+            esac
+        done < "$rootmnt/etc/fstab"
+    fi
+    if [ "$found" = "no" ]; then
+        # Sem /home ou /data no fstab: o BFS deve estar na própria raiz.
+        if ! check_bfs_root "$rootmnt"; then
+            panic "volume BFS obrigatório não encontrado (adicione -pineapplefs=<dispositivo> ou inicialize com Scripts/setup-bfs.sh)"
+        fi
+    fi
+fi
+
+exit 0

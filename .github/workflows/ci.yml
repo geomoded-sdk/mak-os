@@ -73,10 +73,10 @@ jobs:
             else
               echo "OK: $f"
             fi
-          done < <(git ls-files '*.sh')
+          done < <(git ls-files '*.sh' '*.hook.chroot')
           [ "$fail" -eq 0 ] || exit 1
 
-  icons:
+icons:
     name: Geração de ícones
     runs-on: ubuntu-latest
     steps:
@@ -86,7 +86,63 @@ jobs:
           python3 Scripts/gen-icons.py
           python3 - <<'EOF'
           import glob, xml.etree.ElementTree as ET
-          for f in glob.glob("Icons/mak-icons/**/*.svg", recursive=True):
+          for f in glob.glob("Icons/pineapple-icons/**/*.svg", recursive=True):
               ET.parse(f)
           print("todos os SVGs válidos")
           EOF
+
+  kernel-build:
+    name: Compilar kernel 6.1-pineappleos + LPNU (obrigatório)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Instalar dependências de compilação
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential libncurses-dev bison flex libssl-dev libelf-dev \
+            dwarves bc cpio zstd wget kmod initramfs-tools busybox
+
+      - name: Compilar kernel + LPNU do fonte (vermagic obrigatório)
+        env:
+          KERNEL_BUILD_OUT: ${{ github.workspace }}/kernel-dist
+        run: ./Scripts/build-kernel.sh
+
+      - name: Publicar kernel como artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: pineappleos-kernel-6.1-lpnu
+          path: kernel-dist
+          if-no-files-found: error
+
+  iso-build:
+    name: ISO x64 (amd64)
+    runs-on: ubuntu-latest
+    env:
+      POWERBOOK_ID: ${{ secrets.POWERBOOK_ID }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Instalar dependências do build
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y live-build debootstrap debian-archive-keyring devscripts
+          python3 -m compileall Apps AI
+
+      - name: Gerar imagens do sistema (ícones, boot, wallpapers)
+        run: |
+          python3 Scripts/gen-icons.py
+          python3 Scripts/gen-backgrounds.py
+          python3 Scripts/gen-catalina.py
+
+      - name: Compilar ISO amd64 (x64)
+        run: |
+          sudo -E ./Scripts/build-iso.sh
+
+      - name: Publicar ISO como artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: pineappleos-amd64-iso
+          path: pineappleos-*.iso
+          if-no-files-found: error

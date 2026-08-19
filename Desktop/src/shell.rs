@@ -6,7 +6,7 @@ use gtk::prelude::*;
 use gtk::{gdk, Box as GtkBox, CenterBox, Label, Orientation, Widget};
 use gtk4_layer_shell::{Edge, Layer, LayerShell};
 
-/// Cria a barra superior do Mak OS.
+/// Cria a barra superior do Pineapple OS.
 pub struct ShellBar {
     pub container: CenterBox,
     pub clock_label: Label,
@@ -17,27 +17,27 @@ impl ShellBar {
         let container = CenterBox::new();
         container.set_hexpand(true);
         container.set_orientation(Orientation::Horizontal);
-        container.set_css_classes(&["mak-bar"]);
+        container.set_css_classes(&["pineapple-bar"]);
 
         // ---- lado esquerdo: logo + menus (estilo macOS) ----
         let left = GtkBox::new(Orientation::Horizontal, 0);
         let logo = gtk::Button::new();
-        logo.set_css_classes(&["mak-logo-button"]);
-        let logo_image = gtk::Image::from_icon_name("mak-logo");
+        logo.set_css_classes(&["pineapple-logo-button"]);
+        let logo_image = gtk::Image::from_icon_name("pineapple-logo");
         logo_image.set_pixel_size(16);
         logo.set_child(Some(&logo_image));
-        logo.set_tooltip_text(Some("MaK"));
+        logo.set_tooltip_text(Some("Pineapple"));
         menu::attach(&logo);
 
-        let title = Label::new(Some("MaK"));
-        title.set_css_classes(&["mak-brand"]);
+        let title = Label::new(Some("Pineapple"));
+        title.set_css_classes(&["pineapple-brand"]);
 
         left.append(&logo);
         left.append(&title);
 
         for name in ["Arquivo", "Editar", "Exibir", "Ir", "Janela", "Ajuda"] {
             let item = gtk::Button::with_label(name);
-            item.set_css_classes(&["mak-menubar-item"]);
+            item.set_css_classes(&["pineapple-menubar-item"]);
             left.append(&item);
         }
 
@@ -64,7 +64,7 @@ impl ShellBar {
         window.set_margin(Edge::Top, 0);
         window.set_exclusive_zone(40);
         window.set_default_size(1, 40);
-        window.set_css_classes(&["mak-shell-window"]);
+        window.set_css_classes(&["pineapple-shell-window"]);
     }
 }
 

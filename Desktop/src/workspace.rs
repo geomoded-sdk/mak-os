@@ -1,5 +1,5 @@
 // =============================================================================
-//  Indicador de Áreas de Trabalho Virtuais — Mak OS
+//  Indicador de Áreas de Trabalho Virtuais — Pineapple OS
 //
 //  Mostra pontos na barra (uma por área). O compositor/labwc pode publicar a
 //  área ativa em um arquivo de estado; na ausência dele, apenas renderiza as
@@ -15,7 +15,7 @@ const STATE_FILE: &str = "/run/user/";
 
 /// Lê o número de áreas configuradas.
 fn workspace_count() -> u32 {
-    std::fs::read_to_string("/etc/makos/workspaces.conf")
+    std::fs::read_to_string("/etc/pineappleos/workspaces.conf")
         .ok()
         .and_then(|s| s.trim().parse().ok())
         .unwrap_or(DEFAULT_WORKSPACES)
@@ -24,7 +24,7 @@ fn workspace_count() -> u32 {
 /// Lê a área ativa a partir do arquivo de estado do compositor.
 fn active_workspace() -> Option<u32> {
     let uid = unsafe { libc::getuid() };
-    let path = format!("{STATE_FILE}{uid}/makos-workspace");
+    let path = format!("{STATE_FILE}{uid}/pineappleos-workspace");
     std::fs::read_to_string(path)
         .ok()?
         .trim()
@@ -37,7 +37,7 @@ pub fn indicator() -> Label {
     let count = workspace_count();
     let label = Label::new(None);
     label.set_markup(&render(count, None));
-    label.set_css_classes(&["mak-workspace-indicator"]);
+    label.set_css_classes(&["pineapple-workspace-indicator"]);
     label.set_tooltip_text(Some("Áreas de trabalho: Super+1..4"));
 
     // atualiza periodicamente a partir do estado do compositor

@@ -108,7 +108,7 @@ fn make_row(path: &Path, name: &str, size: u64) -> ListBoxRow {
     let vbox = gtk::Box::new(Orientation::Vertical, 0);
     let name_label = Label::new(Some(name));
     name_label.set_xalign(0.0);
-    name_label.set_css_classes(&["mak-file-name"]);
+    name_label.set_css_classes(&["pineapple-file-name"]);
     vbox.append(&name_label);
 
     let sub_text = if path.is_dir() {
@@ -118,7 +118,7 @@ fn make_row(path: &Path, name: &str, size: u64) -> ListBoxRow {
     };
     let sub = Label::new(Some(&sub_text));
     sub.set_xalign(0.0);
-    sub.set_css_classes(&["mak-file-meta"]);
+    sub.set_css_classes(&["pineapple-file-meta"]);
     vbox.append(&sub);
 
     hbox.append(&vbox);
@@ -402,7 +402,7 @@ fn load_directory(state: &FinderState, list: &ListBox, stack: &Stack, search: &S
 
 fn main() -> glib::ExitCode {
     let app = Application::builder()
-        .application_id("org.makos.finder")
+        .application_id("org.pineappleos.finder")
         .build();
 
     app.connect_activate(build_ui);
@@ -414,9 +414,9 @@ fn build_ui(app: &Application) {
     let selected = Rc::new(RefCell::new(None::<PathBuf>));
 
     let win = ApplicationWindow::new(app);
-    win.set_title(Some("Mak Finder"));
+    win.set_title(Some("Pineapple Finder"));
     win.set_default_size(960, 620);
-    win.set_css_classes(&["mak-finder-window"]);
+    win.set_css_classes(&["pineapple-finder-window"]);
 
     let root = gtk::Box::new(Orientation::Vertical, 0);
 
@@ -437,7 +437,7 @@ fn build_ui(app: &Application) {
     let path_label = Label::new(Some("/"));
     path_label.set_xalign(0.0);
     path_label.set_hexpand(true);
-    path_label.set_css_classes(&["mak-path"]);
+    path_label.set_css_classes(&["pineapple-path"]);
 
     let search = SearchEntry::new();
     search.set_placeholder_text(Some("Pesquisar..."));
@@ -453,7 +453,7 @@ fn build_ui(app: &Application) {
     let content = gtk::Box::new(Orientation::Horizontal, 0);
 
     let sidebar = ListBox::new();
-    sidebar.set_css_classes(&["mak-sidebar"]);
+    sidebar.set_css_classes(&["pineapple-sidebar"]);
     sidebar.set_width_request(180);
     let places: [(&str, &str); 4] = [
         ("folder-home-symbolic", "Início"),
@@ -485,7 +485,7 @@ fn build_ui(app: &Application) {
 
     // lista de arquivos
     let list = ListBox::new();
-    list.set_css_classes(&["mak-file-list"]);
+    list.set_css_classes(&["pineapple-file-list"]);
 
     let scroller = ScrolledWindow::new();
     scroller.set_child(Some(&list));
@@ -494,7 +494,7 @@ fn build_ui(app: &Application) {
     let empty = gtk::Box::new(Orientation::Vertical, 4);
     empty.set_vexpand(true);
     let msg = Label::new(Some("Pasta vazia"));
-    msg.set_css_classes(&["mak-empty"]);
+    msg.set_css_classes(&["pineapple-empty"]);
     empty.append(&msg);
 
     let stack = Stack::new();

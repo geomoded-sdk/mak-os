@@ -1,0 +1,13 @@
+[Unit]
+Description=Pineapple OS compositor Wayland (labwc)
+PartOf=pineappleos-session.target
+
+[Service]
+Type=simple
+ExecStartPre=/usr/share/pineappleos/Desktop/data/prepare.sh
+ExecStart=/usr/bin/labwc -c /usr/share/pineappleos/Desktop/data/labwc/rc.xml
+Restart=on-failure
+Slice=session.slice
+
+[Install]
+WantedBy=pineappleos-session.target

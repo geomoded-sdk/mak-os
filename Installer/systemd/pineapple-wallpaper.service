@@ -1,0 +1,13 @@
+[Unit]
+Description=Pineapple OS papel de parede (dinâmico estilo macOS Catalina)
+PartOf=pineappleos-session.target
+After=pineappleos-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/pineapple-wallpaper
+Restart=on-failure
+Slice=session.slice
+
+[Install]
+WantedBy=pineappleos-session.target

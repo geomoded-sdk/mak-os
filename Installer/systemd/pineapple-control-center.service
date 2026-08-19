@@ -1,0 +1,13 @@
+[Unit]
+Description=Pineapple OS Central de Controle
+PartOf=pineappleos-session.target
+After=pineappleos-session.target pineapple-notifyd.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/pineapple-control-center.py --daemon
+Restart=on-failure
+Slice=session.slice
+
+[Install]
+WantedBy=pineappleos-session.target

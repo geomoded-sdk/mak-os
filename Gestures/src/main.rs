@@ -1,9 +1,9 @@
 // =============================================================================
-//  mak-gestures — daemon de gestos no touchpad (libinput)
+//  pineapple-gestures — daemon de gestos no touchpad (libinput)
 //
 //  Lê os dispositivos de entrada via libinput (independente do compositor) e
-//  dispara comandos do Mak OS quando um gesto é reconhecido:
-//   - swipe up com 3 dedos → mak-mission (Mission Control, como no macOS)
+//  dispara comandos do Pineapple OS quando um gesto é reconhecido:
+//   - swipe up com 3 dedos → pineapple-mission (Mission Control, como no macOS)
 //
 //  O eixo Y do libinput cresce para baixo; um swipe "para cima" acumula dy
 //  negativo. As deltas são normalizadas para um dispositivo de 1000dpi.
@@ -80,7 +80,7 @@ fn handle_event(event: Event, state: &mut SwipeState) -> Option<&'static str> {
                 && state.dy < -SWIPE_THRESHOLD
                 && state.dy.abs() > state.dx.abs() * 1.2
             {
-                return Some("mak-mission");
+                return Some("pineapple-mission");
             }
         }
         _ => {}
@@ -94,19 +94,19 @@ fn spawn(cmd: &str) {
 }
 
 fn main() {
-    let seat = std::env::var("MAK_GESTURES_SEAT").unwrap_or_else(|_| "seat0".to_string());
+    let seat = std::env::var("PINEAPPLE_GESTURES_SEAT").unwrap_or_else(|_| "seat0".to_string());
 
     let mut input = Libinput::new_with_udev(Interface);
     if input.udev_assign_seat(&seat).is_err() {
-        eprintln!("[mak-gestures] falha ao atribuir o seat '{seat}'");
+        eprintln!("[pineapple-gestures] falha ao atribuir o seat '{seat}'");
         std::process::exit(1);
     }
-    println!("[mak-gestures] aguardando gestos no seat '{seat}' ({GESTURE_FINGERS} dedos p/ cima = Mission Control)");
+    println!("[pineapple-gestures] aguardando gestos no seat '{seat}' ({GESTURE_FINGERS} dedos p/ cima = Mission Control)");
 
     let mut state = SwipeState::default();
     loop {
         if let Err(err) = input.dispatch() {
-            eprintln!("[mak-gestures] erro de dispatch: {err}");
+            eprintln!("[pineapple-gestures] erro de dispatch: {err}");
             thread::sleep(Duration::from_millis(100));
             continue;
         }

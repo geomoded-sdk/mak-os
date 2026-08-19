@@ -1,10 +1,10 @@
-"""Testes de exportação/importação de notas em Markdown (Mak Notes)."""
+"""Testes de exportação/importação de notas em Markdown (Pineapple Notes)."""
 import os
 import sys
 import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "Apps", "Notes"))
-from mak_notes_io import note_from_markdown, note_to_markdown  # noqa: E402
+from pineapple_notes_io import note_from_markdown, note_to_markdown  # noqa: E402
 
 
 class TestNoteToMarkdown(unittest.TestCase):

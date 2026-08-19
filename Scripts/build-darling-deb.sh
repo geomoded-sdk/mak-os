@@ -74,10 +74,10 @@ Version: $VER
 Section: otherosfs
 Priority: optional
 Architecture: amd64
-Maintainer: Mak OS Project <dev@makos.example>
+Maintainer: Pineapple OS Project <dev@pineappleos.example>
 Depends: libc6 (>= 2.31)
 Description: Darling — emulation layer for macOS applications
- Pre-built for the Mak OS installer (pré-instalado na ISO).
+ Pre-built for the Pineapple OS installer (pré-instalado na ISO).
 EOF
 
 if command -v dpkg-shlibdeps >/dev/null 2>&1; then

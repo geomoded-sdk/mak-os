@@ -1,14 +1,14 @@
 # GRUB
-boot/grub/themes/makos/*
+boot/grub/themes/pineappleos/*
 
 # Plymouth
-usr/share/plymouth/themes/makos/*
+usr/share/plymouth/themes/pineappleos/*
 
 # SDDM
-usr/share/sddm/themes/makos/*
+usr/share/sddm/themes/pineappleos/*
 
 # Instalador Calamares
 usr/share/calamares/*
 
 # Versão
-etc/makos-version
+etc/pineappleos-version

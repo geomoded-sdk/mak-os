@@ -1,0 +1,16 @@
+[Unit]
+Description=Pineapple OS Assistente local (Ollama agent)
+PartOf=pineappleos-session.target
+After=pineappleos-session.target pineapple-ollama.service
+
+[Service]
+Type=simple
+Environment=OLLAMA_URL=http://127.0.0.1:11434
+Environment=PINEAPPLE_AI_MODEL=llama3.1
+ExecStart=/usr/bin/pineapple-ai --daemon
+Restart=always
+RestartSec=5
+Slice=session.slice
+
+[Install]
+WantedBy=pineappleos-session.target

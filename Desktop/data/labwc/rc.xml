@@ -11,7 +11,7 @@
   </resistance>
 
   <theme>
-    <name>Mak-HighSierra</name>
+    <name>Pineapple-HighSierra</name>
     <cornerRadius>12</cornerRadius>
     <font place="Title">Sora 10</font>
     <font place="ActiveWindow">Sora 10</font>
@@ -27,22 +27,22 @@
 
   <windowRules>
     <!-- Barra superior / dock devem ignorar decoração -->
-    <windowRule identifier="org.makos.shell">
+    <windowRule identifier="org.pineappleos.shell">
       <skipTaskbar>yes</skipTaskbar>
       <skipWindowSwitcher>yes</skipWindowSwitcher>
       <decorate>no</decorate>
     </windowRule>
-    <windowRule identifier="org.makos.dock">
+    <windowRule identifier="org.pineappleos.dock">
       <skipTaskbar>yes</skipTaskbar>
       <skipWindowSwitcher>yes</skipWindowSwitcher>
       <decorate>no</decorate>
     </windowRule>
-    <windowRule identifier="org.makos.launchpad">
+    <windowRule identifier="org.pineappleos.launchpad">
       <skipTaskbar>yes</skipTaskbar>
       <skipWindowSwitcher>yes</skipWindowSwitcher>
       <decorate>no</decorate>
     </windowRule>
-    <windowRule identifier="org.makos.mission">
+    <windowRule identifier="org.pineappleos.mission">
       <skipTaskbar>yes</skipTaskbar>
       <skipWindowSwitcher>yes</skipWindowSwitcher>
       <decorate>no</decorate>
@@ -53,15 +53,15 @@
     <default />
 
     <!-- Login -->
-    <keybind key="W-Return"><action name="Execute"><command>mak-terminal</command></action></keybind>
-    <keybind key="W-Space"><action name="Execute"><command>mak-launcher</command></action></keybind>
-    <keybind key="F4"><action name="Execute"><command>mak-launchpad</command></action></keybind>
-    <keybind key="F3"><action name="Execute"><command>mak-mission</command></action></keybind>
-    <keybind key="C-Up"><action name="Execute"><command>mak-mission</command></action></keybind>
-    <keybind key="W-E"><action name="Execute"><command>mak-finder</command></action></keybind>
-    <keybind key="W-S"><action name="Execute"><command>mak-settings</command></action></keybind>
-    <keybind key="W-A"><action name="Execute"><command>mak-assistant</command></action></keybind>
-    <keybind key="Sys-F1"><action name="Execute"><command>mak-control-center</command></action></keybind>
+    <keybind key="W-Return"><action name="Execute"><command>pineapple-terminal</command></action></keybind>
+    <keybind key="W-Space"><action name="Execute"><command>pineapple-launcher</command></action></keybind>
+    <keybind key="F4"><action name="Execute"><command>pineapple-launchpad</command></action></keybind>
+    <keybind key="F3"><action name="Execute"><command>pineapple-mission</command></action></keybind>
+    <keybind key="C-Up"><action name="Execute"><command>pineapple-mission</command></action></keybind>
+    <keybind key="W-E"><action name="Execute"><command>pineapple-finder</command></action></keybind>
+    <keybind key="W-S"><action name="Execute"><command>pineapple-settings</command></action></keybind>
+    <keybind key="W-A"><action name="Execute"><command>pineapple-assistant</command></action></keybind>
+    <keybind key="Sys-F1"><action name="Execute"><command>pineapple-control-center</command></action></keybind>
 
     <!-- Áreas de Trabalho Virtuais -->
     <keybind key="W-1"><action name="Workspace"><desktop>1</desktop></action></keybind>

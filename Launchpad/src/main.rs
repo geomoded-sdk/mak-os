@@ -83,7 +83,7 @@ pub fn discover_apps() -> Vec<AppItem> {
 /// Define a posição da janela: overlay em tela cheia sobre o compositor.
 fn place(window: &gtk::ApplicationWindow) {
     window.init_layer_shell();
-    window.set_namespace("makos-launchpad");
+    window.set_namespace("pineappleos-launchpad");
     window.set_layer(Layer::Overlay);
     window.set_anchor(Edge::Top, true);
     window.set_anchor(Edge::Bottom, true);
@@ -117,7 +117,7 @@ fn tile_for(app: &AppItem, index: usize) -> gtk::Button {
     vbox.append(&image);
 
     let name = Label::new(Some(&app.name));
-    name.set_css_classes(&["mak-launchpad-name"]);
+    name.set_css_classes(&["pineapple-launchpad-name"]);
     name.set_max_width_chars(14);
     name.set_ellipsize(gtk::pango::EllipsizeMode::End);
     name.set_xalign(0.5);
@@ -125,7 +125,7 @@ fn tile_for(app: &AppItem, index: usize) -> gtk::Button {
 
     let button = gtk::Button::new();
     button.set_child(Some(&vbox));
-    button.set_css_classes(&["mak-launchpad-tile"]);
+    button.set_css_classes(&["pineapple-launchpad-tile"]);
     button.set_widget_name(&format!("lp-{index}"));
     button
 }
@@ -140,12 +140,12 @@ struct Ui {
 fn build(app: &gtk::Application) -> Ui {
     let win = gtk::ApplicationWindow::new(app);
     win.set_decorated(false);
-    win.set_title(Some("Mak Launchpad"));
-    win.set_css_classes(&["mak-launchpad-window"]);
+    win.set_title(Some("Pineapple Launchpad"));
+    win.set_css_classes(&["pineapple-launchpad-window"]);
     place(&win);
 
     let root = gtk::Box::new(Orientation::Vertical, 18);
-    root.set_css_classes(&["mak-launchpad"]);
+    root.set_css_classes(&["pineapple-launchpad"]);
     root.set_margin_top(90);
     root.set_margin_bottom(70);
     root.set_margin_start(90);
@@ -155,11 +155,11 @@ fn build(app: &gtk::Application) -> Ui {
     entry.set_placeholder_text(Some("Pesquisar"));
     entry.set_halign(gtk::Align::Center);
     entry.set_width_request(360);
-    entry.set_css_classes(&["mak-launchpad-search"]);
+    entry.set_css_classes(&["pineapple-launchpad-search"]);
     root.append(&entry);
 
     let flow = FlowBox::new();
-    flow.set_css_classes(&["mak-launchpad-grid"]);
+    flow.set_css_classes(&["pineapple-launchpad-grid"]);
     flow.set_min_children_per_line(7);
     flow.set_max_children_per_line(7);
     flow.set_homogeneous(true);
@@ -255,7 +255,7 @@ fn build(app: &gtk::Application) -> Ui {
 fn main() -> glib::ExitCode {
     let hidden = std::env::args().any(|a| a == "--hidden");
     let app = gtk::Application::builder()
-        .application_id("org.makos.launchpad")
+        .application_id("org.pineappleos.launchpad")
         .build();
 
     // A janela é mantida viva entre ativações: cada F4 alterna mostrar/ocultar.

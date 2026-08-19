@@ -1,0 +1,13 @@
+[Unit]
+Description=Pineapple OS Mission Control
+PartOf=pineappleos-session.target
+After=pineappleos-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/pineapple-mission --hidden
+Restart=on-failure
+Slice=session.slice
+
+[Install]
+WantedBy=pineappleos-session.target

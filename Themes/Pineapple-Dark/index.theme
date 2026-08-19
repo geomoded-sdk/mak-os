@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=Pineapple-Dark
+Comment=Tema escuro do Pineapple OS
+Encoding=UTF-8
+
+[X-GNOME-Metatheme]
+GtkTheme=Pineapple-Dark
+IconTheme=pineapple-icons
+CursorTheme=Adwaita
+ButtonLayout=close,minimize,maximize

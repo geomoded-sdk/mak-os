@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-#  setup-voice.sh — dependências de voz (TTS + STT) para o Mak AI
+#  setup-voice.sh — dependências de voz (TTS + STT) para o Pineapple AI
 # =============================================================================
 set -euo pipefail
 
@@ -23,4 +23,4 @@ if [[ "$resp" =~ ^[sS]$ ]]; then
   pip3 install --user piper-tts
 fi
 
-echo "==> Pronto! Teste:  mak-voice 5"
+echo "==> Pronto! Teste:  pineapple-voice 5"

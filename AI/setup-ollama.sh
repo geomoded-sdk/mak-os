@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-#  setup-ollama.sh — instala e configura o Ollama para o Mak OS
+#  setup-ollama.sh — instala e configura o Ollama para o Pineapple OS
 # =============================================================================
 set -euo pipefail
 
@@ -12,10 +12,10 @@ if ! command -v ollama >/dev/null 2>&1; then
   curl -fsSL https://ollama.com/install.sh | sh
 fi
 
-echo "==> Criando serviço systemd (mak-ollama.service)"
-sudo tee /etc/systemd/system/mak-ollama.service > /dev/null <<EOF
+echo "==> Criando serviço systemd (pineapple-ollama.service)"
+sudo tee /etc/systemd/system/pineapple-ollama.service > /dev/null <<EOF
 [Unit]
-Description=Mak OS Ollama (assistente local)
+Description=Pineapple OS Ollama (assistente local)
 After=network.target
 
 [Service]
@@ -30,9 +30,9 @@ WantedBy=default.target
 EOF
 
 sudo systemctl daemon-reload
-sudo systemctl enable --now mak-ollama.service
+sudo systemctl enable --now pineapple-ollama.service
 
 echo "==> Baixando modelo ${MODEL} (primeira execução demora um pouco)"
 ollama pull "${MODEL}"
 
-echo "==> Pronto! Teste:  mak-ai 'resuma como anda o tempo por aí'"
+echo "==> Pronto! Teste:  pineapple-ai 'resuma como anda o tempo por aí'"

@@ -1,0 +1,18 @@
+# =============================================================================
+#  /etc/os-release — identidade do Pineapple OS
+#
+#  Este arquivo substitui o os-release do Debian/Ubuntu na imagem, para que o
+#  sistema se apresente como "Pineapple OS" (e não como GNU/Linux genérico).
+#  É a única camada "visível" de identidade do sistema junto com o uname
+#  (CONFIG_LOCALVERSION="-pineappleos", ver Kernel/config-6.1-pineappleos).
+# =============================================================================
+NAME="Pineapple OS"
+ID=pineappleos
+PRETTY_NAME="Pineapple OS 0.1"
+VERSION="0.1"
+VERSION_ID="0.1"
+VERSION_CODENAME=pineapple
+ID_LIKE=debian
+HOME_URL="https://example.org/pineappleos"
+SUPPORT_URL="https://example.org/pineappleos/support"
+BUG_REPORT_URL="https://example.org/pineappleos/issues"

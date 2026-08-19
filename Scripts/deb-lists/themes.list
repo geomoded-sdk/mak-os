@@ -1,13 +1,13 @@
 # Temas GTK
-usr/share/themes/Mak-Dark/*
-usr/share/themes/Mak-Light/*
-usr/share/themes/Mak-HighSierra/*
+usr/share/themes/Pineapple-Dark/*
+usr/share/themes/Pineapple-Light/*
+usr/share/themes/Pineapple-HighSierra/*
 
 # Ícones
-usr/share/icons/mak-icons/*
+usr/share/icons/pineapple-icons/*
 
 # Wallpaper
-usr/share/backgrounds/makos/*
+usr/share/backgrounds/pineappleos/*
 
 # Schemas GSettings
-usr/share/glib-2.0/schemas/org.makos.gschema.xml
+usr/share/glib-2.0/schemas/org.pineappleos.gschema.xml

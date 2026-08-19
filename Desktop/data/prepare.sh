@@ -5,17 +5,17 @@
 set -euo pipefail
 
 export XDG_SESSION_TYPE=wayland
-export XDG_CURRENT_DESKTOP=MakOS
+export XDG_CURRENT_DESKTOP=PineappleOS
 
 # Aplica o papel de parede (tema próprio) via compositor/kanshi se disponível
-if [ -f /usr/share/backgrounds/makos/wallpaper.svg ]; then
+if [ -f /usr/share/backgrounds/pineappleos/wallpaper.svg ]; then
   true  # definido pelo WCAG/background do compositor
 fi
 
 # Garante que as variáveis de ambiente do usuário estejam disponíveis
-if [ -f "$HOME/.config/makos.env" ]; then
+if [ -f "$HOME/.config/pineappleos.env" ]; then
   # shellcheck disable=SC1091
-  . "$HOME/.config/makos.env"
+  . "$HOME/.config/pineappleos.env"
 fi
 
 exit 0

@@ -1,23 +1,23 @@
-# Mak Shell / Desktop
+# Pineapple Shell / Desktop
 
-Shell do Mak OS: barra superior, session manager e compositor.
+Shell do Pineapple OS: barra superior, session manager e compositor.
 
 ## Componentes
 
 | Binário       | Descrição                                        |
 |---------------|--------------------------------------------------|
-| `mak-shell`   | Barra superior (Layer Shell) + menu + status     |
-| `mak-session` | Gerenciador de sessão (compositor + componentes) |
+| `pineapple-shell`   | Barra superior (Layer Shell) + menu + status     |
+| `pineapple-session` | Gerenciador de sessão (compositor + componentes) |
 
 ## Estrutura
 
 ```
 src/
-├── main.rs            # entrypoint do mak-shell
+├── main.rs            # entrypoint do pineapple-shell
 ├── shell.rs           # barra superior (Layer Shell top)
 ├── status.rs          # relógio e área de status
-├── menu.rs            # menu MaK (popover)
-└── bin/mak-session.rs # gerenciador de sessão
+├── menu.rs            # menu Pineapple (popover)
+└── bin/pineapple-session.rs # gerenciador de sessão
 data/
 └── labwc/rc.xml       # config do compositor (atalhos, áreas virtuais)
 ```
@@ -36,6 +36,6 @@ cargo build --release --manifest-path Desktop/Cargo.toml
 
 ## Sessão
 
-`mak-session` inicia o compositor e sobe os componentes da interface.
+`pineapple-session` inicia o compositor e sobe os componentes da interface.
 Em modo systemd, cada componente é um serviço `user` (ver
 `Installer/systemd/`).

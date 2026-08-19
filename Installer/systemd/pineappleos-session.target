@@ -1,0 +1,9 @@
+[Unit]
+Description=Pineapple OS session target
+Documentation=file:/usr/share/doc/pineappleos/
+Requires=graphical-session.target
+BindsTo=graphical-session.target
+After=graphical-session.target
+
+[Install]
+WantedBy=graphical-session.target

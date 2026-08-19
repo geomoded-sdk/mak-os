@@ -1,5 +1,5 @@
 // =============================================================================
-//  mak-mission — Mission Control e Spaces do Mak OS
+//  pineapple-mission — Mission Control e Spaces do Pineapple OS
 //
 //  Visão geral em tela cheia estilo macOS:
 //   - faixa superior de Spaces (áreas de trabalho) via ext-workspace-v1;
@@ -300,8 +300,8 @@ fn icon_for(app_id: &str) -> String {
     if id.is_empty() {
         return "application-x-executable".to_string();
     }
-    if let Some(rest) = id.strip_prefix("org.makos.") {
-        return format!("mak-{}", rest.replace('.', "-"));
+    if let Some(rest) = id.strip_prefix("org.pineappleos.") {
+        return format!("pineapple-{}", rest.replace('.', "-"));
     }
     id
 }
@@ -324,7 +324,7 @@ fn card_for(entry: &WindowEntry) -> gtk::Button {
     }
 
     let label = Label::new(Some(&title));
-    label.set_css_classes(&["mak-mission-card-title"]);
+    label.set_css_classes(&["pineapple-mission-card-title"]);
     label.set_max_width_chars(18);
     label.set_ellipsize(gtk::pango::EllipsizeMode::End);
     label.set_xalign(0.5);
@@ -332,7 +332,7 @@ fn card_for(entry: &WindowEntry) -> gtk::Button {
 
     let button = gtk::Button::new();
     button.set_child(Some(&vbox));
-    button.set_css_classes(&["mak-mission-card"]);
+    button.set_css_classes(&["pineapple-mission-card"]);
     button.set_tooltip_text(Some(&title));
     button
 }
@@ -351,7 +351,7 @@ fn rebuild(
     match &shared.workspace_manager {
         None => {
             let hint = Label::new(Some("Áreas de trabalho: use os atalhos Super+1..4"));
-            hint.set_css_classes(&["mak-mission-hint"]);
+            hint.set_css_classes(&["pineapple-mission-hint"]);
             spaces.append(&hint);
         }
         Some(manager) => {
@@ -363,9 +363,9 @@ fn rebuild(
                     ws.name.clone()
                 };
                 let button = gtk::Button::with_label(&name);
-                button.set_css_classes(&["mak-mission-space"]);
+                button.set_css_classes(&["pineapple-mission-space"]);
                 if ws.active {
-                    button.add_css_class("mak-mission-space-active");
+                    button.add_css_class("pineapple-mission-space-active");
                 }
                 if ws.can_activate {
                     let handle = ws.handle.clone();
@@ -437,7 +437,7 @@ impl Ui {
 
 fn place(window: &gtk::ApplicationWindow) {
     window.init_layer_shell();
-    window.set_namespace("makos-mission");
+    window.set_namespace("pineappleos-mission");
     window.set_layer(Layer::Overlay);
     window.set_anchor(Edge::Top, true);
     window.set_anchor(Edge::Bottom, true);
@@ -450,29 +450,29 @@ fn place(window: &gtk::ApplicationWindow) {
 fn build(app: &gtk::Application, shared: Arc<Mutex<Shared>>) -> Ui {
     let win = gtk::ApplicationWindow::new(app);
     win.set_decorated(false);
-    win.set_title(Some("Mak Mission Control"));
-    win.set_css_classes(&["mak-mission-window"]);
+    win.set_title(Some("Pineapple Mission Control"));
+    win.set_css_classes(&["pineapple-mission-window"]);
     place(&win);
 
     let root = Box::new(Orientation::Vertical, 18);
-    root.set_css_classes(&["mak-mission"]);
+    root.set_css_classes(&["pineapple-mission"]);
     root.set_margin_top(70);
     root.set_margin_bottom(70);
     root.set_margin_start(90);
     root.set_margin_end(90);
 
     let title = Label::new(Some("Mission Control"));
-    title.set_css_classes(&["mak-mission-title"]);
+    title.set_css_classes(&["pineapple-mission-title"]);
     title.set_halign(gtk::Align::Center);
     root.append(&title);
 
     let spaces = Box::new(Orientation::Horizontal, 10);
-    spaces.set_css_classes(&["mak-mission-spaces"]);
+    spaces.set_css_classes(&["pineapple-mission-spaces"]);
     spaces.set_halign(gtk::Align::Center);
     root.append(&spaces);
 
     let flow = FlowBox::new();
-    flow.set_css_classes(&["mak-mission-grid"]);
+    flow.set_css_classes(&["pineapple-mission-grid"]);
     flow.set_min_children_per_line(5);
     flow.set_max_children_per_line(5);
     flow.set_homogeneous(true);
@@ -487,7 +487,7 @@ fn build(app: &gtk::Application, shared: Arc<Mutex<Shared>>) -> Ui {
     root.append(&scroller);
 
     let empty = Label::new(Some("Nenhuma janela aberta"));
-    empty.set_css_classes(&["mak-mission-empty"]);
+    empty.set_css_classes(&["pineapple-mission-empty"]);
     empty.set_halign(gtk::Align::Center);
     empty.set_visible(false);
     root.append(&empty);
@@ -543,14 +543,14 @@ fn main() -> glib::ExitCode {
         Some(s) => s,
         None => {
             eprintln!(
-                "[mak-mission] aviso: sem conexão Wayland — rodando sem dados de janelas"
+                "[pineapple-mission] aviso: sem conexão Wayland — rodando sem dados de janelas"
             );
             Arc::new(Mutex::new(Shared::default()))
         }
     };
 
     let app = gtk::Application::builder()
-        .application_id("org.makos.mission")
+        .application_id("org.pineappleos.mission")
         .build();
 
     // A janela é mantida viva entre ativações: cada F3 alterna mostrar/ocultar.

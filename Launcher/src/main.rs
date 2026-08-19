@@ -94,13 +94,13 @@ fn row_for(app: &AppItem) -> ListBoxRow {
     let vbox = gtk::Box::new(Orientation::Vertical, 0);
     let name = Label::new(Some(&app.name));
     name.set_xalign(0.0);
-    name.set_css_classes(&["mak-launcher-name"]);
+    name.set_css_classes(&["pineapple-launcher-name"]);
     vbox.append(&name);
 
     if !app.comment.is_empty() {
         let comment = Label::new(Some(&app.comment));
         comment.set_xalign(0.0);
-        comment.set_css_classes(&["mak-launcher-comment"]);
+        comment.set_css_classes(&["pineapple-launcher-comment"]);
         vbox.append(&comment);
     }
     hbox.append(&vbox);
@@ -133,20 +133,20 @@ fn system_button(icon: &str, tooltip: &str, cmd: &str) -> gtk::Button {
 pub fn build(app: &Application) -> ApplicationWindow {
     let win = ApplicationWindow::new(app);
     win.set_decorated(false);
-    win.set_title(Some("Mak Launcher"));
-    win.set_css_classes(&["mak-launcher-window"]);
+    win.set_title(Some("Pineapple Launcher"));
+    win.set_css_classes(&["pineapple-launcher-window"]);
 
     let vbox = gtk::Box::new(Orientation::Vertical, 6);
-    vbox.set_css_classes(&["mak-launcher"]);
+    vbox.set_css_classes(&["pineapple-launcher"]);
 
     let entry = SearchEntry::new();
     entry.set_placeholder_text(Some("Pesquisar aplicativos, arquivos, comandos..."));
     entry.set_hexpand(true);
-    entry.set_css_classes(&["mak-launcher-entry"]);
+    entry.set_css_classes(&["pineapple-launcher-entry"]);
     vbox.append(&entry);
 
     let list = ListBox::new();
-    list.set_css_classes(&["mak-launcher-list"]);
+    list.set_css_classes(&["pineapple-launcher-list"]);
     list.set_selection_mode(gtk::SelectionMode::Single);
 
     let all = discover_apps();
@@ -260,7 +260,7 @@ pub fn build(app: &Application) -> ApplicationWindow {
 fn main() -> glib::ExitCode {
     let hidden = std::env::args().any(|a| a == "--hidden");
     let app = Application::builder()
-        .application_id("org.makos.launcher")
+        .application_id("org.pineappleos.launcher")
         .build();
 
     app.connect_activate(move |app| {

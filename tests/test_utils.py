@@ -1,16 +1,16 @@
-"""Testes utilitários do Mak OS (formatação, persistência, gerenciador)."""
+"""Testes utilitários do Pineapple OS (formatação, persistência, gerenciador)."""
 import os
 import sys
 import tempfile
 import unittest
 
-# Mak AppImage manager
+# Pineapple AppImage manager
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "Compatibility", "AppImage"))
 
 
 class TestAppImageSlug(unittest.TestCase):
     def test_slug_lowercases(self):
-        # réplica da lógica do mak-appimage.sh
+        # réplica da lógica do pineapple-appimage.sh
         def slug(name):
             return name.lower().replace(" ", "-")
 

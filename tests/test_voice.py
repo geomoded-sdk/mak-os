@@ -1,11 +1,11 @@
-"""Testes do módulo de voz do Mak AI (sem exigir mic/áudio)."""
+"""Testes do módulo de voz do Pineapple AI (sem exigir mic/áudio)."""
 import os
 import sys
 import unittest
 from unittest.mock import patch
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "AI"))
-from mak_ai import Agent  # noqa: E402
+from pineapple_ai import Agent  # noqa: E402
 import voice  # noqa: E402
 
 

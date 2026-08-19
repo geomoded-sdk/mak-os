@@ -1,8 +1,8 @@
 [package]
-name = "mak-shell"
+name = "pineapple-shell"
 version = "0.1.0"
 edition = "2021"
-description = "Mak OS — barra superior e shell do sistema"
+description = "Pineapple OS — barra superior e shell do sistema"
 license = "GPL-3.0"
 
 [dependencies]
@@ -17,9 +17,9 @@ chrono = "0.4"
 libc = "0.2"
 
 [[bin]]
-name = "mak-shell"
+name = "pineapple-shell"
 path = "src/main.rs"
 
 [[bin]]
-name = "mak-session"
-path = "src/bin/mak-session.rs"
+name = "pineapple-session"
+path = "src/bin/pineapple-session.rs"

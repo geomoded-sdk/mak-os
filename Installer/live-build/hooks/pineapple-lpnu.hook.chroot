@@ -1,0 +1,74 @@
+#!/bin/bash
+# =============================================================================
+#  pineapple-lpnu.hook.chroot — LPNU na ISO do Pineapple OS (hook do live-build)
+#
+#  Roda DENTRO do chroot durante o build da imagem (após os pacotes serem
+#  instalados). Compila os módulos do LPNU DO FONTE contra o kernel da própria
+#  ISO e instala o ld-mac:
+#
+#    * lpnu.ko  — kernel compatibility layer (execução de binários macOS)
+#    * apfs.ko  — filesystem APFS (linux-apfs-rw v0.3.19)
+#    * ld-mac   — Mach-O loader
+#
+#  OBRIGATÓRIO: qualquer falha (fontes ausentes, compilação, vermagic) aborta
+#  o build da ISO. Os fontes são baixados pelo build-iso.sh (host) e ficam em
+#  /root/lpnu-build (via config/includes.chroot).
+# =============================================================================
+set -euo pipefail
+
+SRC=/root/lpnu-build
+[ -d "$SRC" ] || { echo "ERRO: fontes do LPNU não encontradas em $SRC" >&2; exit 1; }
+
+echo "==> [LPNU] Localizando headers do kernel da ISO"
+HDRS=""
+for d in /usr/src/linux-headers-*; do
+  if [ -f "$d/Makefile" ]; then HDRS="$d"; break; fi
+done
+[ -n "$HDRS" ] || { echo "ERRO: linux-headers não instalados no chroot" >&2; exit 1; }
+KVER="$(basename "$HDRS" | sed 's/^linux-headers-//')"
+echo "    headers=$HDRS"
+echo "    kernel=$KVER"
+
+echo "==> [LPNU] Extraindo fontes"
+mkdir -p /root/lpnu-work/lpnu /root/lpnu-work/apfs
+tar xzf "$SRC/lpnu-src.tar.gz" -C /root/lpnu-work/lpnu --strip-components=1
+tar xzf "$SRC/apfs-src.tar.gz" -C /root/lpnu-work/apfs --strip-components=1
+
+echo "==> [LPNU] Compilando lpnu.ko contra $KVER"
+make -C "$HDRS" M=/root/lpnu-work/lpnu/linux-7.0/fs/lpnu modules
+
+echo "==> [LPNU] Compilando apfs.ko contra $KVER"
+make -C "$HDRS" M=/root/lpnu-work/apfs modules
+
+LPNU_KO=/root/lpnu-work/lpnu/linux-7.0/fs/lpnu/lpnu.ko
+APFS_KO=/root/lpnu-work/apfs/apfs.ko
+[ -f "$LPNU_KO" ] || { echo "ERRO: lpnu.ko não foi gerado" >&2; exit 1; }
+[ -f "$APFS_KO" ] || { echo "ERRO: apfs.ko não foi gerado" >&2; exit 1; }
+
+echo "==> [LPNU] Verificando vermagic (obrigatório)"
+for ko in "$LPNU_KO" "$APFS_KO"; do
+  if ! strings "$ko" | grep -q "vermagic=$KVER"; then
+    echo "ERRO: vermagic de $ko não bate com $KVER" >&2
+    exit 1
+  fi
+done
+echo "    vermagic confirmado para $KVER"
+
+echo "==> [LPNU] Instalando módulos"
+mkdir -p "/lib/modules/$KVER/extra"
+install -m 0644 "$LPNU_KO" "$APFS_KO" "/lib/modules/$KVER/extra/"
+depmod -a "$KVER"
+
+echo "==> [LPNU] Instalando ld-mac (Mach-O loader)"
+install -m 0755 "$SRC/ld-mac" /usr/local/bin/ld-mac
+
+echo "==> [LPNU] Ativando lpnu + apfs no boot"
+cat > /etc/modules-load.d/pineapple-lpnu.conf <<'EOF'
+lpnu
+apfs
+EOF
+
+echo "==> [LPNU] Limpeza (fontes de build não vão para a ISO)"
+rm -rf /root/lpnu-work /root/lpnu-build
+
+echo "==> [LPNU] pronto: lpnu.ko + apfs.ko + ld-mac embutidos na ISO"

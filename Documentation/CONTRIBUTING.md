@@ -1,4 +1,4 @@
-# Contribuindo para o Mak OS
+# Contribuindo para o Pineapple OS
 
 Obrigado pelo interesse em contribuir! Este documento define as regras do projeto.
 
@@ -60,7 +60,7 @@ Component/
 
 - Rust: `cargo test`.
 - Python: `pytest` (adicione testes para novos apps).
-- UI: teste manual com o `mak-session` (session de desenvolvimento).
+- UI: teste manual com o `pineapple-session` (session de desenvolvimento).
 
 ## Reportando problemas
 

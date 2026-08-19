@@ -1,6 +1,6 @@
-# Mak Store
+# Pineapple Store
 
-Loja de aplicativos do Mak OS. Usa **Flatpak** como backend.
+Loja de aplicativos do Pineapple OS. Usa **Flatpak** como backend.
 
 ## Funcionalidades
 
@@ -20,11 +20,11 @@ Loja de aplicativos do Mak OS. Usa **Flatpak** como backend.
 ## Estrutura
 
 ```
-mak-store.py   # app GTK4
+pineapple-store.py   # app GTK4
 ```
 
 ## Rodar
 
 ```bash
-python3 Apps/Store/mak-store.py
+python3 Apps/Store/pineapple-store.py
 ```

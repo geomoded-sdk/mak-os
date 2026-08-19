@@ -1,5 +1,5 @@
 # =============================================================================
-#  mak voice — síntese e reconhecimento de voz locais para o Mak AI
+#  pineapple voice — síntese e reconhecimento de voz locais para o Pineapple AI
 #
 #  TTS:  espeak-ng (padrão) ou piper (qualidade, opcional)
 #  STT:  Vosk (offline, modelo ~50 MB) — grava com arecord/sox
@@ -11,10 +11,10 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-TTS_ENGINE = os.environ.get("MAK_TTS", "espeak")
+TTS_ENGINE = os.environ.get("PINEAPPLE_TTS", "espeak")
 VOSK_MODEL_DIR = os.environ.get("VOSK_MODEL_DIR", str(Path.home() / ".local/share/vosk"))
 
-LANG = os.environ.get("MAK_LANG", "pt-BR")
+LANG = os.environ.get("PINEAPPLE_LANG", "pt-BR")
 
 
 class TTS:
@@ -122,7 +122,7 @@ def cli() -> int:
     import sys
 
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    from mak_ai import Agent, OllamaClient
+    from pineapple_ai import Agent, OllamaClient
 
     agent = Agent(OllamaClient())
     va = VoiceAssistant(agent)

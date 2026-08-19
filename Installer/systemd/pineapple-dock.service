@@ -1,0 +1,13 @@
+[Unit]
+Description=Pineapple OS Dock (dock inferior)
+PartOf=pineappleos-session.target
+After=pineappleos-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/pineapple-dock
+Restart=on-failure
+Slice=session.slice
+
+[Install]
+WantedBy=pineappleos-session.target

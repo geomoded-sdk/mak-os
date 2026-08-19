@@ -9,7 +9,7 @@ use gtk::prelude::*;
 
 fn main() -> glib::ExitCode {
     let app = gtk::Application::builder()
-        .application_id("org.makos.shell")
+        .application_id("org.pineappleos.shell")
         .build();
 
     app.connect_activate(build_ui);

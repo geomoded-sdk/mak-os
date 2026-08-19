@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+
+  <schema id="org.pineappleos.desktop" path="/org/pineappleos/desktop/">
+    <key name="theme-name" type="s">
+      <default>'Pineapple-HighSierra'</default>
+      <summary>Tema GTK ativo</summary>
+      <description>Nome do tema GTK usado pelo Pineapple OS.</description>
+    </key>
+    <key name="color-scheme" type="s">
+      <default>'prefer-light'</default>
+      <choices>
+        <choice value='prefer-light'/>
+        <choice value='prefer-dark'/>
+        <choice value='default'/>
+      </choices>
+    </key>
+    <key name="background" type="s">
+      <default>'/usr/share/backgrounds/pineappleos/highsierra.svg'</default>
+      <summary>Imagem de fundo da área de trabalho</summary>
+    </key>
+    <key name="background-mode" type="s">
+      <default>'static'</default>
+      <choices>
+        <choice value='static'/>
+        <choice value='catalina'/>
+      </choices>
+      <summary>Modo do papel de parede</summary>
+      <description>static usa a imagem fixa em background; catalina troca
+        automaticamente conforme o horário (estilo macOS Catalina).</description>
+    </key>
+    <key name="background-dir" type="s">
+      <default>'/usr/share/backgrounds/pineappleos'</default>
+      <summary>Pasta onde ficam os wallpapers do Pineapple OS</summary>
+    </key>
+    <key name="primary-color" type="s">
+      <default>'#4f9dde'</default>
+      <summary>Cor primária da identidade</summary>
+    </key>
+    <key name="accent-color" type="s">
+      <default>'#e2776f'</default>
+      <summary>Cor de destaque da identidade</summary>
+    </key>
+  </schema>
+
+  <schema id="org.pineappleos.dock" path="/org/pineappleos/dock/">
+    <key name="icon-size" type="i">
+      <default>48</default>
+      <range min="24" max="96"/>
+    </key>
+    <key name="magnification" type="b">
+      <default>true</default>
+    </key>
+    <key name="auto-hide" type="b">
+      <default>false</default>
+    </key>
+    <key name="pinned" type="as">
+      <default>['pineapple-finder', 'pineapple-terminal', 'pineapple-browser', 'pineapple-music', 'pineapple-photos', 'pineapple-notes', 'pineapple-store', 'pineapple-settings', 'pineapple-calc']</default>
+    </key>
+  </schema>
+
+  <schema id="org.pineappleos.session" path="/org/pineappleos/session/">
+    <key name="workspaces" type="i">
+      <default>4</default>
+      <range min="1" max="16"/>
+    </key>
+    <key name="compositor" type="s">
+      <default>'labwc'</default>
+    </key>
+    <key name="autostart" type="as">
+      <default>['pineapple-finder', 'pineapple-settings']</default>
+      <description>Apps iniciados junto com a sessão</description>
+    </key>
+  </schema>
+
+  <schema id="org.pineappleos.ai" path="/org/pineappleos/ai/">
+    <key name="enabled" type="b">
+      <default>true</default>
+    </key>
+    <key name="model" type="s">
+      <default>'llama3.1'</default>
+    </key>
+    <key name="ollama-url" type="s">
+      <default>'http://127.0.0.1:11434'</default>
+    </key>
+    <key name="wake-word" type="s">
+      <default>'pineapple'</default>
+    </key>
+  </schema>
+
+  <schema id="org.pineappleos.appearance" path="/org/pineappleos/appearance/">
+    <key name="font" type="s">
+      <default>'Sora 10'</default>
+    </key>
+    <key name="icon-theme" type="s">
+      <default>'pineapple-icons'</default>
+    </key>
+    <key name="cursor-theme" type="s">
+      <default>'Adwaita'</default>
+    </key>
+    <key name="night-light" type="b">
+      <default>false</default>
+    </key>
+  </schema>
+
+  <schema id="org.pineappleos.notifications" path="/org/pineappleos/notifications/">
+    <key name="show-banners" type="b">
+      <default>true</default>
+    </key>
+    <key name="do-not-disturb" type="b">
+      <default>false</default>
+    </key>
+  </schema>
+
+</schemalist>

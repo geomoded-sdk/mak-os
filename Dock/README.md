@@ -1,6 +1,6 @@
-# Mak Dock
+# Pineapple Dock
 
-Dock inferior do Mak OS com animação de magnificação.
+Dock inferior do Pineapple OS com animação de magnificação.
 
 ## Funcionalidades
 
@@ -24,5 +24,5 @@ cargo build --release --manifest-path Dock/Cargo.toml
 ## Personalização
 
 A lista de apps fixados pode virar configuração GSettings
-(`org.makos.dock.pinned`). Para usar apps de outro lugar, edite
+(`org.pineappleos.dock.pinned`). Para usar apps de outro lugar, edite
 `default_icons()`.

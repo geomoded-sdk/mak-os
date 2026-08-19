@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=Pineapple-Light
+Comment=Tema claro do Pineapple OS
+Encoding=UTF-8
+
+[X-GNOME-Metatheme]
+GtkTheme=Pineapple-Light
+IconTheme=pineapple-icons
+CursorTheme=Adwaita
+ButtonLayout=close,minimize,maximize

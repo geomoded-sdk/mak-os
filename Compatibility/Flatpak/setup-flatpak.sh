@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-#  setup-flatpak.sh — habilita Flatpak + Flathub no Mak OS
+#  setup-flatpak.sh — habilita Flatpak + Flathub no Pineapple OS
 # =============================================================================
 set -euo pipefail
 
@@ -13,7 +13,7 @@ echo "==> Adicionando Flathub"
 flatpak remote-add --if-not-exists flathub \
   https://dl.flathub.org/repo/flathub.flatpakrepo
 
-echo "==> Configurando permissões para o Mak Store"
+echo "==> Configurando permissões para o Pineapple Store"
 mkdir -p "$HOME/.config"
 cat > "$HOME/.config/flatpak.ini" <<EOF
 [Core]

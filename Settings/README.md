@@ -1,6 +1,6 @@
-# Mak Settings
+# Pineapple Settings
 
-Configurações do sistema do Mak OS (GTK4/Python).
+Configurações do sistema do Pineapple OS (GTK4/Python).
 
 ## Categorias
 
@@ -14,17 +14,17 @@ Configurações do sistema do Mak OS (GTK4/Python).
 
 - Modifica o esquema de cores e tema via `gsettings` (org.gnome.desktop.interface).
 - Configurações persistidas em GSettings (schemas em
-  `Installer/schemas/org.makos.gschema.xml`).
+  `Installer/schemas/org.pineappleos.gschema.xml`).
 
 ## Rodar
 
 ```bash
-python3 Apps/Settings/mak-settings.py
+python3 Apps/Settings/pineapple-settings.py
 ```
 
 ## Estrutura
 
 ```
-Apps/Settings/mak-settings.py   # implementação
+Apps/Settings/pineapple-settings.py   # implementação
 Settings/                       # (este diretório: docs e dados)
 ```

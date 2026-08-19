@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-#  setup-systemd.sh — instala os serviços de sessão (user) do Mak OS
+#  setup-systemd.sh — instala os serviços de sessão (user) do Pineapple OS
 # =============================================================================
 set -euo pipefail
 
@@ -16,10 +16,10 @@ echo "==> Recarregando systemd (user)"
 systemctl --user daemon-reload
 
 echo "==> Habilitando a sessão"
-systemctl --user enable --now makos-session.target || true
+systemctl --user enable --now pineappleos-session.target || true
 
 echo "==> Serviços habilitados:"
-for u in mak-shell mak-dock mak-launcher mak-launchpad mak-mission mak-gestures mak-notifyd mak-control-center mak-ai; do
+for u in pineapple-wallpaper pineapple-shell pineapple-dock pineapple-launcher pineapple-launchpad pineapple-mission pineapple-gestures pineapple-notifyd pineapple-control-center pineapple-ai; do
   systemctl --user enable "$u" 2>/dev/null || true
 done
 

@@ -1,26 +1,28 @@
 # =============================================================================
-#  Mak OS — Makefile de conveniência
+#  Pineapple OS — Makefile de conveniência
 # =============================================================================
 
 PREFIX ?= /usr/local
 
-.PHONY: all help build python icons rust test install uninstall iso kernel \
+.PHONY: all help build python icons backgrounds wallpapers rust test install uninstall iso kernel \
         session clean fmt check
 
 help:
 	@echo "Alvos disponíveis:"
-	@echo "  build    compila componentes Rust + copia apps Python"
-	@echo "  icons    gera os ícones SVG"
-	@echo "  test     roda a suíte de testes (Python)"
-	@echo "  install  instala no sistema (sudo)"
-	@echo "  iso      gera a ISO live (live-build)"
-	@echo "  kernel   compila o kernel otimizado"
-	@echo "  session  inicia a sessão de desenvolvimento"
-	@echo "  clean    remove artefatos de build"
+	@echo "  build        compila componentes Rust + copia apps Python"
+	@echo "  icons        gera os ícones SVG"
+	@echo "  backgrounds  gera os PNGs de boot/login (abacaxi, avatar)"
+	@echo "  wallpapers   gera os wallpapers dinâmicos (Catalina)"
+	@echo "  test         roda a suíte de testes (Python)"
+	@echo "  install      instala no sistema (sudo)"
+	@echo "  iso          gera a ISO live (live-build)"
+	@echo "  kernel       compila o kernel otimizado"
+	@echo "  session      inicia a sessão de desenvolvimento"
+	@echo "  clean        remove artefatos de build"
 
 all: build
 
-build: icons
+build: icons backgrounds wallpapers
 	./Scripts/build.sh
 
 python:
@@ -38,6 +40,12 @@ rust:
 
 icons:
 	python3 Scripts/gen-icons.py
+
+backgrounds:
+	python3 Scripts/gen-backgrounds.py
+
+wallpapers:
+	python3 Scripts/gen-catalina.py
 
 test:
 	python3 -m unittest discover -s tests -v
