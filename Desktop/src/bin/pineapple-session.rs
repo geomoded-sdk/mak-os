@@ -62,7 +62,9 @@ fn workspace_count() -> u32 {
 /// Simula o IPC de troca de workspace. Em produção, use o IPC do compositor
 /// (ex.: `swaymsg workspace N` no sway, ou a API wlroots equivalente).
 fn switch_workspace(n: u32) {
-    let _ = Command::new(COMPOSITOR).arg(format!("workspace {n}")).spawn();
+    let _ = Command::new(COMPOSITOR)
+        .arg(format!("workspace {n}"))
+        .spawn();
 }
 
 /// Inicia o compositor em primeiro plano. Retorna seu PID.
@@ -85,7 +87,11 @@ fn main() -> glib::ExitCode {
     let mut procs: HashMap<&'static str, Managed> = HashMap::new();
 
     // inicia o compositor como processo supervisor
-    let _compositor = Managed::launch("labwc", &["-c", "/usr/share/pineappleos/Desktop/data/labwc/rc.xml"], &[]);
+    let _compositor = Managed::launch(
+        "labwc",
+        &["-c", "/usr/share/pineappleos/Desktop/data/labwc/rc.xml"],
+        &[],
+    );
 
     // pequena espera pelo compositor
     thread::sleep(Duration::from_millis(1200));

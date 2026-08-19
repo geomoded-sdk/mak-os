@@ -70,10 +70,13 @@ impl ShellBar {
 
 /// Mantém o relógio atualizado (a cada segundo).
 pub fn start_clock_loop(clock_label: Label) {
-    glib::timeout_add_seconds_local(1, clone!(@strong clock_label => move || {
-        clock_label.set_label(&status::now_string());
-        glib::ControlFlow::Continue
-    }));
+    glib::timeout_add_seconds_local(
+        1,
+        clone!(@strong clock_label => move || {
+            clock_label.set_label(&status::now_string());
+            glib::ControlFlow::Continue
+        }),
+    );
 }
 
 /// Cria uma janela GTK sem decoração para o shell.
