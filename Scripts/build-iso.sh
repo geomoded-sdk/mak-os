@@ -104,6 +104,9 @@ labwc
 wayland-protocols
 wayland-utils
 libwlroots
+libxkbcommon0
+libinput10
+xdg-desktop-portal-wlr
 
 # --- GTK4 e bibliotecas da interface ---
 libgtk-4-1
@@ -124,6 +127,7 @@ swaybg
 pipewire
 pipewire-pulse
 wireplumber
+pipewire-audio
 bluez
 network-manager
 upower
@@ -131,6 +135,12 @@ accountsservice
 dbus
 polkitd
 sddm
+greetd
+gnupg
+libgcrypt20
+libsodium23
+libsecret-1-0
+libpam-systemd
 
 # --- apps e utilitários ---
 gvfs
@@ -141,6 +151,12 @@ flatpak
 apparmor
 calamares
 util-linux
+libarchive-tools
+zstd
+lz4
+fuse3
+udisks2
+smartmontools
 file-roller
 gnome-disk-utility
 rsync
@@ -149,6 +165,15 @@ git
 # --- compatibilidade ---
 wine
 winetricks
+
+# --- multimídia ---
+ffmpeg
+libvpx-dev
+libdav1d-dev
+libjpeg62-turbo
+libpng16-16
+libwebp7
+libopenexr-3-1-30
 EOF
 
 # Flatpak remoto por padrão

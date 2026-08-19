@@ -47,6 +47,7 @@ jobs:
             libadwaita-1-dev \
             libwayland-dev \
             wayland-protocols \
+            libxkbcommon-dev \
             gobject-introspection \
             libgirepository1.0-dev \
             libinput-dev \

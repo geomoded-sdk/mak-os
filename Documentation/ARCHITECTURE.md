@@ -23,6 +23,23 @@ falhas), gerenciado pelo `pineapple-session` (session manager).
 └─────────────────────────────────────────────────────────┘
 ```
 
+## Plataforma integrada
+
+O desktop usa uma base modular para parecer um sistema completo sem esconder
+as responsabilidades de cada camada:
+
+- **Wayland**: labwc/wlroots, XWayland, libinput e xkbcommon.
+- **Sessao desktop**: PipeWire, WirePlumber, portals GTK e backend wlroots.
+- **Privacidade e credenciais**: polkit, PAM, AppArmor, GnuPG, libsodium e
+  libsecret.
+- **Volumes**: UDisks2, FUSE3, libarchive, zstd, LZ4 e smartmontools. O BFS
+  permanece a camada Pineapple acima dos filesystems montados.
+- **Multimidia**: FFmpeg, libvpx, dav1d, JPEG Turbo, PNG, WebP e OpenEXR.
+
+Smithay fica registrado como alternativa futura para um compositor totalmente
+Rust; o compositor atual continua usando wlroots para reduzir risco e manter
+compatibilidade com XWayland.
+
 ## Componentes
 
 ### 1. `Desktop` — Shell do sistema (Rust/GTK4)

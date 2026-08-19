@@ -48,6 +48,14 @@ Veja `Compatibility/PineappleApp/README.md`.
 - Requer kernel com `binder` e `overlayfs` (já incluídos em `Kernel/config-6.1-pineappleos`).
 - Gerenciado pelo atalho `pineapple-waydroid`.
 
+### Integração de desktop
+
+Os aplicativos compatíveis usam o `Pineapple App Wrapper`, que registra
+lançadores no desktop e os apresenta no Finder, Launcher, Launchpad, Dock e
+Spotlight. Portals controlam arquivos, URLs, captura e impressão; PipeWire e
+WirePlumber fornecem áudio e captura; FUSE3 e UDisks2 integram volumes ao
+Finder. Wine e Darling continuam isolados nos seus próprios ambientes.
+
 ## Notas de segurança
 
 - Todas as camadas rodam no sandbox do AppArmor do Pineapple OS.
