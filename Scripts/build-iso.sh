@@ -67,6 +67,18 @@ lb config \
   --mirror-bootstrap "$MIRROR" \
   --mirror-binary "$MIRROR"
 
+# live-build versions shipped by Debian may generate the obsolete
+# security.debian.org stable/updates source. Rewrite it to the current
+# debian-security suite before the chroot stage starts.
+if [ "$DISTRO" = "debian" ]; then
+  while IFS= read -r -d '' file; do
+    sed -i \
+      -e "s#http://security.debian.org#http://deb.debian.org/debian-security#g" \
+      -e "s#${SUITE}/updates#${SUITE}-security#g" \
+      "$file"
+  done < <(grep -RIlZ "security.debian.org\|${SUITE}/updates" config || true)
+fi
+
 # ------------------------------------------------------------ incluir pacotes
 # Lista de pacotes base do Pineapple OS
 cat > config/package-lists/pineappleos.list.chroot <<'EOF'
