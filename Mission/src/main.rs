@@ -26,12 +26,12 @@ use wayland_client::protocol::wl_registry;
 use wayland_client::protocol::wl_seat;
 use wayland_client::{delegate_noop, Connection, Dispatch, QueueHandle};
 
+use wayland_protocols::ext::workspace::v1::client::ext_workspace_group_handle_v1::{
+    self, Event as WorkspaceGroupEvent, ExtWorkspaceGroupHandleV1,
+};
 use wayland_protocols::ext::workspace::v1::client::ext_workspace_handle_v1::{
     self, Event as WorkspaceEvent, ExtWorkspaceHandleV1, State as WorkspaceState,
     WorkspaceCapabilities,
-};
-use wayland_protocols::ext::workspace::v1::client::ext_workspace_group_handle_v1::{
-    self, Event as WorkspaceGroupEvent, ExtWorkspaceGroupHandleV1,
 };
 use wayland_protocols::ext::workspace::v1::client::ext_workspace_manager_v1::{
     self, Event as WorkspaceManagerEvent, ExtWorkspaceManagerV1,

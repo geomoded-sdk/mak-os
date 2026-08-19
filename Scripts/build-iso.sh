@@ -65,6 +65,8 @@ lb config \
   --apt-recommends false \
   --security false \
   --linux-flavours "amd64" \
+  --firmware-chroot false \
+  --firmware-binary false \
   --archive-areas "main contrib non-free-firmware" \
   --mode "$DISTRO" \
   --mirror-bootstrap "$MIRROR" \
