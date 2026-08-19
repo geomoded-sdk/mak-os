@@ -235,5 +235,68 @@ class TestBFSArchive(unittest.TestCase):
         )
 
 
+class TestBFSV2Layers(unittest.TestCase):
+    """BFS v2 — pilha de camadas explícita (exFAT ↓ xattrs, finder, snapshots,
+    clones, checksums, sparse) declarada no volume.info."""
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+        self.root = os.path.join(self.tmp, "vol")
+        self.vol = BFSVolume(self.root).init()
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def test_volume_info_declara_layers(self):
+        info = self.vol.info()
+        self.assertEqual(info["version"], 2)
+        self.assertEqual(
+            tuple(info["layers"]),
+            ("xattrs", "finder", "snapshots", "clones", "checksums", "sparse"),
+        )
+
+    def test_camadas_expostas_no_volume(self):
+        self.assertIsNotNone(self.vol.xattrs)
+        self.assertIsNotNone(self.vol.finder)
+        self.assertIsNotNone(self.vol.snapshots_layer)
+        self.assertIsNotNone(self.vol.clones)
+        self.assertIsNotNone(self.vol.checksums)
+        self.assertIsNotNone(self.vol.sparse)
+
+    def test_xattr_layer_direto(self):
+        self.vol.put("a.txt", b"x")
+        self.vol.xattrs.set("a.txt", "org.pineappleos.chave", b"valor")
+        self.assertEqual(self.vol.xattrs.get("a.txt", "org.pineappleos.chave"), b"valor")
+
+    def test_finder_metadata_tags_comment_icon(self):
+        self.vol.put("foto.jpg", b"jpeg")
+        self.vol.finder.set_tags("foto.jpg", ["Red", "Trabalho"])
+        self.assertIn("Red", self.vol.finder.tags("foto.jpg"))
+        self.vol.finder.add_tag("foto.jpg", "Verde")
+        self.assertEqual(self.vol.finder.tags("foto.jpg"), ["Red", "Trabalho", "Verde"])
+        self.vol.finder.set_comment("foto.jpg", "da praia")
+        self.assertEqual(self.vol.finder.comment("foto.jpg"), "da praia")
+        self.assertFalse(self.vol.finder.custom_icon("foto.jpg"))
+        self.vol.finder.set_custom_icon("foto.jpg", b"\x89PNG...")
+        self.assertTrue(self.vol.finder.custom_icon("foto.jpg"))
+        self.assertEqual(self.vol.finder.icon_bytes("foto.jpg"), b"\x89PNG...")
+
+    def test_verify_de_arquivo_expandido(self):
+        # regressão do BFS v1: expand registrava checksum de b"" e o verify
+        # acusava "corrupt" — agora registra o checksum lógico (zeros).
+        self.vol.expand("disco.img", 1_000_000)
+        self.assertEqual(self.vol.verify()["disco.img"], "ok")
+
+    def test_clone_layer_independente(self):
+        self.vol.put("origem.bin", b"dados")
+        self.vol.clones.clone("origem.bin", "clone.bin")
+        self.assertEqual(self.vol.clones.refcount("clone.bin"), 2)
+
+    def test_snapshot_layer_independente(self):
+        self.vol.put("arq.txt", b"v1")
+        self.vol.snapshots_layer.create("estado-a")
+        self.assertIn("estado-a", self.vol.snapshots_layer.list())
+
+
 if __name__ == "__main__":
     unittest.main()

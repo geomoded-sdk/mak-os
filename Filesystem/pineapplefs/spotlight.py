@@ -3,7 +3,7 @@ import os
 import sqlite3
 from pathlib import Path
 
-from .bfs import SYSTEM_NAMES, is_hidden_name, is_sidecar
+from .constants import SYSTEM_NAMES, is_hidden_name, is_sidecar
 
 
 class SpotlightIndex:

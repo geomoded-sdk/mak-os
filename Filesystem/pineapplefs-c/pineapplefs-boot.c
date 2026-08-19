@@ -73,7 +73,10 @@ int main(int argc, char **argv)
     if (fd < 0)
         return 1;
     if (lseek(fd, 0, SEEK_END) == 0)
-        dprintf(fd, "{\"magic\":\"BFS\",\"format\":\"bfs-overlay\"}\n");
+        dprintf(fd,
+            "{\"magic\":\"BFS\",\"format\":\"bfs-overlay\",\"version\":2,"
+            "\"layers\":[\"xattrs\",\"finder\",\"snapshots\",\"clones\","
+            "\"checksums\",\"sparse\"]}\n");
     close(fd);
     hide_for_supported_filesystems(private);
     hide_for_supported_filesystems(path);

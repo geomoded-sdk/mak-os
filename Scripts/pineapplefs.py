@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
 # =============================================================================
-#  pineapplefs — CLI do BFS (Pineapple File System)
+#  pineapplefs — CLI do BFS v2 (Pineapple File System)
+#
+#  BFS é um overlay de usuário sobre o filesystem do kernel (exFAT etc.) com
+#  uma camada de metadados em 6 partes: xattrs, finder, snapshots, clones,
+#  checksums e sparse (veja `layers <dir>`).
 #
 #  Uso:  python3 Scripts/pineapplefs.py <comando> [args...]
 #
 #  Comandos:
 #    init <dir>              formata um volume BFS (cria .bfsprivate + artefatos)
-#    status <dir>            mostra info do volume
+#    status <dir>            mostra info do volume (inclui a pilha de camadas)
+#    layers <dir>            mostra a pilha de camadas do BFS
 #    put <dir> <rel> <arquivo>   grava um arquivo no volume
 #    read <dir> <rel>        imprime os bytes reais (desfaz esparso)
 #    write <dir> <rel> <arquivo> grava com copy-on-write (quebra clone)
@@ -18,6 +23,10 @@
 #    listxattr <dir> <rel>
 #    delxattr <dir> <rel> <nome>
 #    invisible <dir> <rel> [on|off]   Finder Info (mostrar/ocultar no Finder)
+#    tag <dir> <rel> <cor|->     adiciona/remove tag colorida do Finder
+#    tags <dir> <rel>            lista tags
+#    comment <dir> <rel> [texto] lê/define comentário do Finder
+#    icon <dir> <rel> [png|-]    define/remove ícone custom (PNG)
 #    sync <dir>              gera os sidecars "._*" de todos os arquivos
 #    clone <dir> <src> <dst>     clone copy-on-write (APFS)
 #    refcount <dir> <rel>    nº de referências de um clone
@@ -32,6 +41,7 @@
 import argparse
 import os
 import sys
+from pathlib import Path
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 for _candidate in (
@@ -149,6 +159,47 @@ def cmd_invisible(args):
         print("finder_flags:", hex(flags))
 
 
+def cmd_layers(args):
+    info = BFSVolume(args.dir).info()
+    print("BFS v%d - %s sobre %s" % (info.get("version", 1), info.get("format", "?"),
+                                     info.get("filesystem", "unknown")))
+    for i, layer in enumerate(info.get("layers", [])):
+        branch = "+- " if i < len(info.get("layers", [])) - 1 else "`- "
+        print(branch + layer)
+
+
+def cmd_tag(args):
+    vol = _vol(args)
+    if args.color in ("-", "none"):
+        print("tags:", ", ".join(vol.finder.remove_tag(args.rel, args.color)) or "(vazio)")
+    else:
+        print("tags:", ", ".join(vol.finder.add_tag(args.rel, args.color)))
+
+
+def cmd_tags(args):
+    print("\n".join(_vol(args).finder.tags(args.rel)))
+
+
+def cmd_comment(args):
+    vol = _vol(args)
+    if args.text is None:
+        print(vol.finder.comment(args.rel) or "")
+    else:
+        vol.finder.set_comment(args.rel, args.text)
+        print("comentário:", args.text)
+
+
+def cmd_icon(args):
+    vol = _vol(args)
+    if args.png in ("-", None):
+        flags = vol.finder.set_custom_icon(args.rel, None)
+        print("ícone custom removido (finder_flags:", hex(flags), ")")
+    else:
+        png = Path(args.png).read_bytes()
+        flags = vol.finder.set_custom_icon(args.rel, png)
+        print("ícone custom definido (finder_flags:", hex(flags), ")")
+
+
 def cmd_sync(args):
     n = _vol(args).sync_sidecars()
     print(f"{n} sidecars '._*' criados")
@@ -211,7 +262,7 @@ def json_dumps(obj):
 
 
 def main():
-    p = argparse.ArgumentParser(prog="pineapplefs", description="BFS — Pineapple File System (exFAT + recursos estilo APFS/HFS+)")
+    p = argparse.ArgumentParser(prog="pineapplefs", description="BFS v2 — Pineapple File System (overlay exFAT + camada de metadados: xattrs, finder, snapshots, clones, checksums, sparse)")
     sub = p.add_subparsers(dest="cmd", required=True)
 
     def add(p_, name, help_, fn):
@@ -272,6 +323,16 @@ def main():
     sp.add_argument("dir"); sp.add_argument("rel"); sp.add_argument("name")
     sp = add(sub, "invisible", "Finder: mostra/oculta", cmd_invisible)
     sp.add_argument("dir"); sp.add_argument("rel"); sp.add_argument("on_off", nargs="?")
+    sp = add(sub, "layers", "mostra a pilha de camadas do BFS", cmd_layers)
+    sp.add_argument("dir")
+    sp = add(sub, "tag", "adiciona/remove tag colorida", cmd_tag)
+    sp.add_argument("dir"); sp.add_argument("rel"); sp.add_argument("color")
+    sp = add(sub, "tags", "lista tags do arquivo", cmd_tags)
+    sp.add_argument("dir"); sp.add_argument("rel")
+    sp = add(sub, "comment", "lê/define comentário do Finder", cmd_comment)
+    sp.add_argument("dir"); sp.add_argument("rel"); sp.add_argument("text", nargs="?")
+    sp = add(sub, "icon", "define/remove ícone custom (PNG)", cmd_icon)
+    sp.add_argument("dir"); sp.add_argument("rel"); sp.add_argument("png", nargs="?")
 
     sp = add(sub, "clone", "clone copy-on-write", cmd_clone)
     sp.add_argument("dir"); sp.add_argument("src"); sp.add_argument("dst")

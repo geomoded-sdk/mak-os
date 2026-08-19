@@ -86,3 +86,37 @@ def logical_size(data):
     if data.startswith(SPARSE_MAGIC):
         return struct.unpack(">Q", data[len(SPARSE_MAGIC) + 4 + 4:][:8])[0]
     return len(data)
+
+
+class SparseLayer:
+    """Camada BFS "sparse": representação esparsa/expandida de arquivos.
+
+    Só os blocos com dados são gravados no container PFSS01; os buracos viram
+    zeros na leitura (o "arquivo expandido" do Canopy). A camada de checksums
+    registra a integridade do conteúdo LÓGICO (incluindo os zeros).
+    """
+
+    def __init__(self, volume):
+        self.v = volume
+
+    def expand(self, rel, size, block=4096):
+        """Cria um arquivo esparso 'expandido' com `size` bytes lógicos."""
+        path = self.v.resolve_or(rel)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(sparse_zero(size, block))
+        return path
+
+    def put(self, rel, data, block=4096):
+        """Grava `data` como arquivo esparso (só blocos com dados)."""
+        path = self.v.resolve_or(rel)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(sparse_from_bytes(data, block))
+        return path
+
+    def decode(self, raw):
+        """Devolve os bytes reais de um arquivo (desfazendo esparso)."""
+        return sparse_to_bytes(raw)
+
+    def size(self, raw):
+        """Tamanho lógico de um arquivo (esparso ou normal)."""
+        return logical_size(raw)

@@ -28,7 +28,8 @@ def _default_sidecar():
 
 def pack(root, out_zip, keep_parent=True):
     """Empacota `root` em um .zip estilo macOS (com _PINEAPPLE + ._ sidecars)."""
-    from .bfs import BFSVolume, SYSTEM_NAMES, is_sidecar
+    from .constants import SYSTEM_NAMES, is_sidecar
+    from .core import BFSVolume
 
     root = Path(root)
     top = root.name if keep_parent else ""
@@ -53,7 +54,7 @@ def pack(root, out_zip, keep_parent=True):
                        _default_sidecar())
         for path in files:
             rel = path.relative_to(root).as_posix()
-            data = bfs._read_sidecar(path)
+            data = bfs.xattrs.read_entry(path)
             payload = build_sidecar(
                 xattrs=data.get("xattrs"),
                 finder_flags=data.get("finder_flags", 0),
@@ -67,7 +68,7 @@ def pack(root, out_zip, keep_parent=True):
 
 def unpack(zip_path, dest):
     """Extrai um .zip estilo macOS e aplica os sidecars '._' nos arquivos."""
-    from .bfs import BFSVolume, is_sidecar
+    from .core import BFSVolume
 
     dest = Path(dest)
     dest.mkdir(parents=True, exist_ok=True)
