@@ -5,6 +5,11 @@ permitindo rodar aplicativos de outros ecossistemas.
 
 ## Resumo
 
+O **Pineapple App Wrapper** unifica a detecção e o registro de aplicativos.
+Ele identifica ELF, PE, Mach-O, AppImage e Flatpak e cria lançadores `.desktop`
+para que todos apareçam no Finder, Launcher, Launchpad, Dock e Spotlight.
+Veja `Compatibility/PineappleApp/README.md`.
+
 | Tecnologia  | O que roda                  | Setup                            |
 |-------------|-----------------------------|----------------------------------|
 | Flatpak     | Aplicativos Linux sandboxed | `Compatibility/Flatpak/setup-flatpak.sh` |

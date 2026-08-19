@@ -1,7 +1,7 @@
 use gtk::prelude::*;
 use gtk::{
-    Application, ApplicationWindow, IconTheme, Image, Label, ListBox, ListBoxRow,
-    Orientation, SearchEntry,
+    Application, ApplicationWindow, IconTheme, Image, Label, ListBox, ListBoxRow, Orientation,
+    SearchEntry,
 };
 
 /// Um aplicativo descoberto pelo launcher.
@@ -34,10 +34,14 @@ pub fn discover_apps() -> Vec<AppItem> {
     }
 
     for dir in dirs {
-        let Ok(entries) = fs::read_dir(&dir) else { continue };
+        let Ok(entries) = fs::read_dir(&dir) else {
+            continue;
+        };
         for entry in entries.flatten() {
             let path = entry.path();
-            let Some(ext) = path.extension() else { continue };
+            let Some(ext) = path.extension() else {
+                continue;
+            };
             if ext != "desktop" {
                 continue;
             }
@@ -71,7 +75,12 @@ pub fn discover_apps() -> Vec<AppItem> {
             if !seen.insert(format!("{name}|{exec}")) {
                 continue;
             }
-            apps.push(AppItem { name, comment, icon, exec });
+            apps.push(AppItem {
+                name,
+                comment,
+                icon,
+                exec,
+            });
         }
     }
 
