@@ -95,7 +95,10 @@ fn place(window: &gtk::ApplicationWindow) {
 
 /// Executa um comando de sistema no plano de fundo.
 fn spawn(cmd: &str) {
-    let _ = std::process::Command::new("sh").arg("-c").arg(cmd).spawn();
+    let _ = std::process::Command::new("sh")
+        .arg("-c")
+        .arg(cmd)
+        .spawn();
 }
 
 /// Verifica se um app corresponde ao texto de busca.

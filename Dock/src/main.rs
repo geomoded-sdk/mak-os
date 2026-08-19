@@ -233,7 +233,10 @@ fn make_icon_button(icon: &str, label: &str, exec: &str) -> Button {
 
     let exec = exec.to_string();
     button.connect_clicked(move |_| {
-        let _ = std::process::Command::new("sh").arg("-c").arg(&exec).spawn();
+        let _ = std::process::Command::new("sh")
+            .arg("-c")
+            .arg(&exec)
+            .spawn();
     });
 
     button

@@ -90,7 +90,10 @@ fn handle_event(event: Event, state: &mut SwipeState) -> Option<&'static str> {
 
 /// Executa um comando de sistema no plano de fundo.
 fn spawn(cmd: &str) {
-    let _ = Command::new("sh").arg("-c").arg(cmd).spawn();
+    let _ = Command::new("sh")
+        .arg("-c")
+        .arg(cmd)
+        .spawn();
 }
 
 fn main() {
