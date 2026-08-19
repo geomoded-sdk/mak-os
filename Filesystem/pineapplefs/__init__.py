@@ -14,11 +14,13 @@ __all__ = [
     "appledouble",
     "sparse",
     "archive",
+    "SpotlightIndex",
 ]
 
 from .appledouble import build_sidecar, parse_sidecar  # noqa: F401
 from .archive import pack, unpack, has_pineapple_folder  # noqa: F401
 from .bfs import BFSVolume, SYSTEM_NAMES, is_sidecar  # noqa: F401
+from .spotlight import SpotlightIndex  # noqa: F401
 from .sparse import (  # noqa: F401
     sparse_from_bytes,
     sparse_to_bytes,

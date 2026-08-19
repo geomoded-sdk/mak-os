@@ -7,8 +7,13 @@
 > no volume.
 
 O kernel Linux já monta volumes exFAT; o BFS roda **por cima** dele e traz a
-camada "esperta" estilo Apple para qualquer volume exFAT (pendrive, cartão,
-partição de dados).
+camada "esperta" estilo Apple para qualquer volume montado (ext4, btrfs, xfs,
+exFAT, NTFS, FAT, APFS via módulo e outros). A inicialização é não destrutiva.
+
+O runtime nativo em `pineapplefs-c/` inicializa o metadata mínimo no preboot e
+no boot. Ele aplica `user.DOSATTRIB` quando o filesystem suporta xattrs; os
+nomes começam por ponto para permanecerem ocultos também nos sistemas que não
+suportam esse atributo.
 
 ## O que ele faz (espelhando o macOS)
 
@@ -26,11 +31,16 @@ partição de dados).
 
 ## Como usar
 
-Formatar um volume BFS (cria `.bfsprivate` + os artefatos do macOS):
+Inicializar um volume BFS sem formatar nem apagar dados:
 
 ```bash
 python3 Scripts/pineapplefs.py init /media/PENDRIVE --name "Pineapple OS"
 ```
+
+O Spotlight do Pineapple usa `spotlight-index` e `spotlight-search`. O indice
+SQLite FTS5 fica em `.Spotlight-V100/index.sqlite3`; `.fseventsd/pineapple.events`
+registra alteracoes, `.Trashes/pineapple` recebe arquivos removidos e
+`.localized` guarda o nome amigavel do volume.
 
 Escrever arquivos e atributos (o sidecar `._*` é criado automaticamente):
 

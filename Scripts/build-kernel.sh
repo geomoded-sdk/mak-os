@@ -32,6 +32,11 @@ KERNSRC="$KERNEL_SOURCE_DIR"
 
 command -v make >/dev/null 2>&1 || { echo "make não encontrado" >&2; exit 1; }
 
+echo "==> Compilando runtime BFS nativo para preboot"
+make -C "$ROOT/Filesystem/pineapplefs-c"
+sudo install -D -m 0755 "$ROOT/Filesystem/pineapplefs-c/pineapplefs-boot" \
+  /usr/lib/pineappleos/pineapplefs-boot
+
 echo "==> Usando fonte local do kernel: $KERNEL_SOURCE_DIR"
 mkdir -p "$TARGET_DIR"
 if [ ! -d "$KERNEL_SOURCE_DIR" ]; then

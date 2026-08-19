@@ -33,7 +33,7 @@ from .appledouble import (
 )
 from .sparse import sparse_from_bytes, sparse_to_bytes, sparse_zero
 
-FORMAT = "bfs-exfat"
+FORMAT = "bfs-overlay"
 FORMAT_VERSION = 1
 MAGIC = "BFS"
 
@@ -52,6 +52,31 @@ SYSTEM_NAMES = {
 
 def is_sidecar(name):
     return name.startswith("._") and len(name) > 2
+
+
+def is_hidden_name(name):
+    """Dotfiles are hidden by default in the Pineapple presentation layer."""
+    return name.startswith(".") and name not in SYSTEM_NAMES
+
+
+def filesystem_type(path):
+    """Return the mounted Linux filesystem type when available."""
+    try:
+        mounts = Path("/proc/mounts").read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeError):
+        return "unknown"
+
+    target = os.path.realpath(path)
+    best = ("", "unknown")
+    for line in mounts:
+        fields = line.split()
+        if len(fields) < 3:
+            continue
+        mountpoint = os.path.realpath(fields[1].replace("\\040", " "))
+        if target == mountpoint or target.startswith(mountpoint.rstrip("/") + "/"):
+            if len(mountpoint) > len(best[0]):
+                best = (mountpoint, fields[2])
+    return best[1]
 
 
 def sha256_of(data):
@@ -73,8 +98,7 @@ class BFSVolume:
     #  Inicialização do volume (exFAT + artefatos do macOS)
     # ------------------------------------------------------------------
     def init(self, name="Pineapple OS"):
-        """Formata a pasta como volume BFS: cria .bfsprivate e os artefatos
-        que o macOS criaria num volume exFAT."""
+        """Add BFS metadata without formatting or deleting the underlying volume."""
         self.root.mkdir(parents=True, exist_ok=True)
         self.private.mkdir(exist_ok=True)
         for sub in ("snapshots", "clones", "checksums", "trash", "sparse"):
@@ -86,6 +110,7 @@ class BFSVolume:
                 "magic": MAGIC,
                 "name": name,
                 "format": FORMAT,
+                "filesystem": filesystem_type(self.root),
                 "version": FORMAT_VERSION,
                 "case_insensitive": self.case_insensitive,
                 "uuid": str(_uuid.uuid4()),
@@ -104,16 +129,44 @@ class BFSVolume:
         (self.root / ".Spotlight-V100").mkdir(exist_ok=True)
         (self.root / ".fseventsd").mkdir(exist_ok=True)
         (self.root / ".Trashes").mkdir(exist_ok=True)
+        (self.root / ".Trashes" / "pineapple").mkdir(exist_ok=True)
         (self.root / ".DS_Store").touch(exist_ok=True)
         (self.root / ".metadata_never_index").touch(exist_ok=True)
-        (self.root / ".localized").touch(exist_ok=True)
+        localized = self.root / ".localized"
+        if not localized.exists():
+            localized.write_text(name + "\n", encoding="utf-8")
+        event_log = self.root / ".fseventsd" / "pineapple.events"
+        event_log.touch(exist_ok=True)
         return self
+
+    def record_event(self, action, rel):
+        """Record a small append-only change journal for fast rescan decisions."""
+        event_log = self.root / ".fseventsd" / "pineapple.events"
+        event_log.parent.mkdir(exist_ok=True)
+        with event_log.open("a", encoding="utf-8") as stream:
+            timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
+            stream.write(json.dumps({"time": timestamp, "action": action, "path": rel}) + "\n")
+
+    def trash(self, rel):
+        path = self.resolve(rel)
+        if path is None or not path.exists():
+            return False
+        target = self.root / ".Trashes" / "pineapple" / path.name
+        counter = 1
+        while target.exists():
+            target = target.with_name(f"{path.name}.{counter}")
+            counter += 1
+        shutil.move(str(path), str(target))
+        self.record_event("trash", rel)
+        return True
 
     def info(self):
         info_path = self.private / "volume.info"
         if not info_path.exists():
             return {"magic": MAGIC, "format": FORMAT}
-        return json.loads(info_path.read_text(encoding="utf-8"))
+        info = json.loads(info_path.read_text(encoding="utf-8"))
+        info.setdefault("filesystem", filesystem_type(self.root))
+        return info
 
     # ------------------------------------------------------------------
     #  Resolução de caminhos (case-insensitive como APFS/HFS+)
@@ -266,6 +319,8 @@ class BFSVolume:
         path = self.resolve(rel)
         if path is None or not path.exists():
             return False
+        if is_hidden_name(path.name):
+            return True
         return bool(self._read_sidecar(path).get("finder_flags", 0)
                     & FINDER_INVISIBLE)
 

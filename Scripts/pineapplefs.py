@@ -44,6 +44,7 @@ for _candidate in (
 
 from pineapplefs import (  # noqa: E402
     BFSVolume,
+    SpotlightIndex,
     archive,
     sparse,
 )
@@ -62,8 +63,18 @@ def _read_file_or_dash(path):
 
 def cmd_init(args):
     BFSVolume(args.dir).init(args.name)
-    print(f"volume BFS pronto em {args.dir} (formato bfs-exfat)")
+    print(f"volume BFS pronto em {args.dir} (overlay multi-filesystem)")
     print("criados: .bfsprivate, .Spotlight-V100, .fseventsd, .Trashes, .DS_Store, .metadata_never_index, .localized")
+
+
+def cmd_spotlight_index(args):
+    total, changed = SpotlightIndex(args.dir).rebuild()
+    print(f"Spotlight indexado: {total} arquivos ({changed} atualizados)")
+
+
+def cmd_spotlight_search(args):
+    for path in SpotlightIndex(args.dir).search(args.query, args.limit):
+        print(path)
 
 
 def cmd_status(args):
@@ -210,6 +221,12 @@ def main():
 
     add(sub, "init", "formata um volume BFS", cmd_init).add_argument("dir")
     sub.choices["init"].add_argument("--name", default="Pineapple OS")
+    sp = add(sub, "spotlight-index", "indexa rapidamente um volume", cmd_spotlight_index)
+    sp.add_argument("dir")
+    sp = add(sub, "spotlight-search", "pesquisa no índice Spotlight", cmd_spotlight_search)
+    sp.add_argument("dir")
+    sp.add_argument("query")
+    sp.add_argument("--limit", type=int, default=100)
 
     for c, h, fn in [
         ("status", "info do volume", cmd_status),

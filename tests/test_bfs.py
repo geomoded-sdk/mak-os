@@ -7,7 +7,7 @@ import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "Filesystem"))
 
-from pineapplefs import BFSVolume, archive, sparse  # noqa: E402
+from pineapplefs import BFSVolume, SpotlightIndex, archive, sparse  # noqa: E402
 
 
 class TestBFSInit(unittest.TestCase):
@@ -33,8 +33,16 @@ class TestBFSInit(unittest.TestCase):
     def test_volume_info(self):
         info = self.vol.info()
         self.assertEqual(info["magic"], "BFS")
-        self.assertEqual(info["format"], "bfs-exfat")
+        self.assertEqual(info["format"], "bfs-overlay")
         self.assertTrue(info["case_insensitive"])
+
+    def test_artifacts_have_utility(self):
+        self.assertTrue(os.path.isdir(os.path.join(self.root, ".Trashes", "pineapple")))
+        self.assertTrue(os.path.exists(os.path.join(self.root, ".fseventsd", "pineapple.events")))
+        self.assertEqual(
+            open(os.path.join(self.root, ".localized"), encoding="utf-8").read().strip(),
+            "Pineapple OS",
+        )
 
 
 class TestBFSFiles(unittest.TestCase):
@@ -72,6 +80,17 @@ class TestBFSFiles(unittest.TestCase):
         self.assertTrue(self.vol.is_invisible("secreto.txt"))
         self.vol.set_finder("secreto.txt", invisible=False)
         self.assertFalse(self.vol.is_invisible("secreto.txt"))
+
+    def test_dotfiles_are_invisible(self):
+        self.vol.put(".config", b"segredo")
+        self.assertTrue(self.vol.is_invisible(".config"))
+
+    def test_spotlight_index_and_search(self):
+        self.vol.put("Docs/projeto.txt", b"Pineapple Spotlight veloz")
+        index = SpotlightIndex(self.root)
+        total, changed = index.rebuild()
+        self.assertEqual((total, changed), (1, 1))
+        self.assertEqual(index.search("Spotlight"), ["Docs/projeto.txt"])
 
     def test_sync_sidecars(self):
         self.vol.put("a.txt", b"a")

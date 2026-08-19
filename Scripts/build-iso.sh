@@ -12,7 +12,8 @@ DISTRO="${DISTRO:-debian}"
 SUITE="${SUITE:-stable}"
 ARCH="${ARCH:-amd64}"
 OUTPUT="${OUTPUT:-build}"
-MIRROR="${MIRROR:-http://deb.debian.org/debian/}"
+MIRROR="${MIRROR:-http://deb.debian.org/debian}"
+MIRROR="${MIRROR%/}"
 # PowerBook ID obrigatório (ver ids.txt). Se vazio, o live boot entra em
 # kernel panic até que o argumento -pineapplepowerbookid=<ID> seja fornecido
 # na linha de comando do kernel (ex.: editando o GRUB na tela de boot).

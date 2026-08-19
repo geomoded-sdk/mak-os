@@ -370,9 +370,12 @@ fn load_directory(state: &FinderState, list: &ListBox, stack: &Stack, search: &S
     let mut items: Vec<(PathBuf, u64, String)> = Vec::new();
     for entry in entries.flatten() {
         let path = entry.path();
+        let name = entry.file_name().to_string_lossy().to_string();
+        if name.starts_with('.') {
+            continue;
+        }
         let meta = entry.metadata().ok();
         let size = meta.as_ref().map(|m| m.len()).unwrap_or(0);
-        let name = entry.file_name().to_string_lossy().to_string();
         items.push((path, size, name));
     }
     items.sort_by(|a, b| {
