@@ -27,8 +27,8 @@ use wayland_client::protocol::wl_seat;
 use wayland_client::{delegate_noop, Connection, Dispatch, QueueHandle};
 
 use wayland_protocols::ext::workspace::v1::client::ext_workspace_handle_v1::{
-    self, Event as WorkspaceEvent, State as WorkspaceState, WorkspaceCapabilities,
-    ExtWorkspaceHandleV1,
+    self, Event as WorkspaceEvent, ExtWorkspaceHandleV1, State as WorkspaceState,
+    WorkspaceCapabilities,
 };
 use wayland_protocols::ext::workspace::v1::client::ext_workspace_group_handle_v1::{
     self, Event as WorkspaceGroupEvent, ExtWorkspaceGroupHandleV1,
@@ -263,9 +263,12 @@ fn setup_wayland() -> Option<Arc<Mutex<Shared>>> {
     let (globals, mut queue) = registry_queue_init::<WaylandState>(&conn).ok()?;
     let qh = queue.handle();
 
-    let toplevel_manager =
-        globals.bind::<ZwlrForeignToplevelManagerV1, _, _>(&qh, 1..=3, ()).ok();
-    let workspace_manager = globals.bind::<ExtWorkspaceManagerV1, _, _>(&qh, 1..=1, ()).ok();
+    let toplevel_manager = globals
+        .bind::<ZwlrForeignToplevelManagerV1, _, _>(&qh, 1..=3, ())
+        .ok();
+    let workspace_manager = globals
+        .bind::<ExtWorkspaceManagerV1, _, _>(&qh, 1..=1, ())
+        .ok();
     let seat = globals.bind::<wl_seat::WlSeat, _, _>(&qh, 1..=8, ()).ok();
 
     let shared = Arc::new(Mutex::new(Shared {
@@ -276,7 +279,9 @@ fn setup_wayland() -> Option<Arc<Mutex<Shared>>> {
     }));
 
     // Roundtrip inicial: recebe as janelas e áreas já existentes.
-    let mut init = WaylandState { shared: shared.clone() };
+    let mut init = WaylandState {
+        shared: shared.clone(),
+    };
     let _ = queue.roundtrip(&mut init);
 
     let for_thread = shared.clone();

@@ -5,8 +5,8 @@ use std::rc::Rc;
 use gio::prelude::*;
 use gtk::prelude::*;
 use gtk::{
-    Application, ApplicationWindow, Button, Image, Label, ListBox, ListBoxRow,
-    Orientation, Popover, ScrolledWindow, SearchEntry, Stack,
+    Application, ApplicationWindow, Button, Image, Label, ListBox, ListBoxRow, Orientation,
+    Popover, ScrolledWindow, SearchEntry, Stack,
 };
 
 struct CanopyState {
@@ -73,7 +73,9 @@ fn icon_for(path: &Path) -> String {
         Some("mp3") | Some("ogg") | Some("flac") | Some("wav") => "audio-x-generic".to_string(),
         Some("mp4") | Some("mkv") | Some("webm") => "video-x-generic".to_string(),
         Some("pdf") => "application-pdf".to_string(),
-        Some("txt") | Some("md") | Some("rs") | Some("py") | Some("c") => "text-x-generic".to_string(),
+        Some("txt") | Some("md") | Some("rs") | Some("py") | Some("c") => {
+            "text-x-generic".to_string()
+        }
         Some("deb") => "application-x-deb".to_string(),
         _ => "text-x-generic".to_string(),
     }
@@ -251,28 +253,32 @@ fn build_context_menu(
         let refresh = refresh.clone();
         let win2 = win.clone();
         let pop2 = pop.clone();
-        vbox.append(&menu_button("Renomear", "edit-rename-symbolic", move || {
-            let target = (*selected.borrow()).clone();
-            pop2.popdown();
-            if let Some(path) = target {
-                let current = state.borrow().current.clone();
-                let initial = path
-                    .file_name()
-                    .map(|f| f.to_string_lossy().to_string())
-                    .unwrap_or_default();
-                let initial_cmp = initial.clone();
-                let refresh2 = refresh.clone();
-                input_window(&win2, "Renomear", &initial, move |new_name| {
-                    let new_name = new_name.trim().to_string();
-                    if new_name.is_empty() || new_name == initial_cmp {
-                        return;
-                    }
-                    let dest = current.join(&new_name);
-                    let _ = std::fs::rename(&path, &dest);
-                    refresh2();
-                });
-            }
-        }));
+        vbox.append(&menu_button(
+            "Renomear",
+            "edit-rename-symbolic",
+            move || {
+                let target = (*selected.borrow()).clone();
+                pop2.popdown();
+                if let Some(path) = target {
+                    let current = state.borrow().current.clone();
+                    let initial = path
+                        .file_name()
+                        .map(|f| f.to_string_lossy().to_string())
+                        .unwrap_or_default();
+                    let initial_cmp = initial.clone();
+                    let refresh2 = refresh.clone();
+                    input_window(&win2, "Renomear", &initial, move |new_name| {
+                        let new_name = new_name.trim().to_string();
+                        if new_name.is_empty() || new_name == initial_cmp {
+                            return;
+                        }
+                        let dest = current.join(&new_name);
+                        let _ = std::fs::rename(&path, &dest);
+                        refresh2();
+                    });
+                }
+            },
+        ));
     }
 
     // Copiar
@@ -304,7 +310,11 @@ fn build_context_menu(
                 let dest = dest_dir.join(&name);
                 if src.is_dir() {
                     let _ = std::process::Command::new("cp")
-                        .args(["-r", src.to_string_lossy().as_ref(), dest.to_string_lossy().as_ref()])
+                        .args([
+                            "-r",
+                            src.to_string_lossy().as_ref(),
+                            dest.to_string_lossy().as_ref(),
+                        ])
                         .spawn();
                 } else {
                     let _ = std::fs::copy(&src, &dest);
@@ -320,15 +330,19 @@ fn build_context_menu(
         let selected = selected.clone();
         let refresh = refresh.clone();
         let pop2 = pop.clone();
-        vbox.append(&menu_button("Mover para a Lixeira", "user-trash-symbolic", move || {
-            if let Some(p) = (*selected.borrow()).clone() {
-                let _ = std::process::Command::new("gio")
-                    .args(["trash", p.to_string_lossy().as_ref()])
-                    .spawn();
-                refresh();
-            }
-            pop2.popdown();
-        }));
+        vbox.append(&menu_button(
+            "Mover para a Lixeira",
+            "user-trash-symbolic",
+            move || {
+                if let Some(p) = (*selected.borrow()).clone() {
+                    let _ = std::process::Command::new("gio")
+                        .args(["trash", p.to_string_lossy().as_ref()])
+                        .spawn();
+                    refresh();
+                }
+                pop2.popdown();
+            },
+        ));
     }
 
     // Nova pasta
@@ -337,19 +351,23 @@ fn build_context_menu(
         let refresh = refresh.clone();
         let win2 = win.clone();
         let pop2 = pop.clone();
-        vbox.append(&menu_button("Nova pasta", "folder-new-symbolic", move || {
-            let dest_dir = state.borrow().current.clone();
-            pop2.popdown();
-            let refresh2 = refresh.clone();
-            input_window(&win2, "Nova pasta", "Nova pasta", move |name| {
-                let name = name.trim().to_string();
-                if name.is_empty() {
-                    return;
-                }
-                let _ = std::fs::create_dir(dest_dir.join(&name));
-                refresh2();
-            });
-        }));
+        vbox.append(&menu_button(
+            "Nova pasta",
+            "folder-new-symbolic",
+            move || {
+                let dest_dir = state.borrow().current.clone();
+                pop2.popdown();
+                let refresh2 = refresh.clone();
+                input_window(&win2, "Nova pasta", "Nova pasta", move |name| {
+                    let name = name.trim().to_string();
+                    if name.is_empty() {
+                        return;
+                    }
+                    let _ = std::fs::create_dir(dest_dir.join(&name));
+                    refresh2();
+                });
+            },
+        ));
     }
 
     pop.set_child(Some(&vbox));
@@ -381,9 +399,9 @@ fn load_directory(state: &CanopyState, list: &ListBox, stack: &Stack, search: &S
     items.sort_by(|a, b| {
         let a_dir = a.0.is_dir();
         let b_dir = b.0.is_dir();
-        b_dir.cmp(&a_dir).then_with(|| {
-            a.2.to_lowercase().cmp(&b.2.to_lowercase())
-        })
+        b_dir
+            .cmp(&a_dir)
+            .then_with(|| a.2.to_lowercase().cmp(&b.2.to_lowercase()))
     });
 
     let q = search.text().to_lowercase();
@@ -471,7 +489,11 @@ fn build_ui(app: &Application) {
             PathBuf::from("/usr/share/applications"),
         ),
         ("computer-symbolic", "System", PathBuf::from("/usr")),
-        ("folder-library-symbolic", "Library", PathBuf::from("/usr/share")),
+        (
+            "folder-library-symbolic",
+            "Library",
+            PathBuf::from("/usr/share"),
+        ),
         (
             "drive-removable-media-symbolic",
             "Volumes",
@@ -623,7 +645,11 @@ fn build_ui(app: &Application) {
         let refresh = refresh.clone();
         move |_, row| {
             if let Some(path) = unsafe { row.data::<PathBuf>("path") } {
-                open_path(&mut state.borrow_mut(), unsafe { path.as_ref() }.clone(), &*refresh);
+                open_path(
+                    &mut state.borrow_mut(),
+                    unsafe { path.as_ref() }.clone(),
+                    &*refresh,
+                );
             }
         }
     });

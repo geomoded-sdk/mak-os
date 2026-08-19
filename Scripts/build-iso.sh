@@ -64,7 +64,7 @@ lb config \
   --debian-installer-distribution "$SUITE" \
   --apt-recommends false \
   --security false \
-  --linux-flavours "none" \
+  --linux-flavours "amd64" \
   --archive-areas "main contrib non-free-firmware" \
   --mode "$DISTRO" \
   --mirror-bootstrap "$MIRROR" \

@@ -58,8 +58,12 @@ struct SwipeState {
 
 /// Processa um evento; retorna o comando a executar se um gesto for reconhecido.
 fn handle_event(event: Event, state: &mut SwipeState) -> Option<&'static str> {
-    let Event::Gesture(gesture) = event else { return None };
-    let GestureEvent::Swipe(swipe) = gesture else { return None };
+    let Event::Gesture(gesture) = event else {
+        return None;
+    };
+    let GestureEvent::Swipe(swipe) = gesture else {
+        return None;
+    };
 
     match swipe {
         GestureSwipeEvent::Begin(begin) => {
@@ -90,10 +94,7 @@ fn handle_event(event: Event, state: &mut SwipeState) -> Option<&'static str> {
 
 /// Executa um comando de sistema no plano de fundo.
 fn spawn(cmd: &str) {
-    let _ = Command::new("sh")
-        .arg("-c")
-        .arg(cmd)
-        .spawn();
+    let _ = Command::new("sh").arg("-c").arg(cmd).spawn();
 }
 
 fn main() {
