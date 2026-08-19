@@ -1,0 +1,13 @@
+[Unit]
+Description=Pineapple OS first-run setup assistant
+Documentation=file:/usr/share/doc/pineappleos/
+After=graphical-session.target pineapple-shell.service
+PartOf=graphical-session.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /usr/share/pineappleos/Apps/Setup/pineapple-setup.py
+RemainAfterExit=yes
+
+[Install]
+WantedBy=pineappleos-session.target

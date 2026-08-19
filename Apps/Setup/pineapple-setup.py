@@ -38,7 +38,11 @@ class SetupWindow(Gtk.ApplicationWindow):
         self.stack.set_transition_duration(220)
         self.pages = [
             self._welcome_page(),
+            self._region_page(),
+            self._keyboard_page(),
             self._network_page(),
+            self._migration_page(),
+            self._account_page(),
             self._privacy_page(),
             self._finish_page(),
         ]
@@ -60,8 +64,12 @@ class SetupWindow(Gtk.ApplicationWindow):
         footer.append(self.back)
         footer.append(self.next)
 
+        self.progress = Gtk.Label(xalign=0.0)
+        self.progress.add_css_class("pineapple-file-meta")
+
         root = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
         root.append(self.stack)
+        root.append(self.progress)
         root.append(footer)
         self.set_child(root)
         self._update_buttons()
@@ -95,6 +103,26 @@ class SetupWindow(Gtk.ApplicationWindow):
         page.append(body)
         return page
 
+    def _region_page(self):
+        page = self._page(
+            "Escolha seu país ou região",
+            "Isso define formatos de data, hora, moeda e serviços locais.",
+        )
+        region = Gtk.DropDown.new_from_strings(["Brasil", "Portugal", "Estados Unidos", "Outro"])
+        region.set_halign(Gtk.Align.START)
+        page.append(region)
+        return page
+
+    def _keyboard_page(self):
+        page = self._page(
+            "Escolha o layout do teclado",
+            "Você pode alterar o layout depois em Preferências do Sistema.",
+        )
+        keyboard = Gtk.DropDown.new_from_strings(["Português (Brasil)", "Português", "US", "UK"])
+        keyboard.set_halign(Gtk.Align.START)
+        page.append(keyboard)
+        return page
+
     def _network_page(self):
         page = self._page(
             "Conecte-se à rede",
@@ -104,6 +132,27 @@ class SetupWindow(Gtk.ApplicationWindow):
         button.set_halign(Gtk.Align.START)
         button.connect("clicked", lambda *_: self._open_settings("network"))
         page.append(button)
+        return page
+
+    def _migration_page(self):
+        page = self._page(
+            "Transfira seus dados",
+            "Copie documentos e preferências de outro computador ou comece do zero.",
+        )
+        migrate = Gtk.Button(label="Abrir Ferramenta de Migração")
+        migrate.set_halign(Gtk.Align.START)
+        migrate.connect("clicked", lambda *_: self._open_settings("migration"))
+        page.append(migrate)
+        page.append(Gtk.Label(label="Você também pode fazer isso mais tarde.", xalign=0.0))
+        return page
+
+    def _account_page(self):
+        page = self._page(
+            "Crie sua experiência Pineapple",
+            "A conta atual do sistema será usada para seus arquivos, apps e preferências.",
+        )
+        page.append(Gtk.Label(label=f"Usuário: {os.environ.get('USER', 'pineapple')}", xalign=0.0))
+        page.append(Gtk.Label(label="Uma conta online é opcional. O sistema funciona localmente.", xalign=0.0))
         return page
 
     def _privacy_page(self):
@@ -150,6 +199,7 @@ class SetupWindow(Gtk.ApplicationWindow):
     def _update_buttons(self):
         self.back.set_visible(self.page_index > 0)
         self.next.set_label("Começar a usar" if self.page_index == len(self.pages) - 1 else "Continuar")
+        self.progress.set_label(f"Etapa {self.page_index + 1} de {len(self.pages)}")
 
 
 if __name__ == "__main__":
