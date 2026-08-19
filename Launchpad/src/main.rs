@@ -35,10 +35,14 @@ pub fn discover_apps() -> Vec<AppItem> {
     }
 
     for dir in dirs {
-        let Ok(entries) = fs::read_dir(&dir) else { continue };
+        let Ok(entries) = fs::read_dir(&dir) else {
+            continue;
+        };
         for entry in entries.flatten() {
             let path = entry.path();
-            let Some(ext) = path.extension() else { continue };
+            let Some(ext) = path.extension() else {
+                continue;
+            };
             if ext != "desktop" {
                 continue;
             }
@@ -72,7 +76,12 @@ pub fn discover_apps() -> Vec<AppItem> {
             if !seen.insert(format!("{name}|{exec}")) {
                 continue;
             }
-            apps.push(AppItem { name, comment, icon, exec });
+            apps.push(AppItem {
+                name,
+                comment,
+                icon,
+                exec,
+            });
         }
     }
 
@@ -95,10 +104,7 @@ fn place(window: &gtk::ApplicationWindow) {
 
 /// Executa um comando de sistema no plano de fundo.
 fn spawn(cmd: &str) {
-    let _ = std::process::Command::new("sh")
-        .arg("-c")
-        .arg(cmd)
-        .spawn();
+    let _ = std::process::Command::new("sh").arg("-c").arg(cmd).spawn();
 }
 
 /// Verifica se um app corresponde ao texto de busca.
@@ -198,7 +204,8 @@ fn build(app: &gtk::Application) -> Ui {
             else {
                 return true;
             };
-            apps.get(index).map_or(true, |app| matches(app, &entry.text()))
+            apps.get(index)
+                .map_or(true, |app| matches(app, &entry.text()))
         }
     });
 
