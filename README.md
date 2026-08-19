@@ -127,6 +127,14 @@ POWERBOOK_ID=SEU_ID ./Scripts/build-iso.sh  # gera a ISO live (live-build)
 4. Após instalar, defina o PowerBook ID em `/etc/default/grub` (veja
    `Scripts/setup-powerbook-check.sh`).
 
+### Primeiro início
+
+No primeiro login, o Pineapple abre automaticamente o assistente
+`pineapple-setup`: boas-vindas, rede, privacidade e conclusão. Ele grava um
+marcador em `~/.config/pineappleos/first-run-complete` e não reaparece nos
+inícios seguintes. As mesmas opções continuam disponíveis em Preferências do
+Sistema.
+
 ## Contribuir
 
 Veja [Documentation/ARCHITECTURE.md](Documentation/ARCHITECTURE.md) e

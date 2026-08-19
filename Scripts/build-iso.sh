@@ -201,6 +201,15 @@ cp -r "$ROOT"/Desktop "$ROOT"/Dock "$ROOT"/Launcher "$ROOT"/Launchpad "$ROOT"/Mi
       "$ROOT"/Finder "$ROOT"/Gestures "$ROOT"/AI "$ROOT"/Settings "$ROOT"/Store "$ROOT"/Apps \
       "$ROOT"/Themes "$ROOT"/Icons config/includes.chroot/usr/share/pineappleos/
 
+# Unidades da sessão de usuário, incluindo o assistente de primeiro boot.
+echo "==> Incluindo unidades systemd da sessão"
+mkdir -p config/includes.chroot/etc/systemd/user
+cp "$ROOT"/Installer/systemd/*.service "$ROOT"/Installer/systemd/*.target \
+  config/includes.chroot/etc/systemd/user/
+mkdir -p config/includes.chroot/etc/systemd/user/pineappleos-session.target.wants
+ln -sf ../pineapple-setup.service \
+  config/includes.chroot/etc/systemd/user/pineappleos-session.target.wants/pineapple-setup.service
+
 # ------------------------------------------------------------ identidade do sistema
 # /etc/os-release — o Pineapple OS deixa de aparecer como "Debian/GNU Linux"
 # e passa a se identificar como Pineapple OS.

@@ -2,6 +2,7 @@
 Description=Pineapple OS session target
 Documentation=file:/usr/share/doc/pineappleos/
 Requires=graphical-session.target
+Wants=pineapple-setup.service
 BindsTo=graphical-session.target
 After=graphical-session.target
 

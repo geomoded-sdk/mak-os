@@ -28,7 +28,7 @@ jobs:
 
       - name: Verificar sintaxe Python
         run: |
-          python3 -m compileall Apps AI Compatibility
+          python3 -m compileall Apps AI Compatibility Installer
 
       - name: Rodar testes
         run: |
@@ -219,7 +219,7 @@ jobs:
 
       - name: Verificar Python
         run: |
-          python3 -m compileall Apps AI Compatibility
+          python3 -m compileall Apps AI Compatibility Installer
 
       - name: Gerar assets
         run: |
