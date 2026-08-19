@@ -15,7 +15,7 @@ falhas), gerenciado pelo `pineapple-session` (session manager).
 │  pineapple-bar    │  pineapple-dock │ pineapple-launcher │ pineapple-launchpad │ pineapple-mission │
 │  (topo)      │  (inferior)   │ (apps)      │ (controle) │
 ├──────────────┴───────────────┴─────────────┴────────────┤
-│  Aplicativos nativos (GTK4) │ Flatpak │ AppImage │ Wine │
+│ Apps Rust (núcleo) │ Apps Python (integrações) │ Flatpak │ Wine │ Darling │
 ├─────────────────────────────┴───────────────────────────┤
 │  pineapple-services (D-Bus): notificações, áudio, energia, IA │
 ├─────────────────────────────────────────────────────────┤
@@ -88,6 +88,12 @@ compatibilidade com XWayland.
 
 ### 7. `Settings`, `Store`, apps — ver `Apps/`
 - Apps simples em Python/GTK4; os principais em Rust/GTK4.
+- Python é usado para apps periféricos, automação, IA e integração com
+  bibliotecas GNOME; o shell, session manager, Finder, Dock, Launcher,
+  Launchpad, Mission e Gestures permanecem em Rust.
+- A ISO instala Python 3, PyGObject, Cairo, GTK4, GStreamer e WebKitGTK para
+  que esses apps funcionem sem criar virtualenv ou baixar dependências no
+  primeiro uso.
 
 ### 8. Serviços
 - `pineapple-notifyd`: central de notificações (D-Bus `org.freedesktop.Notifications`).

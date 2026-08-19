@@ -109,10 +109,20 @@ libinput10
 xdg-desktop-portal-wlr
 
 # --- GTK4 e bibliotecas da interface ---
+python3
+python3-gi
+python3-cairo
 libgtk-4-1
 libgtk-4-layer-shell0
 libadwaita-1-0
 gir1.2-gtk-4.0
+gir1.2-gstreamer-1.0
+gir1.2-gst-plugins-base-1.0
+gir1.2-webkit-6.0
+gstreamer1.0-plugins-good
+gstreamer1.0-plugins-bad
+gstreamer1.0-plugins-ugly
+gstreamer1.0-libav
 vte-3.90
 libvte-3.90-0
 webkitgtk-6.0
