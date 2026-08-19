@@ -106,7 +106,8 @@ LPNU_KO="$LPNU_SRC/linux-7.0/fs/lpnu/lpnu.ko"
 [ -f "$LPNU_KO" ] || { echo "ERRO: lpnu.ko não foi gerado" >&2; exit 1; }
 
 echo "==> [LPNU] Compilando apfs.ko contra $KRELEASE"
-make -C "$KERNSRC" M="$APFS_SRC" modules
+make -C "$KERNSRC" M="$APFS_SRC" \
+  EXTRA_CFLAGS="-I$KERNSRC/include/generated/uapi/linux" modules
 APFS_KO="$APFS_SRC/apfs.ko"
 [ -f "$APFS_KO" ] || { echo "ERRO: apfs.ko não foi gerado" >&2; exit 1; }
 

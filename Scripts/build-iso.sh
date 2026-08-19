@@ -62,6 +62,7 @@ lb config \
   --debian-installer live \
   --debian-installer-distribution "$SUITE" \
   --apt-recommends false \
+  --security false \
   --archive-areas "main contrib non-free-firmware" \
   --mode "$DISTRO" \
   --mirror-bootstrap "$MIRROR" \
@@ -71,6 +72,10 @@ lb config \
 # security.debian.org stable/updates source. Rewrite it to the current
 # debian-security suite before the chroot stage starts.
 if [ "$DISTRO" = "debian" ]; then
+  mkdir -p config/archives
+  cat > config/archives/pineapple-security.list.chroot <<EOF
+deb http://deb.debian.org/debian-security ${SUITE}-security main contrib non-free-firmware
+EOF
   while IFS= read -r -d '' file; do
     sed -i \
       -e "s#http://security.debian.org#http://deb.debian.org/debian-security#g" \
