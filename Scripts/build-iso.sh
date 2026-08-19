@@ -201,6 +201,13 @@ cp -r "$ROOT"/Desktop "$ROOT"/Dock "$ROOT"/Launcher "$ROOT"/Launchpad "$ROOT"/Mi
       "$ROOT"/Finder "$ROOT"/Gestures "$ROOT"/AI "$ROOT"/Settings "$ROOT"/Store "$ROOT"/Apps \
       "$ROOT"/Themes "$ROOT"/Icons config/includes.chroot/usr/share/pineappleos/
 
+# Configuracao e branding do instalador grafico Pineapple.
+echo "==> Incluindo configuracao do Calamares"
+mkdir -p config/includes.chroot/etc/calamares
+cp "$ROOT/Installer/calamares/settings.conf" config/includes.chroot/etc/calamares/
+cp -r "$ROOT/Installer/calamares/branding" config/includes.chroot/etc/calamares/
+cp -r "$ROOT/Installer/calamares/modules" config/includes.chroot/etc/calamares/
+
 # Unidades da sessão de usuário, incluindo o assistente de primeiro boot.
 echo "==> Incluindo unidades systemd da sessão"
 mkdir -p config/includes.chroot/etc/systemd/user

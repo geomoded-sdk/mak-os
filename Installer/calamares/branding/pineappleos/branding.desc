@@ -20,17 +20,17 @@ welcomeWindowTitle: Instalar Pineapple OS
 welcomeHeader: Bem-vindo ao instalador do Pineapple OS
 
 welcomeMessage: |
-  Para instalar o Pineapple OS você precisará de um disco com espaço livre.<br/>
-  O instalador apagará o conteúdo do disco selecionado antes de continuar.<br/><br/>
-  <strong>Importante:</strong> faça backup dos seus dados antes de instalar.
+  Configure o Pineapple OS em algumas etapas: idioma, teclado, rede, disco e usuário.<br/>
+  Você escolherá explicitamente o disco e o modo de particionamento antes da instalação.<br/><br/>
+  <strong>Importante:</strong> faça backup dos seus dados e revise o resumo final antes de confirmar.
 
 welcomeImage: pineapple-logo
 
-supportUrl: https://example.org/pineappleos/support
+supportUrl: https://github.com/geomoded-sdk/mak-os
 
-knownIssuesUrl: https://example.org/pineappleos/issues
+knownIssuesUrl: https://github.com/geomoded-sdk/mak-os/issues
 
-releaseNotesUrl: https://example.org/pineappleos/release-notes
+releaseNotesUrl: https://github.com/geomoded-sdk/mak-os/releases
 
 styleName: Pineapple OS
 
