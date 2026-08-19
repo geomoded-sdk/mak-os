@@ -116,11 +116,14 @@ fi
 # ---------------------------------------------------------------------------
 
 # Um diretório é um volume BFS válido? (deve ter .bfsprivate/volume.info)
+# O magic e o formato são conferidos de forma tolerante a espaços: tanto o
+# pineapplefs (Python) quanto o pineapplefs-boot (C) gravam
+# {"magic":"BFS","format":"bfs-overlay"} (com ou sem espaços).
 check_bfs_root() {
     dir="$1"
     [ -f "$dir/.bfsprivate/volume.info" ] || return 1
-    grep -q '"magic": "BFS"' "$dir/.bfsprivate/volume.info" 2>/dev/null || return 1
-    grep -q '"format": "bfs-exfat"' "$dir/.bfsprivate/volume.info" 2>/dev/null || return 1
+    grep -q '"BFS"' "$dir/.bfsprivate/volume.info" 2>/dev/null || return 1
+    grep -q '"bfs-overlay"' "$dir/.bfsprivate/volume.info" 2>/dev/null || return 1
     return 0
 }
 
