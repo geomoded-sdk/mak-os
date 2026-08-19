@@ -67,8 +67,10 @@ fn render(count: u32, active: Option<u32>) -> String {
         .map(|n| {
             let act = active == Some(n);
             let on = if act { "●" } else { "○" };
-            format!("<span size='small' foreground='{}'>{on}</span>",
-                if act { "#4f9dde" } else { "#5a6170" })
+            format!(
+                "<span size='small' foreground='{}'>{on}</span>",
+                if act { "#4f9dde" } else { "#5a6170" }
+            )
         })
         .collect::<Vec<_>>()
         .join(" ")

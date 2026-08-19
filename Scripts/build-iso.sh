@@ -134,6 +134,7 @@ winetricks
 EOF
 
 # Flatpak remoto por padrão
+mkdir -p config/includes.chroot/usr/share/pineappleos/scripts
 cat > config/includes.chroot/usr/share/pineappleos/scripts/setup-flatpak.sh <<'EOF'
 #!/bin/bash
 flatpak remote-add --if-not-exists flathub \

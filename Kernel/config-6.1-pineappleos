@@ -44,6 +44,7 @@ CONFIG_USB_SUPPORT=y
 CONFIG_USB_XHCI_HCD=y
 CONFIG_HID=y
 CONFIG_HID_GENERIC=y
+CONFIG_MODULES=y
 
 # ---------- GPU (aceleração de interface) ----------
 CONFIG_DRM=y
