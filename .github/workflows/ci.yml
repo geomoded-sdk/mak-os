@@ -2,70 +2,108 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
 
 jobs:
   python-tests:
     name: Testes Python
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout
+        uses: actions/checkout@v5
 
       - name: Instalar dependências de teste
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3 python3-gi gir1.2-gtk-4.0
+          sudo apt-get install -y \
+            python3 \
+            python3-gi \
+            gir1.2-gtk-4.0
+
+      - name: Verificar sintaxe Python
+        run: |
           python3 -m compileall Apps AI
 
       - name: Rodar testes
-        run: python3 -m unittest discover -s tests -v
+        run: |
+          python3 -m unittest discover -s tests -v
 
   rust-shell:
     name: Rust (shell/dock/launcher/launchpad/mission/finder/gestures)
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout
+        uses: actions/checkout@v5
 
       - name: Instalar dependências GTK
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            libgtk-4-dev libadwaita-1-dev libwayland-dev wayland-protocols \
-            gobject-introspection libgirepository1.0-dev \
-            libinput-dev libudev-dev \
-            meson ninja-build pkg-config
-          # gtk4-layer-shell não é empacotado no Ubuntu 24.04; compilar da fonte
-          git clone --depth 1 https://github.com/wmww/gtk4-layer-shell.git /tmp/gtk4-layer-shell
-          meson setup /tmp/gtk4-layer-shell/build /tmp/gtk4-layer-shell -Dvapi=false
+            libgtk-4-dev \
+            libadwaita-1-dev \
+            libwayland-dev \
+            wayland-protocols \
+            gobject-introspection \
+            libgirepository1.0-dev \
+            libinput-dev \
+            libudev-dev \
+            meson \
+            ninja-build \
+            pkg-config
+
+      - name: Compilar gtk4-layer-shell
+        run: |
+          git clone --depth 1 \
+            https://github.com/wmww/gtk4-layer-shell.git \
+            /tmp/gtk4-layer-shell
+
+          meson setup \
+            /tmp/gtk4-layer-shell/build \
+            /tmp/gtk4-layer-shell \
+            -Dvapi=false
+
           ninja -C /tmp/gtk4-layer-shell/build
           sudo ninja -C /tmp/gtk4-layer-shell/build install
           sudo ldconfig
 
+      - name: Instalar Rust
+        run: |
+          rustup update stable
+          rustup default stable
+
       - name: Verificar formatação
         run: |
-          cargo fmt --manifest-path Desktop/Cargo.toml -- --check || true
-          cargo fmt --manifest-path Dock/Cargo.toml -- --check || true
-          cargo fmt --manifest-path Launcher/Cargo.toml -- --check || true
-          cargo fmt --manifest-path Launchpad/Cargo.toml -- --check || true
-          cargo fmt --manifest-path Mission/Cargo.toml -- --check || true
-          cargo fmt --manifest-path Finder/Cargo.toml -- --check || true
-          cargo fmt --manifest-path Gestures/Cargo.toml -- --check || true
+          for crate in Desktop Dock Launcher Launchpad Mission Finder Gestures; do
+            cargo fmt \
+              --manifest-path "$crate/Cargo.toml" \
+              -- \
+              --check
+          done
 
-      - name: Build (check sem compilar binários nativos)
+      - name: Verificar crates
         run: |
           for crate in Desktop Dock Launcher Launchpad Mission Finder Gestures; do
-            cargo check --manifest-path $crate/Cargo.toml
+            cargo check \
+              --manifest-path "$crate/Cargo.toml"
           done
 
   shell-scripts:
     name: Scripts shell
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout
+        uses: actions/checkout@v5
+
       - name: Validar sintaxe dos scripts
+        shell: bash
         run: |
           fail=0
+
           while IFS= read -r f; do
             if ! bash -n "$f"; then
               echo "ERRO de sintaxe: $f"
@@ -74,42 +112,82 @@ jobs:
               echo "OK: $f"
             fi
           done < <(git ls-files '*.sh' '*.hook.chroot')
-          [ "$fail" -eq 0 ] || exit 1
 
-icons:
+          exit "$fail"
+
+  icons:
     name: Geração de ícones
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v5
-      - name: Gerar ícones e validar XML
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Instalar Python
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3
+
+      - name: Gerar ícones
         run: |
           python3 Scripts/gen-icons.py
-          python3 - <<'EOF'
-          import glob, xml.etree.ElementTree as ET
-          for f in glob.glob("Icons/pineapple-icons/**/*.svg", recursive=True):
+
+      - name: Validar SVGs
+        run: |
+          python3 - <<'PY'
+          import glob
+          import xml.etree.ElementTree as ET
+
+          files = glob.glob(
+              "Icons/pineapple-icons/**/*.svg",
+              recursive=True
+          )
+
+          if not files:
+              raise SystemExit("Nenhum SVG encontrado")
+
+          for f in files:
               ET.parse(f)
-          print("todos os SVGs válidos")
-          EOF
+              print(f"OK: {f}")
+
+          print(f"{len(files)} SVG(s) válidos")
+          PY
 
   kernel-build:
-    name: Compilar kernel 6.1-pineappleos + LPNU (obrigatório)
+    name: Compilar kernel 6.1-pineappleos + LPNU
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout
+        uses: actions/checkout@v5
 
       - name: Instalar dependências de compilação
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            build-essential libncurses-dev bison flex libssl-dev libelf-dev \
-            dwarves bc cpio zstd wget kmod initramfs-tools busybox
+            build-essential \
+            libncurses-dev \
+            bison \
+            flex \
+            libssl-dev \
+            libelf-dev \
+            dwarves \
+            bc \
+            cpio \
+            zstd \
+            wget \
+            kmod \
+            initramfs-tools \
+            busybox
 
-      - name: Compilar kernel + LPNU do fonte (vermagic obrigatório)
+      - name: Compilar kernel + LPNU
         env:
           KERNEL_BUILD_OUT: ${{ github.workspace }}/kernel-dist
-        run: ./Scripts/build-kernel.sh
+        run: |
+          chmod +x Scripts/build-kernel.sh
+          ./Scripts/build-kernel.sh
 
-      - name: Publicar kernel como artefato
+      - name: Publicar kernel
         uses: actions/upload-artifact@v4
         with:
           name: pineappleos-kernel-6.1-lpnu
@@ -119,28 +197,38 @@ icons:
   iso-build:
     name: ISO x64 (amd64)
     runs-on: ubuntu-latest
-    env:
-      POWERBOOK_ID: ${{ secrets.POWERBOOK_ID }}
+
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout
+        uses: actions/checkout@v5
 
       - name: Instalar dependências do build
         run: |
           sudo apt-get update
-          sudo apt-get install -y live-build debootstrap debian-archive-keyring devscripts
+          sudo apt-get install -y \
+            live-build \
+            debootstrap \
+            debian-archive-keyring \
+            devscripts
+
+      - name: Verificar Python
+        run: |
           python3 -m compileall Apps AI
 
-      - name: Gerar imagens do sistema (ícones, boot, wallpapers)
+      - name: Gerar assets
         run: |
           python3 Scripts/gen-icons.py
           python3 Scripts/gen-backgrounds.py
           python3 Scripts/gen-catalina.py
 
-      - name: Compilar ISO amd64 (x64)
+      - name: Compilar ISO amd64
+        env:
+          POWERBOOK_ID: ${{ secrets.POWERBOOK_ID }}
         run: |
+          chmod +x Scripts/build-iso.sh
           sudo -E ./Scripts/build-iso.sh
 
-      - name: Publicar ISO como artefato
+      - name: Publicar ISO
         uses: actions/upload-artifact@v4
         with:
           name: pineappleos-amd64-iso
