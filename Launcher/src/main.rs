@@ -113,10 +113,7 @@ fn row_for(app: &AppItem) -> ListBoxRow {
 
 /// Executa um comando de sistema no plano de fundo.
 fn spawn(cmd: &str) {
-    let _ = std::process::Command::new("sh")
-        .arg("-c")
-        .arg(cmd)
-        .spawn();
+    let _ = std::process::Command::new("sh").arg("-c").arg(cmd).spawn();
 }
 
 /// Cria um botão de ação do sistema (bloquear/suspender/reiniciar/desligar).
@@ -163,7 +160,9 @@ pub fn build(app: &Application) -> ApplicationWindow {
             if let Some(child) = row.child() {
                 if let Ok(hbox) = child.downcast::<gtk::Box>() {
                     if let Some(vbox) = hbox.first_child().and_then(|c| c.next_sibling()) {
-                        if let Some(name) = vbox.first_child().and_then(|n| n.downcast::<Label>().ok()) {
+                        if let Some(name) =
+                            vbox.first_child().and_then(|n| n.downcast::<Label>().ok())
+                        {
                             return name.text().to_lowercase().contains(&text.to_lowercase());
                         }
                     }
@@ -184,7 +183,8 @@ pub fn build(app: &Application) -> ApplicationWindow {
         if let Some(child) = row.child() {
             if let Ok(hbox) = child.downcast::<gtk::Box>() {
                 if let Some(vbox) = hbox.first_child().and_then(|c| c.next_sibling()) {
-                    if let Some(name) = vbox.first_child().and_then(|n| n.downcast::<Label>().ok()) {
+                    if let Some(name) = vbox.first_child().and_then(|n| n.downcast::<Label>().ok())
+                    {
                         let name = name.text();
                         if let Some(app) = all.iter().find(|a| a.name.as_str() == name.as_str()) {
                             let _ = std::process::Command::new("sh")
