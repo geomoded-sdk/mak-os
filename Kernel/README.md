@@ -5,8 +5,9 @@
 
 ## O que é este "kernel"?
 
-O Pineapple OS usa o kernel **Linux upstream** (mesma base do Debian/Ubuntu)
-compilado com uma configuração própria (`config-6.1-pineappleos`). A identidade
+O Pineapple OS usa uma arvore local do kernel **Linux 6.1**, compilada com uma
+configuracao propria (`config-6.1-pineappleos`) e com codigo Pineapple integrado
+em `Kernel/pineapple/`. A identidade
 de plataforma é **Pineapple Kernel** — do mesmo jeito que o Android chama seu
 kernel de "Android Kernel" mesmo sendo Linux por baixo.
 
@@ -21,6 +22,8 @@ próprio (como o bloqueio por PowerBook ID). Um kernel verdadeiramente novo
 | Arquivo                    | Descrição                                            |
 |----------------------------|------------------------------------------------------|
 | `config-6.1-pineappleos`   | Configuração de referência do kernel (x86_64)        |
+| `pineapple/`               | Código real integrado em `drivers/pineapple/`        |
+| `vendor/linux-6.1.tar.xz`  | Fonte Linux 6.1 local, sem download no build        |
 | `build/`                   | Diretório de build (gerado, fora do git)             |
 | `../Scripts/build-kernel.sh` | Compila o kernel + módulos + initramfs             |
 
@@ -177,9 +180,19 @@ garantindo compatibilidade total.
 ## Build
 
 ```bash
-./Scripts/build-kernel.sh            # baixa, compila e instala
+./Scripts/build-kernel.sh            # usa fonte local, integra e compila
 make -C Kernel/build/linux-6.1 -j$(nproc) bzImage modules
 ```
+
+O script nao baixa o Linux durante o build. Ele usa `Kernel/linux-6.1/` quando
+essa arvore estiver extraida; caso contrario, extrai o arquivo local
+`Kernel/vendor/linux-6.1.tar.xz` (ou as partes locais com sufixo
+`.part-*`). Se nenhum dos dois existir, o build falha de forma explicita.
+
+O componente `Kernel/pineapple/pineapple_core.c` e compilado dentro do kernel
+e publica `/sys/kernel/pineapple/identity` e `/sys/kernel/pineapple/release`.
+Isso e uma modificacao real do kernel, mantendo a ABI e a licenca GPL do Linux;
+nao e apenas rebranding por configuracao.
 
 Depois de instalar o kernel, **regere o initramfs** para embutir o
 PowerBook ID check:

@@ -1,0 +1,6 @@
+config PINEAPPLE_CORE
+    bool "Pineapple OS kernel core"
+    default n
+    help
+      Enable the Pineapple OS kernel identity and system metadata interface.
+      This is built into the kernel when selected by the Pineapple config.

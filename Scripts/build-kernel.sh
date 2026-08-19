@@ -3,7 +3,7 @@
 #  build-kernel.sh — compila o kernel do Pineapple OS
 #
 #  O que acontece:
-#    1. Baixa o kernel Linux (upstream) da versão escolhida.
+#    1. Usa a árvore local Kernel/linux-<versao>.
 #    2. Aplica o config próprio (Kernel/config-6.1-pineappleos).
 #    3. Compila o kernel (bzImage) e os módulos.
 #    4. Compila o LPNU do fonte (lpnu.ko + apfs.ko) contra este kernel e
@@ -25,20 +25,41 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 VERSION="${VERSION:-6.1}"
 CONFIG_FILE="$ROOT/Kernel/config-6.1-pineappleos"
 TARGET_DIR="$ROOT/Kernel/build"
+KERNEL_SOURCE_DIR="${KERNEL_SOURCE_DIR:-$ROOT/Kernel/linux-$VERSION}"
+KERNEL_ARCHIVE="${KERNEL_ARCHIVE:-$ROOT/Kernel/vendor/linux-$VERSION.tar.xz}"
 KERNEL_BUILD_OUT="${KERNEL_BUILD_OUT:-}"
+KERNSRC="$KERNEL_SOURCE_DIR"
 
 command -v make >/dev/null 2>&1 || { echo "make não encontrado" >&2; exit 1; }
 
-echo "==> Baixando kernel $VERSION"
+echo "==> Usando fonte local do kernel: $KERNEL_SOURCE_DIR"
 mkdir -p "$TARGET_DIR"
-cd "$TARGET_DIR"
-
-if [ ! -d "linux-$VERSION" ]; then
-  wget -qO- "https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-$VERSION.tar.xz" \
-    | tar xJ
+if [ ! -d "$KERNEL_SOURCE_DIR" ]; then
+  if [ ! -f "$KERNEL_ARCHIVE" ] && compgen -G "$KERNEL_ARCHIVE.part-*" >/dev/null; then
+    KERNEL_ARCHIVE="$TARGET_DIR/linux-$VERSION.tar.xz"
+    cat "$ROOT/Kernel/vendor/linux-$VERSION.tar.xz.part-"* > "$KERNEL_ARCHIVE"
+  fi
+  if [ -f "$KERNEL_ARCHIVE" ]; then
+    echo "==> Extraindo arquivo local do kernel: $KERNEL_ARCHIVE"
+    tar -xJf "$KERNEL_ARCHIVE" -C "$ROOT/Kernel"
+  else
+    echo "ERRO: fonte local ausente: $KERNEL_SOURCE_DIR" >&2
+    echo "Coloque a arvore Linux $VERSION ou o arquivo $KERNEL_ARCHIVE." >&2
+    exit 1
+  fi
 fi
 
-cd "linux-$VERSION"
+cd "$KERNEL_SOURCE_DIR"
+
+# Integra codigo Pineapple diretamente na arvore Linux vendorizada.
+PINEAPPLE_SOURCE="$ROOT/Kernel/pineapple"
+mkdir -p "$KERNSRC/drivers/pineapple"
+cp "$PINEAPPLE_SOURCE/Kconfig" "$PINEAPPLE_SOURCE/Makefile" \
+  "$PINEAPPLE_SOURCE/pineapple_core.c" "$KERNSRC/drivers/pineapple/"
+grep -qxF 'source "drivers/pineapple/Kconfig"' "$KERNSRC/drivers/Kconfig" \
+  || printf '\nsource "drivers/pineapple/Kconfig"\n' >> "$KERNSRC/drivers/Kconfig"
+grep -qxF 'obj-$(CONFIG_PINEAPPLE_CORE) += pineapple/' "$KERNSRC/drivers/Makefile" \
+  || printf '\nobj-$(CONFIG_PINEAPPLE_CORE) += pineapple/\n' >> "$KERNSRC/drivers/Makefile"
 
 # Config próprio (identidade + otimizações + MAGIC_SYSRQ para o PowerBook ID)
 echo "==> Aplicando config do Pineapple OS"
@@ -73,7 +94,6 @@ APFS_REPO="https://github.com/linux-apfs/linux-apfs-rw/archive/refs/tags/$APFS_T
 LPNU_BASE="https://github.com/geomoded-sdk/lpnu/releases/download/$LPNU_TAG"
 LPNU_SRC="$TARGET_DIR/lpnu-src"
 APFS_SRC="$TARGET_DIR/apfs-src"
-KERNSRC="$TARGET_DIR/linux-$VERSION"
 KRELEASE="$(make -s kernelrelease)"
 MODEXTRA="/lib/modules/$KRELEASE/extra"
 
@@ -86,7 +106,9 @@ mkdir -p "$LPNU_SRC" "$APFS_SRC"
   || wget -qO "$TARGET_DIR/linux-apfs-rw-$APFS_TAG.tar.gz" "$APFS_REPO" \
   || { echo "ERRO: falha ao baixar o fonte do linux-apfs-rw" >&2; exit 1; }
 [ -s "$TARGET_DIR/ld-mac" ] \
-  || wget -qO "$TARGET_DIR/ld-mac" "$LPNU_BASE/ld-mac" \
+  || curl -fsSL -H 'Accept: application/octet-stream' \
+    -o "$TARGET_DIR/ld-mac" \
+    "https://api.github.com/repos/geomoded-sdk/lpnu/releases/assets/402871192" \
   || { echo "ERRO: falha ao baixar o ld-mac do LPNU" >&2; exit 1; }
 
 echo "==> [LPNU] Verificando integridade do ld-mac (sha256)"
@@ -99,6 +121,7 @@ fi
 echo "==> [LPNU] Extraindo fontes"
 tar xzf "$TARGET_DIR/lpnu-$LPNU_TAG.tar.gz" -C "$LPNU_SRC" --strip-components=1
 tar xzf "$TARGET_DIR/linux-apfs-rw-$APFS_TAG.tar.gz" -C "$APFS_SRC" --strip-components=1
+printf '#define GIT_COMMIT "%s"\n' "$APFS_TAG" > "$APFS_SRC/version.h"
 
 echo "==> [LPNU] Compilando lpnu.ko contra $KRELEASE"
 make -C "$KERNSRC" M="$LPNU_SRC/linux-7.0/fs/lpnu" modules

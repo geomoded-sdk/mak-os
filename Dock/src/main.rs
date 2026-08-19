@@ -153,8 +153,9 @@ fn setup_wayland() -> Option<Arc<Mutex<Shared>>> {
     let (globals, mut queue) = registry_queue_init::<WaylandState>(&conn).ok()?;
     let qh = queue.handle();
 
-    let toplevel_manager =
-        globals.bind::<ZwlrForeignToplevelManagerV1, _, _>(&qh, 1..=3, ()).ok();
+    let toplevel_manager = globals
+        .bind::<ZwlrForeignToplevelManagerV1, _, _>(&qh, 1..=3, ())
+        .ok();
     let seat = globals.bind::<wl_seat::WlSeat, _, _>(&qh, 1..=8, ()).ok();
 
     let shared = Arc::new(Mutex::new(Shared {
@@ -164,7 +165,9 @@ fn setup_wayland() -> Option<Arc<Mutex<Shared>>> {
     }));
 
     // Roundtrip inicial: recebe as janelas já existentes.
-    let mut init = WaylandState { shared: shared.clone() };
+    let mut init = WaylandState {
+        shared: shared.clone(),
+    };
     let _ = queue.roundtrip(&mut init);
 
     let for_thread = shared.clone();
@@ -211,13 +214,25 @@ fn default_icons() -> Vec<(&'static str, &'static str, &'static str)> {
         ("pineapple-finder", "Pineapple Finder", "pineapple-finder"),
         ("pineapple-launchpad", "Launchpad", "pineapple-launchpad"),
         ("pineapple-mission", "Mission Control", "pineapple-mission"),
-        ("pineapple-terminal", "Pineapple Terminal", "pineapple-terminal"),
-        ("pineapple-browser", "Pineapple Browser", "pineapple-browser"),
+        (
+            "pineapple-terminal",
+            "Pineapple Terminal",
+            "pineapple-terminal",
+        ),
+        (
+            "pineapple-browser",
+            "Pineapple Browser",
+            "pineapple-browser",
+        ),
         ("pineapple-music", "Pineapple Music", "pineapple-music"),
         ("pineapple-photos", "Pineapple Photos", "pineapple-photos"),
         ("pineapple-notes", "Pineapple Notes", "pineapple-notes"),
         ("pineapple-store", "Pineapple Store", "pineapple-store"),
-        ("pineapple-settings", "Pineapple Settings", "pineapple-settings"),
+        (
+            "pineapple-settings",
+            "Pineapple Settings",
+            "pineapple-settings",
+        ),
         ("pineapple-calc", "Pineapple Calculator", "pineapple-calc"),
     ]
 }

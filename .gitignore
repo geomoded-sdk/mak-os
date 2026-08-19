@@ -1,6 +1,7 @@
 # Artefatos de build
 build/
 Kernel/build/
+Kernel/linux-6.1/
 Desktop/target/
 Dock/target/
 Launcher/target/

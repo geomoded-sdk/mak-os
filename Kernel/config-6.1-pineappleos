@@ -6,6 +6,7 @@
 # ---------- Identidade ----------
 CONFIG_LOCALVERSION="-pineappleos"
 CONFIG_KERNEL_GZIP=y
+CONFIG_PINEAPPLE_CORE=y
 
 # ---------- Segurança do boot (PowerBook ID) ----------
 # Habilita o SysRq: é ele que nos permite disparar o kernel panic quando o

@@ -221,8 +221,10 @@ wget -qO "$LPNU_DIR/lpnu-src.tar.gz" \
   "https://github.com/geomoded-sdk/lpnu/archive/refs/tags/v2.0.0.tar.gz"
 wget -qO "$LPNU_DIR/apfs-src.tar.gz" \
   "https://github.com/linux-apfs/linux-apfs-rw/archive/refs/tags/v0.3.19.tar.gz"
-wget -qO "$LPNU_DIR/ld-mac" \
-  "https://github.com/geomoded-sdk/lpnu/releases/download/v2.0.0/ld-mac"
+curl -fsSL \
+  -H 'Accept: application/octet-stream' \
+  -o "$LPNU_DIR/ld-mac" \
+  "https://api.github.com/repos/geomoded-sdk/lpnu/releases/assets/402871192"
 if [ "$(sha256sum "$LPNU_DIR/ld-mac" | cut -d' ' -f1)" != \
      "e7ee78932e6f7abd21cd320af6b7e6895875306a4e491b50bd78ae6faaa9c4a5" ]; then
   echo "==> ERRO: sha256 de ld-mac não confere" >&2

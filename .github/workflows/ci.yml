@@ -176,6 +176,7 @@ jobs:
             cpio \
             zstd \
             wget \
+            curl \
             kmod \
             initramfs-tools \
             busybox
@@ -209,7 +210,8 @@ jobs:
             live-build \
             debootstrap \
             debian-archive-keyring \
-            devscripts
+            devscripts \
+            curl
 
       - name: Verificar Python
         run: |
