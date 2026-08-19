@@ -9,7 +9,7 @@ pacotes Debian, Flatpak, AppImage, Wine e Darling.
 A estrategia e separar a aparencia apresentada ao usuario da arvore POSIX que
 os programas esperam. O sistema nao movera `/usr`, `/etc`, `/var` ou `/lib` para
 caminhos novos: esses caminhos continuam estaveis para preservar compatibilidade.
-O Finder, o launcher e os dialogos do sistema apresentarao uma camada de
+O Canopy, o launcher e os dialogos do sistema apresentarao uma camada de
 navegacao Pineapple sobre essa base.
 
 ## Camadas
@@ -17,7 +17,7 @@ navegacao Pineapple sobre essa base.
 ```text
 +-------------------------------------------------------------+
 | Pineapple Experience                                        |
-| Finder, Dock, Launchpad, Mission Control, Settings          |
+| Canopy, Dock, Launchpad, Mission Control, Settings          |
 +-------------------------------------------------------------+
 | Pineapple Workspace                                         |
 | /Users, /Applications, /System, /Library, /Volumes         |
@@ -48,7 +48,7 @@ estiver em caminhos Linux equivalentes:
 | `Volumes` | `/media`, `/mnt`, `/run/media` | volumes montados, incluindo BFS |
 | `Trash` | `~/.local/share/Trash` | lixeira XDG, apresentada como Lixeira |
 
-A primeira versao deve ser uma camada virtual no Finder. Symlinks e bind mounts
+A primeira versao deve ser uma camada virtual no Canopy. Symlinks e bind mounts
 so devem ser adicionados depois de testes de instalacao e recuperacao, porque
 mudar a topologia fisica pode quebrar pacotes Debian e ferramentas POSIX.
 
@@ -84,7 +84,7 @@ servicos. Isso nao significa copiar implementacao.
 ## Fases de implementacao
 
 1. **Workspace virtual**: modelo Rust para locais Pineapple, volumes, favoritos,
-   lixeira, aplicativos e pastas protegidas; Finder passa a consumir esse
+   lixeira, aplicativos e pastas protegidas; Canopy passa a consumir esse
    modelo em vez de montar a arvore diretamente na tela inicial.
 2. **Servico de metadata**: D-Bus para tags, thumbnails, busca e atualizacoes de
    volumes; usar inotify/fanotify ou APIs equivalentes sem exigir patches no
@@ -99,7 +99,7 @@ servicos. Isso nao significa copiar implementacao.
 ## Criterios de aceite
 
 - Um programa Linux continua abrindo arquivos em caminhos POSIX normais.
-- O Finder oferece `Macintosh HD`, `Users`, `Applications`, `System`,
+- O Canopy oferece `Macintosh HD`, `Users`, `Applications`, `System`,
   `Library`, `Volumes` e `Trash` de forma consistente.
 - Volumes removiveis aparecem e desaparecem sem reiniciar o shell.
 - A interface nao permite editar arquivos protegidos por acidente.

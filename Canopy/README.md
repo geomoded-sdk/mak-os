@@ -1,4 +1,4 @@
-# Pineapple Finder
+# Pineapple Canopy
 
 Gerenciador de arquivos do Pineapple OS (Rust/GTK4).
 
@@ -13,13 +13,13 @@ Gerenciador de arquivos do Pineapple OS (Rust/GTK4).
 ## Estrutura
 
 ```
-src/main.rs   # lógica completa do Finder
+src/main.rs   # lógica completa do Canopy
 ```
 
 ## Build
 
 ```bash
-cargo build --release --manifest-path Finder/Cargo.toml
+cargo build --release --manifest-path Canopy/Cargo.toml
 ```
 
 ## Extensões futuras

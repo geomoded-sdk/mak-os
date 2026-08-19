@@ -39,7 +39,7 @@
 PineappleOS/
 ├── Desktop/       # Shell do sistema (barra superior + session manager)
 ├── Dock/          # Componente do dock (biblioteca GTK4)
-├── Finder/        # Gerenciador de arquivos
+├── Canopy/        # Gerenciador de arquivos
 ├── Launcher/      # Lançador de aplicativos
 ├── Launchpad/     # Grade de aplicativos estilo macOS
 ├── Mission/       # Mission Control + Spaces
@@ -65,7 +65,7 @@ PineappleOS/
 
 | Aplicativo   | Linguagem | Descrição                       |
 |--------------|-----------|---------------------------------|
-| Pineapple Finder   | Rust/GTK4 | Gerenciador de arquivos         |
+| Pineapple Canopy    | Rust/GTK4 | Gerenciador de arquivos         |
 | Pineapple Terminal | Rust/GTK4 | Terminal (VTE)                  |
 | Pineapple Store    | Rust/GTK4 | Loja de aplicativos             |
 | Pineapple Settings | Python    | Configurações do sistema        |

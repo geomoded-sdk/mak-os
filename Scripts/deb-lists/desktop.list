@@ -3,7 +3,7 @@ usr/local/bin/pineapple-shell
 usr/local/bin/pineapple-dock
 usr/local/bin/pineapple-launcher
 usr/local/bin/pineapple-launchpad
-usr/local/bin/pineapple-finder
+usr/local/bin/pineapple-canopy
 usr/local/bin/pineapple-gestures
 usr/local/bin/pineapple-mission
 usr/local/bin/pineapple-session
@@ -16,5 +16,5 @@ usr/share/applications/pineapple-shell.desktop
 usr/share/applications/pineapple-dock.desktop
 usr/share/applications/pineapple-launcher.desktop
 usr/share/applications/pineapple-launchpad.desktop
-usr/share/applications/pineapple-finder.desktop
+usr/share/applications/pineapple-canopy.desktop
 usr/share/applications/pineapple-mission.desktop

@@ -14,7 +14,7 @@ DESKTOP="$STAGE/usr/share/applications"
 
 mkdir -p "$BIN" "$APP_BIN" "$APPS" "$DESKTOP"
 
-echo "==> Compilando componentes Rust (shell, dock, launcher, launchpad, finder, gestures, mission)"
+echo "==> Compilando componentes Rust (shell, dock, launcher, launchpad, canopy, gestures, mission)"
 
 # shell
 (cd "$ROOT/Desktop" && cargo build --release 2>/dev/null) && \
@@ -36,10 +36,10 @@ echo "==> Compilando componentes Rust (shell, dock, launcher, launchpad, finder,
   cp "$ROOT/Launchpad/target/release/pineapple-launchpad" "$BIN/" || \
   echo "   [aviso] pineapple-launchpad não compilado"
 
-# finder
-(cd "$ROOT/Finder" && cargo build --release 2>/dev/null) && \
-  cp "$ROOT/Finder/target/release/pineapple-finder" "$BIN/" || \
-  echo "   [aviso] pineapple-finder não compilado"
+# canopy (gerenciador de arquivos)
+(cd "$ROOT/Canopy" && cargo build --release 2>/dev/null) && \
+  cp "$ROOT/Canopy/target/release/pineapple-canopy" "$BIN/" || \
+  echo "   [aviso] pineapple-canopy não compilado"
 
 # gestures (daemon de gestos no touchpad)
 (cd "$ROOT/Gestures" && cargo build --release 2>/dev/null) && \

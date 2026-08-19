@@ -55,7 +55,7 @@
       <default>false</default>
     </key>
     <key name="pinned" type="as">
-      <default>['pineapple-finder', 'pineapple-terminal', 'pineapple-browser', 'pineapple-music', 'pineapple-photos', 'pineapple-notes', 'pineapple-store', 'pineapple-settings', 'pineapple-calc']</default>
+      <default>['pineapple-canopy', 'pineapple-terminal', 'pineapple-browser', 'pineapple-music', 'pineapple-photos', 'pineapple-notes', 'pineapple-store', 'pineapple-settings', 'pineapple-calc']</default>
     </key>
   </schema>
 
@@ -68,7 +68,7 @@
       <default>'labwc'</default>
     </key>
     <key name="autostart" type="as">
-      <default>['pineapple-finder', 'pineapple-settings']</default>
+      <default>['pineapple-canopy', 'pineapple-settings']</default>
       <description>Apps iniciados junto com a sessão</description>
     </key>
   </schema>

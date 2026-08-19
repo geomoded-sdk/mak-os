@@ -94,7 +94,7 @@ class SetupWindow(Gtk.ApplicationWindow):
             "Vamos preparar seu ambiente com a experiência Pineapple.",
         )
         body = Gtk.Label(
-            label="Seu Finder, Dock, Launchpad e apps compatíveis já estão prontos. "
+            label="Seu Canopy, Dock, Launchpad e apps compatíveis já estão prontos. "
             "Você poderá alterar tudo depois em Preferências do Sistema.",
             wrap=True,
             xalign=0.0,

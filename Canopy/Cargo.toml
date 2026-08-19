@@ -1,8 +1,8 @@
 [package]
-name = "pineapple-finder"
+name = "pineapple-canopy"
 version = "0.1.0"
 edition = "2021"
-description = "Pineapple OS — gerenciador de arquivos"
+description = "Pineapple OS — gerenciador de arquivos (Canopy)"
 license = "GPL-3.0"
 
 [dependencies]
@@ -11,5 +11,5 @@ glib = "0.19"
 gio = "0.19"
 
 [[bin]]
-name = "pineapple-finder"
+name = "pineapple-canopy"
 path = "src/main.rs"

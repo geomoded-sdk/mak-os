@@ -77,7 +77,7 @@ compatibilidade com XWayland.
 - Acesso por `F3`, `Ctrl+Up` ou gesto de 3 dedos; clique num card foca a janela,
   clique num Space troca a área; `Esc` fecha.
 
-### 5. `Finder` — Gerenciador de arquivos (Rust/GTK4)
+### 5. `Canopy` — Gerenciador de arquivos (Rust/GTK4)
 - Visualizações ícones/listas, favoritos, montagens, pesquisa.
 - Integração com `GVfs` para protocolos remotos.
 
@@ -89,7 +89,7 @@ compatibilidade com XWayland.
 ### 7. `Settings`, `Store`, apps — ver `Apps/`
 - Apps simples em Python/GTK4; os principais em Rust/GTK4.
 - Python é usado para apps periféricos, automação, IA e integração com
-  bibliotecas GNOME; o shell, session manager, Finder, Dock, Launcher,
+  bibliotecas GNOME; o shell, session manager, Canopy, Dock, Launcher,
   Launchpad, Mission e Gestures permanecem em Rust.
 - A ISO instala Python 3, PyGObject, Cairo, GTK4, GStreamer e WebKitGTK para
   que esses apps funcionem sem criar virtualenv ou baixar dependências no

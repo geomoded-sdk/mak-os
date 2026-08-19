@@ -65,8 +65,8 @@ write(os.path.join(APPS, "pineapple-logo.svg"), app_svg(
     '<path d="M74 50 l-20 -13 M76 58 l-22 -15 M76 66 l-22 -15 M76 74 l-22 -15" stroke-width="3"/>',
 ))
 
-write(os.path.join(APPS, "pineapple-finder.svg"), app_svg(
-    "finder",
+write(os.path.join(APPS, "pineapple-canopy.svg"), app_svg(
+    "canopy",
     '<rect x="38" y="30" width="52" height="68" rx="10"/>'
     '<line x1="46" y1="48" x2="82" y2="48"/><line x1="46" y1="58" x2="82" y2="58"/>'
     '<line x1="46" y1="68" x2="70" y2="68"/>',
@@ -221,7 +221,7 @@ with open(theme, "w", encoding="utf-8") as f:
     f.write("""[Icon Theme]
 Name=Pineapple Icons
 Comment=Ícones próprios do Pineapple OS
-Example=pineapple-finder
+Example=pineapple-canopy
 
 Directory=scalable/apps
 Size=128

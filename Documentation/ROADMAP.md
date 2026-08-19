@@ -23,7 +23,7 @@
 - [x] Pineapple Terminal (multi-abas, zoom, atalhos)
 - [x] Pineapple Notes (busca, exportar/importar Markdown)
 - [x] Pineapple Settings
-- [x] Pineapple Finder (menu de contexto: copiar/colar/renomear/excluir/nova pasta)
+- [x] Pineapple Canopy (menu de contexto: copiar/colar/renomear/excluir/nova pasta)
 - [x] Pineapple Monitor (gráficos CPU+RAM e lista de processos)
 - [x] Pineapple Photos
 - [x] Pineapple Music

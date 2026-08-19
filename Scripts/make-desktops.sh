@@ -31,7 +31,7 @@ desktop pineapple-dock         "Pineapple Dock"         "/usr/local/bin/pineappl
 desktop pineapple-launcher     "Pineapple Launcher"     "/usr/local/bin/pineapple-launcher"    "pineapple-logo"      "Lançador de aplicativos"
 desktop pineapple-launchpad    "Pineapple Launchpad"    "/usr/local/bin/pineapple-launchpad"   "pineapple-launchpad" "Grade de aplicativos"
 desktop pineapple-mission      "Pineapple Mission"      "/usr/local/bin/pineapple-mission"     "pineapple-mission"   "Mission Control (janelas e áreas de trabalho)"
-desktop pineapple-finder       "Pineapple Finder"       "/usr/local/bin/pineapple-finder"      "pineapple-finder"    "Gerenciador de arquivos"
+desktop pineapple-canopy       "Pineapple Canopy"       "/usr/local/bin/pineapple-canopy"      "pineapple-canopy"    "Gerenciador de arquivos"
 desktop pineapple-terminal     "Pineapple Terminal"     "/usr/bin/pineapple-terminal.py"       "pineapple-terminal"  "Terminal do Pineapple OS"
 desktop pineapple-calculator   "Pineapple Calculator"   "/usr/bin/pineapple-calculator.py"     "pineapple-calc"      "Calculadora"
 desktop pineapple-notes        "Pineapple Notes"        "/usr/bin/pineapple-notes.py"          "pineapple-notes"     "Notas"

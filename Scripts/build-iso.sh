@@ -199,7 +199,7 @@ chmod +x config/includes.chroot/usr/share/pineappleos/scripts/setup-flatpak.sh
 # ------------------------------------------------------------ incluir Pineapple OS
 echo "==> Copiando componentes do Pineapple OS para a imagem"
 cp -r "$ROOT"/Desktop "$ROOT"/Dock "$ROOT"/Launcher "$ROOT"/Launchpad "$ROOT"/Mission \
-      "$ROOT"/Finder "$ROOT"/Gestures "$ROOT"/AI "$ROOT"/Settings "$ROOT"/Store "$ROOT"/Apps \
+      "$ROOT"/Canopy "$ROOT"/Gestures "$ROOT"/AI "$ROOT"/Settings "$ROOT"/Store "$ROOT"/Apps \
       "$ROOT"/Themes "$ROOT"/Icons config/includes.chroot/usr/share/pineappleos/
 
 # Configuracao e branding do instalador grafico Pineapple.

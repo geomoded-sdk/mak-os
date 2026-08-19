@@ -23,13 +23,14 @@ MODEL = os.environ.get("PINEAPPLE_AI_MODEL", "llama3.1")
 
 # Comandos autorizados para a automação (sandbox local)
 ALLOWED_BINARIES = {
-    "pineapple-finder", "pineapple-terminal", "pineapple-settings", "pineapple-calculator",
+    "pineapple-canopy", "pineapple-terminal", "pineapple-settings", "pineapple-calculator",
     "pineapple-monitor", "pineapple-notes", "pineapple-photos", "pineapple-music", "pineapple-browser",
     "pineapple-store", "xdg-open", "notify-send",
 }
 
 KNOWN_APPS = {
-    "finder": "pineapple-finder", "arquivos": "pineapple-finder", "files": "pineapple-finder",
+    "finder": "pineapple-canopy", "arquivos": "pineapple-canopy", "files": "pineapple-canopy",
+    "canopy": "pineapple-canopy",
     "terminal": "pineapple-terminal", "settings": "pineapple-settings", "configurações": "pineapple-settings",
     "calculadora": "pineapple-calculator", "calc": "pineapple-calculator",
     "monitor": "pineapple-monitor", "notes": "pineapple-notes", "notas": "pineapple-notes",

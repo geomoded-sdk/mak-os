@@ -25,7 +25,7 @@ O agente reconhece **ações locais** em português/inglês:
 - **Abrir apps** — `abrir calculadora`, `abra o terminal`
 - **Pesquisar arquivos** — `pesquisar relatorio`, `find planilha`
 - **Resumir documentos** — `resumir ~/Documentos/contrato.txt`
-- **Executar tarefas** — `executar pineapple-finder` (whitelist segura)
+- **Executar tarefas** — `executar pineapple-canopy` (whitelist segura)
 - **Perguntas gerais** — responde via modelo local (`llama3.1`)
 
 ### Segurança

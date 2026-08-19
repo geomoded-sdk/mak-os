@@ -53,7 +53,7 @@ log "iniciando pineapple-ai (assistente)"
 
 # ------------------------------------------------------------- apps iniciais
 sleep 2
-/usr/lib/pineappleos/pineapple-finder &
+/usr/lib/pineappleos/pineapple-canopy &
 /usr/lib/pineappleos/pineapple-settings &
 
 # ------------------------------------------------------------- compositor (front)

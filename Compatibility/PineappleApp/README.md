@@ -20,7 +20,7 @@ python3 Compatibility/PineappleApp/pineapple_app.py launch ./MeuApp
 ```
 
 O registro cria um arquivo `.desktop` em `~/.local/share/applications`, então o
-app aparece no Finder, Launcher, Launchpad, Dock e Spotlight como qualquer app
+app aparece no Canopy, Launcher, Launchpad, Dock e Spotlight como qualquer app
 nativo. A detecção usa magic numbers, não apenas a extensão.
 
 O suporte Mach-O usa o runtime Darling e o LPNU integrado ao Pineapple Kernel.

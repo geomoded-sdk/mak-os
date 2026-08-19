@@ -7,7 +7,7 @@ permitindo rodar aplicativos de outros ecossistemas.
 
 O **Pineapple App Wrapper** unifica a detecção e o registro de aplicativos.
 Ele identifica ELF, PE, Mach-O, AppImage e Flatpak e cria lançadores `.desktop`
-para que todos apareçam no Finder, Launcher, Launchpad, Dock e Spotlight.
+para que todos apareçam no Canopy, Launcher, Launchpad, Dock e Spotlight.
 Veja `Compatibility/PineappleApp/README.md`.
 
 | Tecnologia  | O que roda                  | Setup                            |
@@ -51,10 +51,10 @@ Veja `Compatibility/PineappleApp/README.md`.
 ### Integração de desktop
 
 Os aplicativos compatíveis usam o `Pineapple App Wrapper`, que registra
-lançadores no desktop e os apresenta no Finder, Launcher, Launchpad, Dock e
+lançadores no desktop e os apresenta no Canopy, Launcher, Launchpad, Dock e
 Spotlight. Portals controlam arquivos, URLs, captura e impressão; PipeWire e
 WirePlumber fornecem áudio e captura; FUSE3 e UDisks2 integram volumes ao
-Finder. Wine e Darling continuam isolados nos seus próprios ambientes.
+Canopy. Wine e Darling continuam isolados nos seus próprios ambientes.
 
 ## Notas de segurança
 

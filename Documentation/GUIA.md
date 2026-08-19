@@ -37,7 +37,7 @@ e aproveitar o assistente de IA.
   |---------------------|--------------------|
   | Abrir o Launcher    | `Super` ou `Alt+F1`|
   | Abrir o Terminal    | `Ctrl+Alt+T`       |
-  | Abrir o Finder      | `Super+F`          |
+  | Abrir o Canopy      | `Super+F`          |
   | Mission Control     | `F3` ou `Ctrl+Up`  |
   | Minimizar janela    | `Super+M`          |
   | Mudar de área       | `Super+1..4`       |
@@ -51,7 +51,7 @@ Todos os apps usam o visual e os ícones do Pineapple OS e abrem rapidamente.
 
 | App             | Para que serve                              |
 |-----------------|---------------------------------------------|
-| **Pineapple Finder**  | Navegar nos arquivos, copiar/colar, renomear e excluir. |
+| **Pineapple Canopy**  | Navegar nos arquivos, copiar/colar, renomear e excluir. |
 | **Pineapple Terminal**| Linha de comando, com abas (`Ctrl+Shift+T` nova, `Ctrl+Shift+W` fecha). |
 | **Pineapple Calculator** | Cálculos simples e avançados.            |
 | **Pineapple Notes**   | Notas rápidas, com busca, exportar/importar em Markdown. |
@@ -62,7 +62,7 @@ Todos os apps usam o visual e os ícones do Pineapple OS e abrem rapidamente.
 | **Pineapple Settings**| Configurar o sistema.                        |
 | **Pineapple Store**   | Instalar e gerenciar aplicativos.            |
 
-### Pineapple Finder — truques
+### Pineapple Canopy — truques
 
 - **Clique direito** em um arquivo/pasta para **copiar, colar, renomear,
   excluir (lixeira) ou criar nova pasta**.
@@ -97,7 +97,7 @@ Todos os apps usam o visual e os ícones do Pineapple OS e abrem rapidamente.
 - **AppImage**: coloque o arquivo na pasta `~/Applications` e use o
   **Pineapple AppImage Manager**; ou dê permissão de execução e abra normalmente.
 - **Programas Windows (.exe)**: com o **Wine** instalado, abra o `.exe` pelo
-  Finder (clique duplo) ou pelo menu de contexto.
+  Canopy (clique duplo) ou pelo menu de contexto.
 - **Android**: se o **Waydroid** estiver configurado, apps Android rodam em
   janelas normais (veja `waydroid` na documentação de compatibilidade).
 - **APT (Debian)**: terminal → `sudo apt install <pacote>`.

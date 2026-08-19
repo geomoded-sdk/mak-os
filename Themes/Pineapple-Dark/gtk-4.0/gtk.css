@@ -209,7 +209,7 @@ button.suggested-action { background-color: @pineapple-accent; border-color: @pi
 .pineapple-mission-empty { color: @pineapple-fg-dim; font-size: 14px; }
 
 /* ---- Finder ---- */
-.pineapple-finder-window { background-color: @pineapple-bg; }
+.pineapple-canopy-window { background-color: @pineapple-bg; }
 .pineapple-path { color: @pineapple-fg-dim; padding: 0 8px; }
 .pineapple-sidebar { background-color: @pineapple-bg-alt; border-right: 1px solid @pineapple-border; }
 .pineapple-sidebar row { background: none; }

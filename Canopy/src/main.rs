@@ -9,14 +9,14 @@ use gtk::{
     Orientation, Popover, ScrolledWindow, SearchEntry, Stack,
 };
 
-struct FinderState {
+struct CanopyState {
     current: PathBuf,
     history: Vec<PathBuf>,
     forward: Vec<PathBuf>,
     clipboard: Option<PathBuf>,
 }
 
-impl FinderState {
+impl CanopyState {
     fn new() -> Self {
         Self {
             current: home_dir(),
@@ -134,7 +134,7 @@ fn make_row(path: &Path, name: &str, size: u64) -> ListBoxRow {
 }
 
 /// Abre um caminho: pastas entram, arquivos abrem com o app padrão.
-fn open_path(state: &mut FinderState, target: PathBuf, refresh: &dyn Fn()) {
+fn open_path(state: &mut CanopyState, target: PathBuf, refresh: &dyn Fn()) {
     if target.is_dir() {
         state.go(target);
         refresh();
@@ -221,7 +221,7 @@ fn menu_button(label: &str, icon: &str, on_click: impl Fn() + 'static) -> Button
 /// Menu de contexto (clique direito): abrir, renomear, copiar, colar, excluir, nova pasta.
 fn build_context_menu(
     selected: Rc<RefCell<Option<PathBuf>>>,
-    state: Rc<RefCell<FinderState>>,
+    state: Rc<RefCell<CanopyState>>,
     refresh: Rc<dyn Fn()>,
     win: &ApplicationWindow,
 ) -> Popover {
@@ -356,7 +356,7 @@ fn build_context_menu(
     pop
 }
 
-fn load_directory(state: &FinderState, list: &ListBox, stack: &Stack, search: &SearchEntry) {
+fn load_directory(state: &CanopyState, list: &ListBox, stack: &Stack, search: &SearchEntry) {
     while let Some(child) = list.first_child() {
         list.remove(&child);
     }
@@ -405,7 +405,7 @@ fn load_directory(state: &FinderState, list: &ListBox, stack: &Stack, search: &S
 
 fn main() -> glib::ExitCode {
     let app = Application::builder()
-        .application_id("org.pineappleos.finder")
+        .application_id("org.pineappleos.canopy")
         .build();
 
     app.connect_activate(build_ui);
@@ -413,13 +413,13 @@ fn main() -> glib::ExitCode {
 }
 
 fn build_ui(app: &Application) {
-    let state = Rc::new(RefCell::new(FinderState::new()));
+    let state = Rc::new(RefCell::new(CanopyState::new()));
     let selected = Rc::new(RefCell::new(None::<PathBuf>));
 
     let win = ApplicationWindow::new(app);
-    win.set_title(Some("Pineapple Finder"));
+    win.set_title(Some("Pineapple Canopy"));
     win.set_default_size(960, 620);
-    win.set_css_classes(&["pineapple-finder-window"]);
+    win.set_css_classes(&["pineapple-canopy-window"]);
 
     let root = gtk::Box::new(Orientation::Vertical, 0);
 

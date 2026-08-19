@@ -3,7 +3,7 @@
 #  build-debs.sh — empacota o Pineapple OS em pacotes .deb (dpkg-deb)
 #
 #  Pacotes gerados em dist/:
-#   - pineapple-os-desktop_<ver>.deb   (shell, dock, launcher, launchpad, finder)
+#   - pineapple-os-desktop_<ver>.deb   (shell, dock, launcher, launchpad, canopy)
 #   - pineapple-os-apps_<ver>.deb      (apps Python + IA)
 #   - pineapple-os-themes_<ver>.deb    (temas, ícones, wallpaper)
 #   - pineapple-os-boot_<ver>.deb      (GRUB + Plymouth + Calamares)
@@ -58,7 +58,7 @@ makedeb() {
 }
 
 echo "==> pineapple-os-desktop"
-makedeb pineapple-os-desktop "Pineapple OS desktop components (shell, dock, launcher, launchpad, finder)" \
+makedeb pineapple-os-desktop "Pineapple OS desktop components (shell, dock, launcher, launchpad, canopy)" \
   "libgtk-4-1, libgtk-4-layer-shell0, libadwaita-1-0" desktop.list
 
 echo "==> pineapple-os-apps"

@@ -46,7 +46,7 @@ class TestDetectAction(unittest.TestCase):
         self.assertEqual(action["type"], "summarize")
 
     def test_run_command(self):
-        action = self.agent.detect_action("executar pineapple-finder")
+        action = self.agent.detect_action("executar pineapple-canopy")
         self.assertEqual(action["type"], "run")
 
     def test_general_question(self):
@@ -81,7 +81,7 @@ class TestTools(unittest.TestCase):
 
     def test_run_command_whitelist(self):
         # autorizado pela whitelist: ou executa, ou informa que não está instalado
-        result = self.agent.run_command("pineapple-finder")
+        result = self.agent.run_command("pineapple-canopy")
         self.assertTrue("abri" in result or "não está instalado" in result)
 
     def test_run_command_blocked(self):

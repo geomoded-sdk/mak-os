@@ -211,7 +211,7 @@ fn place_dock(window: &gtk::ApplicationWindow) {
 
 fn default_icons() -> Vec<(&'static str, &'static str, &'static str)> {
     vec![
-        ("pineapple-finder", "Pineapple Finder", "pineapple-finder"),
+        ("pineapple-canopy", "Pineapple Canopy", "pineapple-canopy"),
         ("pineapple-launchpad", "Launchpad", "pineapple-launchpad"),
         ("pineapple-mission", "Mission Control", "pineapple-mission"),
         (
