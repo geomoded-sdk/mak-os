@@ -99,6 +99,7 @@ libelf-dev
 libssl-dev
 firmware-linux
 firmware-linux-nonfree
+systemd-sysv
 
 # --- X / Wayland ---
 xserver-xorg-core
