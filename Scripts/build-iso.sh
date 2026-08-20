@@ -58,6 +58,7 @@ lb config \
   --architecture "$ARCH" \
   --architectures "$ARCH" \
   --system live \
+  --initsystem systemd \
   --binary-images iso-hybrid \
   --bootappend-live "$BOOTARGS" \
   --debian-installer live \
