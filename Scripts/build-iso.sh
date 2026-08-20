@@ -61,7 +61,7 @@ lb config \
   --initsystem systemd \
   --binary-images iso-hybrid \
   --bootappend-live "$BOOTARGS" \
-  --debian-installer live \
+  --debian-installer none \
   --debian-installer-distribution "$SUITE" \
   --apt-recommends false \
   --security false \
