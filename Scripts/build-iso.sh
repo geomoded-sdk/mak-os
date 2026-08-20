@@ -58,8 +58,8 @@ lb config \
   --architecture "$ARCH" \
   --architectures "$ARCH" \
   --system live \
+  --binary-images iso \
   --initsystem systemd \
-  --binary-images iso-hybrid \
   --bootappend-live "$BOOTARGS" \
   --debian-installer false \
   --debian-installer-distribution "$SUITE" \
