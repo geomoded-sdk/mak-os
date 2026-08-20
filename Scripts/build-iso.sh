@@ -136,6 +136,7 @@ hicolor-icon-theme
 fonts-inter
 fonts-sora
 swaybg
+syslinux-utils
 
 # --- serviços ---
 pipewire
@@ -291,6 +292,9 @@ mkdir -p config/hooks/normal
 cp "$ROOT/Installer/live-build/hooks/pineapple-lpnu.hook.chroot" \
   config/hooks/normal/0001-pineapple-lpnu.hook.chroot
 chmod +x config/hooks/normal/0001-pineapple-lpnu.hook.chroot
+cp "$ROOT/Installer/live-build/hooks/fix-grub-eltorito.hook.binary" \
+  config/hooks/0010-fix-grub-eltorito.hook.binary
+chmod +x config/hooks/0010-fix-grub-eltorito.hook.binary
 
 # ------------------------------------------------------------ build
 echo "==> Gerando a ISO (isso pode levar vários minutos)"
