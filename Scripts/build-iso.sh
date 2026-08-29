@@ -23,14 +23,73 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 LB_DIR="$ROOT/Installer/live-build"
 WORKDIR="$ROOT/Installer/live-build/$OUTPUT"
 
+# ------------------------------------------------- boot.plist + args de boot
+# boot.plist é o equivalente do boot-args/NVRAM do macOS: um plist que define
+# os argumentos de kernel, o PowerBook ID e o volume BFS usados na linha
+# linux do GRUB. A variável de ambiente POWERBOOK_ID tem prioridade sobre a
+# chave PowerBookID do plist.
+BOOT_PLIST="$LB_DIR/boot.plist"
+
+# Lê uma chave do boot.plist (via python3/plistlib). Emite "" se indisponível.
+plist_get() {
+  local key="$1"
+  if command -v python3 >/dev/null 2>&1; then
+    python3 - "$BOOT_PLIST" "$key" <<'PY' 2>/dev/null || true
+import plistlib, sys
+try:
+    with open(sys.argv[1], 'rb') as f:
+        d = plistlib.load(f)
+    v = d.get(sys.argv[2])
+    if v is True:
+        print('true')
+    elif v is False:
+        print('false')
+    else:
+        print(v if v is not None else '')
+except Exception:
+    sys.exit(1)
+PY
+  fi
+}
+
+DEFAULT_BOOT_ARGS="quiet loglevel=0 splash rd.quiet locale=pt_BR.UTF-8"
+PLIST_ARGS="$(plist_get Arguments)"
+PLIST_FS="$(plist_get FileSystem)"
+PLIST_VERBOSE="$(plist_get Verbose)"
+PLIST_SAFE="$(plist_get SafeMode)"
+[ -z "$PLIST_ARGS" ] && PLIST_ARGS="$DEFAULT_BOOT_ARGS"
+
+# POWERBOOK_ID (ambiente) tem prioridade sobre o PowerBookID do plist.
+BOOT_ID="$(plist_get PowerBookID)"
+[ -n "$POWERBOOK_ID" ] && BOOT_ID="$POWERBOOK_ID"
+
+# Argumentos de boot estilo macOS:
+#   boot=live components      → live-boot obrigatório
+#   -v / -x                   → boot verboso / modo de segurança (estilo macOS)
+#   -pineapplepowerbookid=ID  → ID do PowerBook (obrigatório; sem ele: panic)
+#   -pineapplefs=DEV          → volume BFS (fora do modo live)
+BOOTARGS="boot=live components ${PLIST_ARGS}"
+[ "$PLIST_VERBOSE" = "true" ] && BOOTARGS="$BOOTARGS -v"
+[ "$PLIST_SAFE" = "true" ] && BOOTARGS="$BOOTARGS -x"
+if [ -n "$BOOT_ID" ]; then
+  BOOTARGS="$BOOTARGS -pineapplepowerbookid=$BOOT_ID"
+fi
+if [ -n "$PLIST_FS" ]; then
+  BOOTARGS="$BOOTARGS -pineapplefs=$PLIST_FS"
+fi
+
 echo "==> Pineapple OS ISO build"
 echo "    distro=$DISTRO suite=$SUITE arch=$ARCH"
-if [ -z "$POWERBOOK_ID" ]; then
-  echo "    [ATENÇÃO] POWERBOOK_ID vazio — o live boot exigirá o argumento"
-  echo "              -pineapplepowerbookid=<ID> no kernel (senão: panic)."
+if [ -z "$BOOT_ID" ]; then
+  echo "    [ATENÇÃO] PowerBook ID vazio (env POWERBOOK_ID/boot.plist) — o live boot"
+  echo "              exigirá -pineapplepowerbookid=<ID> na tela do GRUB (senão: panic)."
 else
-  echo "    powerbook_id=$POWERBOOK_ID"
+  echo "    powerbook_id=$BOOT_ID"
+  if [ -f "$ROOT/ids.txt" ] && ! grep -qx "$BOOT_ID" "$ROOT/ids.txt"; then
+    echo "    [ATENÇÃO] PowerBook ID '$BOOT_ID' NÃO está em ids.txt — boot dará panic."
+  fi
 fi
+echo "    boot args: $BOOTARGS"
 
 command -v lb >/dev/null 2>&1 || {
   echo "live-build não encontrado. Instale com: sudo apt install live-build" >&2
@@ -43,15 +102,6 @@ mkdir -p "$WORKDIR"
 cd "$WORKDIR"
 
 echo "==> Inicializando live-build (lb config)"
-
-# Argumentos de boot estilo macOS:
-#   quiet loglevel=0 rd.quiet  → esconde os logs de kernel (boot limpo)
-#   splash                     → mostra o Plymouth (abacaxi sobre fundo claro)
-#   -pineapplepowerbookid=ID   → ID do PowerBook (obrigatório; sem ele: panic)
-BOOTARGS="boot=live components quiet loglevel=0 splash rd.quiet locale=pt_BR.UTF-8"
-if [ -n "$POWERBOOK_ID" ]; then
-  BOOTARGS="$BOOTARGS -pineapplepowerbookid=$POWERBOOK_ID"
-fi
 
 lb config \
   --distribution "$SUITE" \
@@ -228,6 +278,11 @@ ln -sf ../pineapple-setup.service \
 echo "==> Definindo identidade (os-release)"
 mkdir -p config/includes.chroot/etc
 cp "$ROOT/Installer/os-release" config/includes.chroot/etc/os-release
+
+# O boot.plist também vai para o sistema, para servir de referência da
+# configuração de boot usada na build (e de modelo para o sistema instalado).
+mkdir -p config/includes.chroot/etc/pineappleos
+cp "$BOOT_PLIST" config/includes.chroot/etc/pineappleos/boot.plist
 
 # ------------------------------------------------------------ PowerBook ID + panic
 # A lista de IDs e o verificador de initramfs são embutidos na imagem.

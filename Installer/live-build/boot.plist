@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  boot.plist - configuração de boot do Pineapple OS (estilo macOS).
+
+  Este arquivo é o equivalente do boot-args/NVRAM do macOS: define os
+  argumentos de kernel e a identidade da máquina que o build do ISO usa.
+
+  Como funciona:
+    * Arguments   -> argumentos de boot normais (quiet/loglevel/splash...).
+    * PowerBookID -> ID do PowerBook (obrigatório). Deve existir em ids.txt.
+                     Vazio = o ID será pedido na tela do GRUB (senão: panic).
+    * FileSystem  -> dispositivo do volume BFS (ex.: /dev/sdb2 ou 'root').
+                     Só é obrigatório fora do modo live (instalação).
+    * Verbose     -> true  adiciona -v (boot verboso, estilo macOS).
+    * SafeMode    -> true  adiciona -x (modo de segurança).
+
+  O build-iso.sh lê este arquivo e monta a linha linux do GRUB. A variável
+  de ambiente POWERBOOK_ID tem prioridade sobre PowerBookID.
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Arguments</key>
+    <string>quiet loglevel=0 splash rd.quiet locale=pt_BR.UTF-8</string>
+    <key>PowerBookID</key>
+    <string></string>
+    <key>FileSystem</key>
+    <string></string>
+    <key>Verbose</key>
+    <false/>
+    <key>SafeMode</key>
+    <false/>
+</dict>
+</plist>
