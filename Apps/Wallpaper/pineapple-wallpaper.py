@@ -12,9 +12,12 @@
 #  Configuração (gsettings org.pineappleos.desktop):
 #    background        caminho da imagem fixa (modo static)
 #    background-mode   "static" | "catalina"
-#    background-dir    pasta com os wallpapers (catalina-N.svg etc.)
+#    background-dir    pasta com os wallpapers (catalina-N.png/jpg, wallpaper.png)
 #
 #  O renderizador usado é o swaybg (compositor Wayland wlroots/labwc).
+#  O wlroots só carrega formatos raster (PNG/JPG/WebP) — SVG NÃO é renderizado.
+#  Por isso o daemon procura a imagem nas extensões raster primeiro e só usa
+#  SVG como último recurso.
 # =============================================================================
 import os
 import subprocess
@@ -30,15 +33,27 @@ from gi.repository import Gio, GLib  # noqa: E402
 SCHEMA = "org.pineappleos.desktop"
 DEFAULT_DIR = "/usr/share/backgrounds/pineappleos"
 
+# Extensões raster suportadas pelo swaybg (wlroots), em ordem de preferência,
+# seguidas do SVG (fallback de compatibilidade, não renderizado pelo wlroots).
+EXTENSOES = (".png", ".jpg", ".jpeg", ".webp", ".svg")
+
+
+def achar_imagem(stem):
+    """Devolve o primeiro arquivo existente em 'stem', preferindo PNG/JPG."""
+    for ext in EXTENSOES:
+        if os.path.exists(stem + ext):
+            return stem + ext
+    return stem + ".png"
+
 # ---------------------------------------------------------------------------
 #  Mapa de horários → imagem do Catalina (estilo macOS)
 # ---------------------------------------------------------------------------
-# (hora inicial inclusiva, hora final exclusiva, arquivo)
+# (hora inicial inclusiva, hora final exclusiva, arquivo sem extensão)
 CATALINA_SCHEDULE = [
-    (5, 8, "catalina-dawn.svg"),    # amanhecer: 05:00–07:59
-    (8, 17, "catalina-day.svg"),    # dia:       08:00–16:59
-    (17, 20, "catalina-sunset.svg"),  # pôr do sol: 17:00–19:59
-    (20, 5, "catalina-night.svg"),  # noite:     20:00–04:59 (vira o dia)
+    (5, 8, "catalina-dawn"),    # amanhecer: 05:00–07:59
+    (8, 17, "catalina-day"),    # dia:       08:00–16:59
+    (17, 20, "catalina-sunset"),  # pôr do sol: 17:00–19:59
+    (20, 5, "catalina-night"),  # noite:     20:00–04:59 (vira o dia)
 ]
 
 
@@ -56,9 +71,9 @@ def catalina_arquivo(hora, base_dir):
             # intervalo que vira a meia-noite (ex.: noite 20:00–04:59)
             dentro = hora >= inicio or hora < fim
         if dentro:
-            return os.path.join(base_dir, "catalina", nome)
+            return achar_imagem(os.path.join(base_dir, "catalina", nome))
     # não deveria acontecer, mas garante um retorno
-    return os.path.join(base_dir, "catalina", "catalina-day.svg")
+    return achar_imagem(os.path.join(base_dir, "catalina", "catalina-day"))
 
 
 def aplicar_swaybg(imagem):
@@ -86,7 +101,7 @@ class WallpaperDaemon:
         if modo == "catalina":
             return catalina_arquivo(hora_atual(), base)
         fixa = self.settings.get_string("background")
-        return fixa if os.path.exists(fixa) else os.path.join(base, "wallpaper.svg")
+        return fixa if os.path.exists(fixa) else achar_imagem(os.path.join(base, "wallpaper"))
 
     # --- aplicação ---
     def aplicar(self):

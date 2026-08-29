@@ -21,19 +21,33 @@ Rectangle {
 
     color: "#1d2430"
 
-    // ---- fundo: wallpaper do sistema (fallback para background.png) ----
+    // ---- fundo: wallpaper do sistema (fallback em cascata) ----
     Image {
         id: bg
         anchors.fill: parent
-        source: {
-            // Tenta usar o wallpaper ativo (High Sierra / Catalina / Sequoia).
-            var paths = [
-                "/usr/share/backgrounds/pineappleos/highsierra.svg",
-                "/usr/share/backgrounds/pineappleos/wallpaper.svg"
-            ]
-            var base = "file://" + paths[0]
-            return base
+
+        // Tenta usar o wallpaper ativo em formato raster (PNG/JPG). O Qt
+        // carrega SVG também, então ele fica como último fallback.
+        property int bgIndex: 0
+        property var bgPaths: [
+            "file:///usr/share/backgrounds/pineappleos/wallpaper.png",
+            "file:///usr/share/backgrounds/pineappleos/wallpaper.jpg",
+            "file:///usr/share/backgrounds/pineappleos/wallpaper.jpeg",
+            "file:///usr/share/backgrounds/pineappleos/highsierra.png",
+            "file:///usr/share/backgrounds/pineappleos/highsierra.jpg",
+            "file:///usr/share/backgrounds/pineappleos/highsierra.svg"
+        ]
+        source: bgPaths[bgIndex]
+
+        onStatusChanged: {
+            if (status === Image.Error && bgIndex < bgPaths.length - 1) {
+                bgIndex++
+                source = bgPaths[bgIndex]
+            }
         }
+
+        onSourceChanged: bgIndex = bgPaths.indexOf(source)
+
         fillMode: Image.PreserveAspectCrop
     }
 

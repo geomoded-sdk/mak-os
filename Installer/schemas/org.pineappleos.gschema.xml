@@ -16,7 +16,7 @@
       </choices>
     </key>
     <key name="background" type="s">
-      <default>'/usr/share/backgrounds/pineappleos/highsierra.svg'</default>
+      <default>'/usr/share/backgrounds/pineappleos/wallpaper.png'</default>
       <summary>Imagem de fundo da área de trabalho</summary>
     </key>
     <key name="background-mode" type="s">
