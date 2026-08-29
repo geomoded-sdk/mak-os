@@ -7,19 +7,20 @@ Temas GTK próprios com identidade visual única (nada de marcas alheias).
 | `Pineapple-HighSierra` | Claro (padrão): aqua estilo macOS High Sierra + dock de vidro |
 | `Pineapple-Dark` | Escuro: grafite + azul-petróleo + coral |
 | `Pineapple-Light`| Claro: superfícies brancas e acentos azul/coral  |
-| `wallpapers/` | Papéis de parede oficiais (SVG) |
+| `wallpapers/` | Papéis de parede oficiais (PNG 2560×1440) |
 
 ## Wallpapers
 
 | Arquivo                            | Descrição                                   |
 |------------------------------------|---------------------------------------------|
-| `highsierra.svg`                   | Dunas ao pôr do sol (estilo macOS High Sierra) |
-| `wallpaper.svg`                    | Wallpaper padrão (abstract)                 |
-| `sequoia.svg`                      | Abstrato azul/turquesa (estilo macOS Sequoia) |
-| `catalina/catalina-{dawn,day,sunset,night}.svg` | Pack **dinâmico** estilo macOS Catalina |
+| `highsierra.png`                   | Dunas claras (estilo macOS High Sierra)     |
+| `wallpaper.png`                    | Wallpaper padrão (crepúsculo azul/magenta)  |
+| `sequoia.png`                      | Floresta dourada (estilo macOS Sequoia)     |
+| `catalina/catalina-{dawn,day,sunset,night}.png` | Pack **dinâmico** estilo macOS Catalina (dunas) |
 
 O Catalina é **dinâmico**: o daemon `pineapple-wallpaper`
-(`Apps/Wallpaper/pineapple-wallpaper.py`) troca a imagem conforme o horário.
+(`Apps/Wallpaper/pineapple-wallpaper.py`) troca a imagem conforme o horário;
+o daemon procura PNG/JPG primeiro (o swaybg/wlroots não renderiza SVG).
 
 ```bash
 # escolher o modo (static ou catalina)
@@ -28,7 +29,7 @@ gsettings set org.pineappleos.desktop background-mode static
 
 # imagem fixa
 gsettings set org.pineappleos.desktop background \
-  /usr/share/backgrounds/pineappleos/sequoia.svg
+  /usr/share/backgrounds/pineappleos/sequoia.png
 ```
 
 Geração: `python3 Scripts/gen-catalina.py` (o `Makefile` chama via `make wallpapers`).
