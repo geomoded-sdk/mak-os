@@ -186,7 +186,6 @@ hicolor-icon-theme
 fonts-inter
 fonts-sora
 swaybg
-syslinux-utils
 
 # --- serviços ---
 pipewire
@@ -347,19 +346,68 @@ mkdir -p config/hooks/normal
 cp "$ROOT/Installer/live-build/hooks/pineapple-lpnu.hook.chroot" \
   config/hooks/normal/0001-pineapple-lpnu.hook.chroot
 chmod +x config/hooks/normal/0001-pineapple-lpnu.hook.chroot
-cp "$ROOT/Installer/live-build/hooks/fix-grub-eltorito.hook.binary" \
-  config/hooks/0010-fix-grub-eltorito.hook.binary
-chmod +x config/hooks/0010-fix-grub-eltorito.hook.binary
+
+# ------------------------------------------------------------ grub.cfg da ISO
+# O template grub2 do live-build 3.0~a57 é frágil (background via ($root) e o
+# core gerado pelo binary.sh usa grub-mkimage sem '-p', obrigatório desde o
+# grub 2.12 — o que quebra o El Torito). Aqui regravamos um grub.cfg robusto
+# que localiza o kernel por busca na mídia (CD/USB, BIOS/UEFI).
+echo "==> Configurando grub.cfg da ISO (busca por /live/vmlinuz)"
+cat > config/hooks/0020-pineapple-grub.cfg.hook.binary <<EOF
+#!/bin/sh
+set -eu
+KERN="\$(basename binary/live/vmlinuz-*amd64)"
+INITRD="\$(basename binary/live/initrd.img-*amd64)"
+cat > binary/boot/grub/grub.cfg <<GRUB
+set default=0
+set timeout=5
+insmod all_video
+insmod part_msdos
+insmod part_gpt
+insmod fat
+insmod exfat
+insmod iso9660
+insmod udf
+insmod ext2
+insmod search
+search --no-floppy --set=root --file /live/vmlinuz
+linux /live/\$KERN ${BOOTARGS}
+initrd /live/\$INITRD
+GRUB
+EOF
+chmod +x config/hooks/0020-pineapple-grub.cfg.hook.binary
 
 # ------------------------------------------------------------ build
 echo "==> Gerando a ISO (isso pode levar vários minutos)"
 lb build 2>&1 | tee "$ROOT/Installer/live-build/build.log"
 
-ISO=$(ls live-image-*.hybrid.iso 2>/dev/null || ls *.iso 2>/dev/null | head -n1)
-if [ -n "$ISO" ]; then
-  cp "$ISO" "$ROOT/pineappleos-$SUITE-$ARCH.iso"
-  echo "==> ISO criada: $ROOT/pineappleos-$SUITE-$ARCH.iso"
+# ------------------------------------------------------------ ISO híbrida (Rufus/USB)
+# O genisoimage embutido no live-build 3.0~a57 com bootloader grub2 gera um
+# 'binary.iso' sem híbrido MBR (e com El Torito danificado pelo grub-mkimage
+# sem '-p'). Para o Rufus aceitar, extraímos a árvore dessa ISO bruta e a
+# reconstruímos com grub-mkrescue: El Torito grub2 (BIOS) + imagem EFI (UEFI)
+# + MBR híbrido — bootável em USB e DVD.
+echo "==> Reconstruindo ISO híbrida (BIOS+UEFI) com grub-mkrescue"
+if [ ! -f binary.iso ]; then
+  echo "==> ERRO: binary.iso não encontrado. Veja build.log." >&2
+  exit 1
+fi
+command -v xorriso >/dev/null 2>&1 || {
+  echo "xorriso não encontrado. Instale com: sudo apt install xorriso grub-pc-bin grub-efi-amd64-bin mtools" >&2
+  exit 1
+}
+command -v grub-mkrescue >/dev/null 2>&1 || {
+  echo "grub-mkrescue não encontrado. Instale com: sudo apt install grub-pc-bin grub-efi-amd64-bin" >&2
+  exit 1
+}
+rm -rf binary-root
+xorriso -osirrox on -indev binary.iso -extract / binary-root
+rm -f binary.iso
+ISO="$ROOT/pineappleos-$SUITE-$ARCH.iso"
+grub-mkrescue -o "$ISO" binary-root
+if [ -f "$ISO" ]; then
+  echo "==> ISO híbrida criada: $ISO"
 else
-  echo "==> ERRO: nenhuma ISO gerada. Veja build.log." >&2
+  echo "==> ERRO: grub-mkrescue falhou. Veja build.log." >&2
   exit 1
 fi

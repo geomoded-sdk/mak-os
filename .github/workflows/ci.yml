@@ -196,7 +196,8 @@ jobs:
         run: |
           bash Scripts/ci-apt.sh \
             live-build debootstrap debian-archive-keyring \
-            devscripts curl
+            devscripts curl xorriso grub-pc-bin \
+            grub-efi-amd64-bin mtools
 
       - name: Verificar Python
         run: |
