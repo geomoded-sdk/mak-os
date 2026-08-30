@@ -22,7 +22,7 @@ ISO="${1:?uso: boot-test-iso.sh <imagem.iso>}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK" >/dev/null 2>&1 || true' EXIT
-BOOT_TIMEOUT="${BOOT_TIMEOUT:-300}"
+BOOT_TIMEOUT="${BOOT_TIMEOUT:-240}"
 
 echo "==> Boot test: $ISO"
 
@@ -92,6 +92,14 @@ grub-mkrescue -o "$WORK/test.iso" "$WORK/tree" > "$WORK/mkrescue.log" 2>&1 || {
     exit 1
 }
 
+# prova: o grub.cfg que FOI para a ISO de teste
+echo "=> grub.cfg da ISO de teste (search/linux):"
+sed -E 's/\x1b\[[0-9;]*[a-zA-Z]//g' "$WORK/tree/boot/grub/grub.cfg" |
+    grep -nE "search|if \[|set root|linux |initrd " |
+    sed 's/^/    /'
+echo "=> arquivo (cd0)/live do tree:"
+ls "$WORK/tree/live/" | sed 's/^/    /'
+
 # --- 4) ambiente QEMU -------------------------------------------------------------
 if [ -e /dev/kvm ]; then
     ACCEL="-enable-kvm -cpu max"
@@ -107,42 +115,52 @@ QEMU=(qemu-system-x86_64 $ACCEL -machine q35 -m 4096 -smp 4
       -nographic -monitor none -no-reboot)
 
 # --- 5) boots ---------------------------------------------------------------------
+scrub() {
+    # remove sequências ESC/CR para greps fiáveis (QEMU serial emite ANSI)
+    sed 's/\x1b\[[0-9;]*[a-zA-Z]//g; s/\r//g'
+}
+
 analyze() {
-    local name="$1" log="$2"
-    if [ ! -s "$log" ]; then
+    local name="$1" log="$2" s="$3"
+    scrub < "$log" > "$s"
+    if [ ! -s "$s" ]; then
         echo "FAIL[$name]: log de boot vazio"
         return 1
     fi
-    if grep -q "Kernel panic" "$log"; then
+    echo "    --- primeiras 25 linhas do boot log ---"
+    sed -n '1,25p' "$s" | sed 's/^/      /'
+    if grep -q "Kernel panic" "$s"; then
         echo "FAIL[$name]: kernel panic detectado"
-        tail -80 "$log"
+        tail -40 "$s" | sed 's/^/      /'
         return 1
     fi
-    if grep -qE "^error: " "$log"; then
+    if grep -qE "^error: " "$s"; then
         echo "FAIL[$name]: erro do GRUB no boot"
-        tail -80 "$log"
+        grep -nE "^(error:|GNU GRUB|Minimal)" "$s" | sed 's/^/      /'
+        tail -30 "$s" | sed 's/^/      /'
         return 1
     fi
-    if grep -q "Run /init as init process" "$log"; then
+    if grep -q "Run /init as init process" "$s"; then
         echo "PASS[$name]: kernel entregou o controle ao initramfs (handoff)"
-        if grep -q "Reached target Basic System" "$log"; then
+        if grep -q "Reached target Basic System" "$s"; then
             echo "PASS[$name]: atingiu o alvo Basic System (early-boot completo)"
         fi
         return 0
     fi
     echo "FAIL[$name]: kernel não entregou o controle ao initramfs"
-    tail -80 "$log"
+    tail -40 "$s" | sed 's/^/      /'
     return 1
 }
 
 # 5.1 BIOS (SeaBIOS, El Torito)
 echo "==> boot BIOS (SeaBIOS, até ${BOOT_TIMEOUT}s)"
-$QRUN timeout "$BOOT_TIMEOUT" "${QEMU[@]}" \
+$QRUN timeout -k 5 "$BOOT_TIMEOUT" "${QEMU[@]}" \
     -cdrom "$WORK/test.iso" -boot d \
     </dev/null > "$WORK/bios.log" 2>&1 || true
+scrub < "$WORK/bios.log" > "$WORK/bios.s"
 BIOS_STATUS=0
-analyze "BIOS" "$WORK/bios.log" || BIOS_STATUS=$?
-echo "    (último BIOS log): $(tail -2 "$WORK/bios.log" | tr '\n' ' ' | cut -c1-140)"
+analyze "BIOS" "$WORK/bios.log" "$WORK/bios.s" || BIOS_STATUS=$?
+echo "    (último BIOS log): $(tail -2 "$WORK/bios.log" | scrub | tr '\n' ' ' | cut -c1-140)"
 
 # 5.2 UEFI (OVMF)
 if [ -d /usr/share/OVMF ]; then
@@ -157,13 +175,14 @@ EFI_STATUS=0
 if [ -n "$CODE_FD" ] && [ -n "$VARS_TMPL" ]; then
     cp "$VARS_TMPL" "$WORK/OVMF_VARS.fd"
     echo "==> boot UEFI (OVMF $CODE_FD até ${BOOT_TIMEOUT}s)"
-    $QRUN timeout "$BOOT_TIMEOUT" "${QEMU[@]}" \
+    $QRUN timeout -k 5 "$BOOT_TIMEOUT" "${QEMU[@]}" \
         -drive if=pflash,format=raw,readonly=on,file="$CODE_FD" \
         -drive if=pflash,format=raw,file="$WORK/OVMF_VARS.fd" \
         -cdrom "$WORK/test.iso" -boot order=d \
         </dev/null > "$WORK/efi.log" 2>&1 || true
-    analyze "UEFI" "$WORK/efi.log" || EFI_STATUS=$?
-    echo "    (último UEFI log): $(tail -2 "$WORK/efi.log" | tr '\n' ' ' | cut -c1-140)"
+    scrub < "$WORK/efi.log" > "$WORK/efi.s"
+    analyze "UEFI" "$WORK/efi.log" "$WORK/efi.s" || EFI_STATUS=$?
+    echo "    (último UEFI log): $(tail -2 "$WORK/efi.log" | scrub | tr '\n' ' ' | cut -c1-140)"
 else
     echo "aviso: OVMF não instalado — pulando teste UEFI"
     EFI_STATUS=0
