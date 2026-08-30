@@ -370,12 +370,15 @@ insmod iso9660
 insmod udf
 insmod ext2
 insmod search
-# busca pelo nome exato (Rock Ridge/FAT guarda vmlinuz-*amd64, não "vmlinuz")
-search --no-floppy --set=root --file /live/\$KERN
-# se a busca falhar (ex.: DVD onde o search não indexa a (cd0)), usa (cd0)
-if [ ! -e /live/\$KERN ]; then set root=(cd0); fi
-linux /live/\$KERN ${BOOTARGS}
-initrd /live/\$INITRD
+# "menuentry" é obrigatório: sem ele o GRUB não auto-boota e cai no prompt
+menuentry "pineappleos" {
+    # busca pelo nome exato (Rock Ridge/FAT guarda vmlinuz-*amd64, não "vmlinuz")
+    search --no-floppy --set=root --file /live/\$KERN
+    # se a busca falhar (ex.: DVD onde o search não indexa a (cd0)), usa (cd0)
+    if [ ! -e /live/\$KERN ]; then set root=(cd0); fi
+    linux /live/\$KERN ${BOOTARGS}
+    initrd /live/\$INITRD
+}
 GRUB
 EOF
 chmod +x config/hooks/0020-pineapple-grub.cfg.hook.binary

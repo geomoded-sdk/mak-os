@@ -307,9 +307,10 @@ def main():
         ok_s = "search" in text and "--set=root" in text
         ok_l = "linux /live/" in text
         ok_i = "initrd /live/" in text
-        if not (ok_s and ok_l and ok_i):
-            err("grub.cfg sem busca/linux/initrd esperados (ver /boot/grub/grub.cfg)")
-        print("    grub.cfg: OK (search + linux/initrd /live/*)")
+        ok_m = "menuentry" in text
+        if not (ok_s and ok_l and ok_i and ok_m):
+            err("grub.cfg sem busca/menuentry/linux/initrd esperados (ver /boot/grub/grub.cfg)")
+        print("    grub.cfg: OK (search + menuentry + linux/initrd /live/*)")
     else:
         err("grub.cfg presente mas não lido")
 
