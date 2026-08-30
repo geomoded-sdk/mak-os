@@ -371,9 +371,9 @@ insmod udf
 insmod ext2
 insmod search
 # busca pelo nome exato (Rock Ridge/FAT guarda vmlinuz-*amd64, não "vmlinuz")
-search --no-floppy --set=root --file /live/$KERN
+search --no-floppy --set=root --file /live/\$KERN
 # se a busca falhar (ex.: DVD onde o search não indexa a (cd0)), usa (cd0)
-if [ ! -e /live/$KERN ]; then set root=(cd0); fi
+if [ ! -e /live/\$KERN ]; then set root=(cd0); fi
 linux /live/$KERN ${BOOTARGS}
 initrd /live/\$INITRD
 GRUB
