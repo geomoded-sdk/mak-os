@@ -127,6 +127,9 @@ scrub() {
 #   "pass"|"panic"|"grub"|"earlyexit"|"timeout".
 run_boot() {
     local name="$1" timeout_s="$2"; shift 2
+    # subshell em background herda o trap EXIT do pai não deve:
+    # o "rm -rf \$WORK" do trap rodaria AQUI e apagaria o log durante o boot
+    trap - EXIT
     local qpid deadline state s sfile="$WORK/$name.live"
     "$@" > "$WORK/$name.log" 2>&1 &
     qpid=$!
