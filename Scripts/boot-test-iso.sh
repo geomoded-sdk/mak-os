@@ -170,6 +170,9 @@ analyze() {
 }
 
 # 5.1 e 5.2 — BIOS (SeaBIOS) e UEFI (OVMF) em PARALELO
+if [ "${BOOT_DEBUG:-0}" = "1" ]; then
+    set -x
+fi
 echo "==> boots BIOS (SeaBIOS, El Torito) e UEFI (OVMF) em paralelo (até ${BOOT_TIMEOUT}s cada)"
 
 run_boot BIOS "$BOOT_TIMEOUT" $QRUN "${QEMU[@]}" \
@@ -206,6 +209,12 @@ fi
 
 BIOS_STATUS=0
 EFI_STATUS=0
+echo "    [debug] bios.state=[${BIOS_STATE}] bios.log existe? [$(test -e "$WORK/bios.log" && echo sim || echo nao)] work=[$WORK]"
+if [ ! -e "$WORK/bios.log" ]; then
+    echo "FAIL[BIOS]: $WORK/bios.log nao foi criado pelo run_boot em background"
+    echo "    (QRUN='$QRUN' ACCEL='$ACCEL' )"
+    exit 1
+fi
 scrub < "$WORK/bios.log" > "$WORK/bios.s"
 analyze "BIOS" "$WORK/bios.log" "$WORK/bios.s" "$BIOS_STATE" || BIOS_STATUS=$?
 if [ -s "$WORK/efi.log" ]; then
