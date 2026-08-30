@@ -326,6 +326,24 @@ def main():
         err("conteúdo EFI (BOOTX64.EFI na imagem FAT embutida) não encontrado")
     print("    EFI bootloader (BOOTX64.EFI): presente")
 
+    # ------------------------------------------------------------ MBR híbrido (Rufus)
+    # Rufus em modo ISO grava o MBR híbrido: assinatura 0x55AA + partição 1
+    # ATIVA (0x80) apontando para o próprio ISO. Sem isso o Rufus/Nero/pendrive
+    # não enxerga a mídia como bootável.
+    data.seek(0)
+    mbr = data.read(512)
+    sig = struct.unpack_from("<H", mbr, 510)[0]
+    if sig != 0x55AA:
+        err("sem assinatura de boot 0x55AA no setor 0 (ISO não é híbrida)")
+    boot_ind = mbr[446]
+    part_type = mbr[450]
+    if boot_ind != 0x80:
+        warn("partição 1 do MBR híbrido sem flag ATIVA (0x80) — Rufus pode ignorá-la")
+    ok_types = {0x00, 0x17, 0xEF, 0xEE, 0x0B, 0x0C, 0x83}
+    if part_type not in ok_types:
+        warn(f"tipo inesperado da partição 1 do MBR híbrido: 0x{part_type:02X}")
+    print(f"    MBR híbrido: assinatura OK, partição1 tipo 0x{part_type:02X}, boot flag 0x{boot_ind:02X}")
+
     print("\n==> VALIDAÇÃO OK: a ISO é híbrida (BIOS+UEFI), sem arquivos >= 4GiB,")
     print("    com grub.cfg resolvido por busca — apta para Rufus em modo ISO.")
     sys.exit(0)

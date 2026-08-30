@@ -22,7 +22,7 @@ ISO="${1:?uso: boot-test-iso.sh <imagem.iso>}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK" >/dev/null 2>&1 || true' EXIT
-BOOT_TIMEOUT="${BOOT_TIMEOUT:-240}"
+BOOT_TIMEOUT="${BOOT_TIMEOUT:-600}"
 
 echo "==> Boot test: $ISO"
 
@@ -112,7 +112,8 @@ else
 fi
 
 QEMU=(qemu-system-x86_64 $ACCEL -machine q35 -m 4096 -smp 4
-      -nographic -monitor none -no-reboot)
+      -nographic -monitor none -no-reboot
+      -netdev user,id=net0 -device e1000,netdev=net0)
 
 # --- 5) boots ---------------------------------------------------------------------
 scrub() {
@@ -121,6 +122,8 @@ scrub() {
 }
 
 analyze() {
+    # ESTRITO: PASS apenas se o early-boot systemd completar ("Basic System").
+    # Handoff do initramfs sem Basic System é FALHA (boot lento/travado).
     local name="$1" log="$2" s="$3"
     scrub < "$log" > "$s"
     if [ ! -s "$s" ]; then
@@ -134,20 +137,21 @@ analyze() {
         tail -40 "$s" | sed 's/^/      /'
         return 1
     fi
-    if grep -qE "^error: " "$s"; then
+    if grep -qE "^error: |-multiboot|failed to load" "$s"; then
         echo "FAIL[$name]: erro do GRUB no boot"
         grep -nE "^(error:|GNU GRUB|Minimal)" "$s" | sed 's/^/      /'
         tail -30 "$s" | sed 's/^/      /'
         return 1
     fi
-    if grep -q "Run /init as init process" "$s"; then
-        echo "PASS[$name]: kernel entregou o controle ao initramfs (handoff)"
-        if grep -q "Reached target Basic System" "$s"; then
-            echo "PASS[$name]: atingiu o alvo Basic System (early-boot completo)"
-        fi
+    if grep -q "Reached target Basic System" "$s"; then
+        echo "PASS[$name]: atingiu o alvo Basic System (early-boot completo)"
         return 0
     fi
-    echo "FAIL[$name]: kernel não entregou o controle ao initramfs"
+    if grep -q "Run /init as init process" "$s"; then
+        echo "FAIL[$name]: handoff sim, mas sem atingir Basic System (boot lento/travado)"
+    else
+        echo "FAIL[$name]: kernel não entregou o controle ao initramfs"
+    fi
     tail -40 "$s" | sed 's/^/      /'
     return 1
 }
