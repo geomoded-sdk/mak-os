@@ -222,3 +222,19 @@ jobs:
           name: pineappleos-amd64-iso
           path: pineappleos-*.iso
           if-no-files-found: error
+
+      - name: Instalar ferramentas de validação/boot
+        run: |
+          bash Scripts/ci-apt.sh \
+            qemu-system-x86 ovmf python3
+
+      - name: Validar estrutura da ISO (espelho do Rufus)
+        run: |
+          ISO="$(ls pineappleos-*amd64.iso | head -n1)"
+          echo "Validando: $ISO"
+          python3 Scripts/iso-inspect.py "$ISO"
+
+      - name: Boot test QEMU (BIOS + UEFI)
+        run: |
+          ISO="$(ls pineappleos-*amd64.iso | head -n1)"
+          BOOT_TIMEOUT=420 bash Scripts/boot-test-iso.sh "$ISO"
