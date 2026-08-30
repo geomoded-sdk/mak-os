@@ -21,7 +21,7 @@ set -euo pipefail
 ISO="${1:?uso: boot-test-iso.sh <imagem.iso>}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 WORK="$(mktemp -d)"
-trap 'rm -rf "$WORK"' EXIT
+trap 'rm -rf "$WORK" >/dev/null 2>&1 || true' EXIT
 BOOT_TIMEOUT="${BOOT_TIMEOUT:-300}"
 
 echo "==> Boot test: $ISO"
@@ -32,6 +32,13 @@ xorriso -osirrox on -indev "$ISO" -extract / "$WORK/tree" > "$WORK/xorriso.log" 
     echo "FALHA: xorriso não conseguiu extrair a ISO"
     tail -20 "$WORK/xorriso.log"
     exit 1
+}
+
+# xorriso preserva os atributos Rock Ridge (dirs 0555, owner root) — habilita
+# escrita para o patch do grub.cfg e a regravação do grub-mkrescue.
+chmod -R u+rwX "$WORK/tree" 2>/dev/null || { 
+    echo "aviso: chmod da árvore extraída falhou; tentando sudo"
+    sudo chmod -R u+rwX "$WORK/tree" || { echo "FALHA: sem escrita na árvore"; exit 1; }
 }
 
 GRUBCFG="$WORK/tree/boot/grub/grub.cfg"

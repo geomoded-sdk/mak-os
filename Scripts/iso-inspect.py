@@ -314,7 +314,7 @@ def main():
         err("grub.cfg presente mas não lido")
 
     # ------------------------------------------------------------ EFI content
-    efi_in_tree = [p for p, _ in files if p.startswith("/EFI/")]
+    efi_in_tree = [p for p, _ in files if p.lower().startswith("/efi/")]
     if efi_in_tree:
         print("    EFI files visíveis na árvore do ISO: "
               f"{' '.join(efi_in_tree[:3])}{' ...' if len(efi_in_tree) > 3 else ''}")
