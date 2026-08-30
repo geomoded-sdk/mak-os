@@ -255,6 +255,44 @@ cp -r "$ROOT"/Desktop "$ROOT"/Dock "$ROOT"/Launcher "$ROOT"/Launchpad "$ROOT"/Mi
       "$ROOT"/Canopy "$ROOT"/Gestures "$ROOT"/AI "$ROOT"/Settings "$ROOT"/Store "$ROOT"/Apps \
       "$ROOT"/Themes "$ROOT"/Icons config/includes.chroot/usr/share/pineappleos/
 
+# Binários compilados da interface (produzidos por Scripts/build-iso-binaries.sh).
+# Sem eles a sessão (units systemd) não sobe: as units chamam /usr/local/bin/*.
+if [ -d "$ROOT/build/iso-stage/usr/local/bin" ]; then
+    echo "==> Instalando binários compilados (Rust + Python) na imagem"
+    mkdir -p config/includes.chroot/usr/local/bin config/includes.chroot/usr/bin
+    cp -r "$ROOT/build/iso-stage/usr/local/bin/." config/includes.chroot/usr/local/bin/
+    cp -r "$ROOT/build/iso-stage/usr/bin/." config/includes.chroot/usr/bin/
+else
+    echo "AVISO: build/iso-stage ausente — a ISO sairá SEM os binários da interface"
+fi
+
+# Entrada de sessão Wayland para o SDDM: senão o greeter não lista "Pineapple OS".
+echo "==> Entrada de sessão Wayland do SDDM"
+mkdir -p config/includes.chroot/usr/share/wayland-sessions \
+         config/includes.chroot/usr/share/pineappleos/session
+cat > config/includes.chroot/usr/share/pineappleos/session/pineapple-wayland-session.sh <<'EOF'
+#!/bin/bash
+# Sessão Wayland do Pineapple OS: sobe o target de sessão do usuário e
+# permanece vivo (o SDDM encerra a sessão quando o Exec termina).
+export XDG_SESSION_TYPE=wayland
+export XDG_SESSION_DESKTOP=PineappleOS
+export XDG_CURRENT_DESKTOP=PineappleOS
+export GDK_BACKEND=wayland
+export QT_QPA_PLATFORM=wayland
+systemctl --user start graphical-session.target
+systemctl --user start pineappleos-session.target
+exec sleep infinity
+EOF
+chmod +x config/includes.chroot/usr/share/pineappleos/session/pineapple-wayland-session.sh
+cat > config/includes.chroot/usr/share/wayland-sessions/pineappleos.desktop <<'EOF'
+[Desktop Entry]
+Name=Pineapple OS
+Comment=Sessão Wayland do Pineapple OS
+Exec=/usr/share/pineappleos/session/pineapple-wayland-session.sh
+Type=Application
+DesktopNames=PineappleOS;
+EOF
+
 # Configuracao e branding do instalador grafico Pineapple.
 echo "==> Incluindo configuracao do Calamares"
 mkdir -p config/includes.chroot/etc/calamares
@@ -268,8 +306,18 @@ mkdir -p config/includes.chroot/etc/systemd/user
 cp "$ROOT"/Installer/systemd/*.service "$ROOT"/Installer/systemd/*.target \
   config/includes.chroot/etc/systemd/user/
 mkdir -p config/includes.chroot/etc/systemd/user/pineappleos-session.target.wants
-ln -sf ../pineapple-setup.service \
-  config/includes.chroot/etc/systemd/user/pineappleos-session.target.wants/pineapple-setup.service
+WANTS=config/includes.chroot/etc/systemd/user/pineappleos-session.target.wants
+# LIVE: a sessão desktop precisa subir SOZINHA no boot — habilita todos os
+# units da sessão (antes só o pineapple-setup tinha symlink; o desktop inteiro
+# dependeria de um "systemctl --user enable" pós-instalação).
+for u in pineapple-setup.service pineapple-compositor.service \
+         pineapple-wallpaper.service pineapple-shell.service \
+         pineapple-dock.service pineapple-launcher.service \
+         pineapple-launchpad.service pineapple-mission.service \
+         pineapple-gestures.service pineapple-notifyd.service \
+         pineapple-control-center.service pineapple-ai.service; do
+    ln -sf "../$u" "$WANTS/$u"
+done
 
 # ------------------------------------------------------------ identidade do sistema
 # /etc/os-release — o Pineapple OS deixa de aparecer como "Debian/GNU Linux"

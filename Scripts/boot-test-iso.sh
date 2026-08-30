@@ -143,21 +143,39 @@ prepare_graphical() {
     echo "    --- /etc/systemd/user/ ---"
     ls "$R/etc/systemd/user/" 2>/dev/null | sed 's/^/      /' || true
 
-    echo "=> [grafico] usuário live 'user' (senha 'pineapple') + autologin tty1"
+    echo "=> [grafico] usuário live 'user' (senha 'pineapple')"
     grep -q '^user:' "$R/etc/passwd" 2>/dev/null || \
         sudo chroot "$R" /usr/sbin/useradd -m -s /bin/bash \
             -G video,input,seat,audio,sudo user >/dev/null 2>&1 || true
     echo "user:pineapple" | sudo chroot "$R" /usr/sbin/chpasswd >/dev/null 2>&1 || true
-    sudo mkdir -p "$R/home/user" "$R/etc/systemd/system/getty@tty1.service.d"
-    printf '[Service]\nExecStart=\nExecStart=-/sbin/agetty --autologin user --noclear tty1 $TERM\n' \
-        | sudo tee "$R/etc/systemd/system/getty@tty1.service.d/autologin.conf" >/dev/null
+    sudo mkdir -p "$R/home/user" "$R/etc/systemd/system/multi-user.target.wants"
+    # Serviço SYSTEMD (não depende de getty/VT que o console=ttyS0 suprime):
+    sudo tee "$R/etc/systemd/system/pineapple-vm-session.service" >/dev/null <<'SVCS'
+[Unit]
+Description=Pineapple VM graphical session (teste)
+After=systemd-user-sessions.service graphical.target
+Wants=graphical.target
+
+[Service]
+Type=simple
+User=user
+Environment=HOME=/home/user
+StandardOutput=console
+StandardError=console
+ExecStart=/usr/share/pineappleos/session/session-loader.sh
+
+[Install]
+WantedBy=multi-user.target
+SVCS
+    sudo ln -sf ../pineapple-vm-session.service \
+        "$R/etc/systemd/system/multi-user.target.wants/pineapple-vm-session.service"
 
     echo "=> [grafico] loader da sessão (prova por /dev/console)"
     sudo mkdir -p "$R/usr/share/pineappleos/session"
     sudo tee "$R/usr/share/pineappleos/session/session-loader.sh" >/dev/null <<'SESS'
 #!/bin/bash
-# Executado pelo login shell de 'user' no tty1 (autologin) quando o sistema
-# atinge multi-user. Prepara o ambiente e sobe a sessao Pineapple real.
+# Executado pelo serviço pineapple-vm-session (User=user) quando o sistema
+# atinge multi-user. A saída vai pro console via StandardOutput/Error=console.
 export PINEAPPLE_LOADED=1
 export XDG_RUNTIME_DIR="/run/user/$(id -u)"
 export XDG_SESSION_TYPE=wayland
@@ -169,7 +187,7 @@ export WLR_BACKENDS=headless
 export WLR_LIBINPUT_NO_DEVICES=1
 export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
 mkdir -p "$XDG_RUNTIME_DIR" 2>/dev/null || true
-echo "[PINEAPPLE-UI] loader ok uid=$(id -u) tty=$(tty)" > /dev/console || true
+echo "[PINEAPPLE-UI] loader ok uid=$(id -u)"
 exec dbus-run-session -- /usr/share/pineappleos/session/session-main.sh
 SESS
     sudo tee "$R/usr/share/pineappleos/session/session-main.sh" >/dev/null <<'MAIN'
@@ -184,7 +202,7 @@ export QT_QPA_PLATFORM=wayland
 export WLR_BACKENDS=headless
 export WLR_LIBINPUT_NO_DEVICES=1
 export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
-echo "[PINEAPPLE-UI] dbus ok, bootstrap systemd --user" > /dev/console || true
+echo "[PINEAPPLE-UI] dbus ok, bootstrap systemd --user"
 systemd --user >"$XDG_RUNTIME_DIR/user-boot.log" 2>&1 &
 for _ in $(seq 1 200); do
     [ -S "$XDG_RUNTIME_DIR/systemd/private" ] && break
@@ -192,16 +210,17 @@ for _ in $(seq 1 200); do
 done
 systemctl --user import-environment XDG_SESSION_TYPE XDG_SESSION_DESKTOP \
     XDG_CURRENT_DESKTOP WLR_BACKENDS WLR_LIBINPUT_NO_DEVICES GDK_BACKEND QT_QPA_PLATFORM PATH || true
-echo "[PINEAPPLE-UI] systemd-user ok, iniciando compositor (labwc)" > /dev/console || true
+echo "[PINEAPPLE-UI] systemd-user ok, iniciando compositor (labwc)"
 systemctl --user start pineapple-compositor.service
-W=-1
+W="-"
+wl=""
 for i in $(seq 1 120); do
     wl="$(ls "$XDG_RUNTIME_DIR"/wayland-* 2>/dev/null | head -n1 || true)"
-    [ -n "$wl" ] && { W=0; break; }
+    [ -n "$wl" ] && { W=ok; break; }
     sleep 0.25
 done
-echo "[PINEAPPLE-UI] socket wayland: ${W:-0} ${wl##*/}" > /dev/console || true
-if [ -n "${wl:-}" ]; then
+echo "[PINEAPPLE-UI] socket wayland: $W ${wl##*/}"
+if [ -n "$wl" ]; then
     export WAYLAND_DISPLAY="${wl##*/}"
     systemctl --user import-environment WAYLAND_DISPLAY || true
 fi
@@ -210,20 +229,20 @@ systemctl --user enable --now pineapple-wallpaper.service \
     pineapple-launchpad.service pineapple-mission.service pineapple-gestures.service \
     pineapple-notifyd.service pineapple-control-center.service pineapple-ai.service \
     >/dev/null 2>&1 || true
-systemctl --user start pineappleos-session.target
+systemctl --user start pineappleos-session.target || true
 sleep 8
-echo "[PINEAPPLE-UI] unidades:" > /dev/console || true
+echo "[PINEAPPLE-UI] unidades:"
 systemctl --user list-units --no-legend --type=service \
     | awk '{print $1}' | grep '^pineapple-' \
     | while read -r u; do
         st="$(systemctl --user is-active "$u" 2>/dev/null || echo ?)"
-        echo "[PINEAPPLE-UI]   $u $st" > /dev/console || true
+        echo "[PINEAPPLE-UI]   $u $st"
     done
 sleep 40
 st="$(systemctl --user is-active pineapple-compositor.service 2>/dev/null || echo inactive)"
-echo "[PINEAPPLE-UI] compositor apos 40s=$st" > /dev/console || true
+echo "[PINEAPPLE-UI] compositor apos 40s=$st"
 if [ "$st" = "active" ]; then
-    echo "[PINEAPPLE-UI] UP" > /dev/console || true
+    echo "[PINEAPPLE-UI] UP"
 fi
 sleep 90
 systemctl --user stop pineappleos-session.target >/dev/null 2>&1 || true
@@ -232,12 +251,6 @@ exit 0
 MAIN
     sudo chmod +x "$R/usr/share/pineappleos/session/session-loader.sh" \
                  "$R/usr/share/pineappleos/session/session-main.sh"
-    sudo tee -a "$R/home/user/.bash_profile" >/dev/null <<'BASHRC'
-
-if [ "$(tty 2>/dev/null)" = "/dev/tty1" ] && [ -z "${PINEAPPLE_LOADED:-}" ]; then
-    exec /usr/share/pineappleos/session/session-loader.sh
-fi
-BASHRC
 
     echo "=> [grafico] regravando squashfs"
     comp="$(unsquashfs -s "$SQ" 2>/dev/null | sed -n 's/^Compression\s*//p' | tr 'A-Z' 'a-z' || true)"

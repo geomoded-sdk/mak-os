@@ -197,11 +197,25 @@ jobs:
           bash Scripts/ci-apt.sh \
             live-build debootstrap debian-archive-keyring \
             devscripts curl xorriso grub-pc-bin \
-            grub-efi-amd64-bin mtools squashfs-tools
+            grub-efi-amd64-bin mtools squashfs-tools \
+            libgtk-4-dev libadwaita-1-dev libwayland-dev \
+            wayland-protocols libxkbcommon-dev gobject-introspection \
+            libgirepository1.0-dev libinput-dev libudev-dev \
+            meson ninja-build pkg-config
 
       - name: Verificar Python
         run: |
           python3 -m compileall Apps AI Compatibility Installer
+
+      - name: Instalar Rust
+        run: |
+          rustup update stable
+          rustup default stable
+
+      - name: Compilar binários da interface
+        run: |
+          chmod +x Scripts/build-iso-binaries.sh
+          ./Scripts/build-iso-binaries.sh
 
       - name: Gerar assets
         run: |
