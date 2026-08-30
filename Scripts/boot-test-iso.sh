@@ -15,6 +15,12 @@
 #    FAIL  — "Kernel panic", erro do GRUB ("error: ...") ou nenhum handoff.
 #
 #  Uso: Scripts/boot-test-iso.sh <imagem.iso>
+#
+#  Modo gráfico (GRAPHICAL=1): além do boot até basic.target, extrai o
+#  rootfs do squashfs, injeta autologin no tty1 + uma sessão Pineapple real
+#  (systemd --user + pineappleos-session.target + units), e exige a evidência
+#  "[PINEAPPLE-UI] UP" por /dev/console (= serial). Diagnostica por unidade o
+#  estado do desktop (binários ausentes, units não-habilitados, crash etc).
 # =============================================================================
 set -euo pipefail
 
@@ -23,6 +29,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK" >/dev/null 2>&1 || true' EXIT
 BOOT_TIMEOUT="${BOOT_TIMEOUT:-600}"
+GRAPHICAL="${GRAPHICAL:-0}"
 
 echo "==> Boot test: $ISO"
 
@@ -84,6 +91,171 @@ with open(cfg_path, "w") as fh:
     fh.write("".join(lines))
 PYEOF
 
+# --- 2.5) modo gráfico: sessão real Pineapple dentro do squashfs ----------------
+# Troca o rootfs por uma cópia patcheada: autologin do usuário live no tty1 +
+# loader da sessão que sobe systemd --user + pineappleos-session.target e deixa
+# a prova de que o compositor (labwc) e os applets ficaram de pé via /dev/console.
+# O diagnóstico (preflight AUSENTE por binário/unit) vira a evidência de quais
+# peças o build da ISO REAL precisa instalar para o desktop subir sozinho.
+prepare_graphical() {
+    SQ=""
+    for f in "$WORK/tree"/live/*.squashfs; do
+        [ -e "$f" ] && SQ="$f"
+    done
+    [ -n "$SQ" ] || { echo "FALHA[grafico]: live/*.squashfs ausente"; exit 1; }
+    command -v unsquashfs >/dev/null 2>&1 || { echo "FALHA[grafico]: instale squashfs-tools"; exit 1; }
+
+    R="$WORK/rootfs"
+    sudo rm -rf "$R"
+    echo "=> [grafico] extraindo rootfs ($(basename "$SQ"))"
+    ( cd "$WORK" && sudo unsquashfs -d rootfs "$SQ" > /dev/null 2>&1 ) || {
+        echo "FALHA[grafico]: unsquashfs"; exit 1; }
+
+    echo "=> [grafico] preflight do stack gráfico no rootfs:"
+    for p in \
+        usr/bin/labwc \
+        usr/bin/swaybg \
+        usr/bin/pineapple-wallpaper \
+        usr/bin/pineapple-notifyd.py \
+        usr/bin/pineapple-control-center.py \
+        usr/bin/pineapple-ai \
+        usr/local/bin/pineapple-shell \
+        usr/local/bin/pineapple-dock \
+        usr/local/bin/pineapple-launcher \
+        usr/local/bin/pineapple-launchpad \
+        usr/local/bin/pineapple-mission \
+        usr/local/bin/pineapple-gestures \
+        usr/share/pineappleos/Desktop/data/labwc/rc.xml \
+        usr/share/pineappleos/Desktop/data/prepare.sh \
+        usr/share/sddm/themes/pineappleos \
+        usr/share/wayland-sessions \
+        etc/systemd/user/pineappleos-session.target \
+        etc/systemd/user/pineapple-compositor.service \
+        etc/systemd/user/pineapple-shell.service \
+        etc/systemd/user/pineapple-dock.service \
+        ; do
+        if [ -e "$R/$p" ]; then
+            echo "    OK  $p"
+        else
+            echo "    AUSENTE  $p"
+        fi
+    done
+    echo "    --- /etc/systemd/user/ ---"
+    ls "$R/etc/systemd/user/" 2>/dev/null | sed 's/^/      /' || true
+
+    echo "=> [grafico] usuário live 'user' (senha 'pineapple') + autologin tty1"
+    grep -q '^user:' "$R/etc/passwd" 2>/dev/null || \
+        sudo chroot "$R" /usr/sbin/useradd -m -s /bin/bash \
+            -G video,input,seat,audio,sudo user >/dev/null 2>&1 || true
+    echo "user:pineapple" | sudo chroot "$R" /usr/sbin/chpasswd >/dev/null 2>&1 || true
+    sudo mkdir -p "$R/home/user" "$R/etc/systemd/system/getty@tty1.service.d"
+    printf '[Service]\nExecStart=\nExecStart=-/sbin/agetty --autologin user --noclear tty1 $TERM\n' \
+        | sudo tee "$R/etc/systemd/system/getty@tty1.service.d/autologin.conf" >/dev/null
+
+    echo "=> [grafico] loader da sessão (prova por /dev/console)"
+    sudo mkdir -p "$R/usr/share/pineappleos/session"
+    sudo tee "$R/usr/share/pineappleos/session/session-loader.sh" >/dev/null <<'SESS'
+#!/bin/bash
+# Executado pelo login shell de 'user' no tty1 (autologin) quando o sistema
+# atinge multi-user. Prepara o ambiente e sobe a sessao Pineapple real.
+export PINEAPPLE_LOADED=1
+export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+export XDG_SESSION_TYPE=wayland
+export XDG_SESSION_DESKTOP=PineappleOS
+export XDG_CURRENT_DESKTOP=PineappleOS
+export GDK_BACKEND=wayland
+export QT_QPA_PLATFORM=wayland
+export WLR_BACKENDS=headless
+export WLR_LIBINPUT_NO_DEVICES=1
+export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
+mkdir -p "$XDG_RUNTIME_DIR" 2>/dev/null || true
+echo "[PINEAPPLE-UI] loader ok uid=$(id -u) tty=$(tty)" > /dev/console || true
+exec dbus-run-session -- /usr/share/pineappleos/session/session-main.sh
+SESS
+    sudo tee "$R/usr/share/pineappleos/session/session-main.sh" >/dev/null <<'MAIN'
+#!/bin/bash
+set -u
+export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+export XDG_SESSION_TYPE=wayland
+export XDG_SESSION_DESKTOP=PineappleOS
+export XDG_CURRENT_DESKTOP=PineappleOS
+export GDK_BACKEND=wayland
+export QT_QPA_PLATFORM=wayland
+export WLR_BACKENDS=headless
+export WLR_LIBINPUT_NO_DEVICES=1
+export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
+echo "[PINEAPPLE-UI] dbus ok, bootstrap systemd --user" > /dev/console || true
+systemd --user >"$XDG_RUNTIME_DIR/user-boot.log" 2>&1 &
+for _ in $(seq 1 200); do
+    [ -S "$XDG_RUNTIME_DIR/systemd/private" ] && break
+    sleep 0.1
+done
+systemctl --user import-environment XDG_SESSION_TYPE XDG_SESSION_DESKTOP \
+    XDG_CURRENT_DESKTOP WLR_BACKENDS WLR_LIBINPUT_NO_DEVICES GDK_BACKEND QT_QPA_PLATFORM PATH || true
+echo "[PINEAPPLE-UI] systemd-user ok, iniciando compositor (labwc)" > /dev/console || true
+systemctl --user start pineapple-compositor.service
+W=-1
+for i in $(seq 1 120); do
+    wl="$(ls "$XDG_RUNTIME_DIR"/wayland-* 2>/dev/null | head -n1 || true)"
+    [ -n "$wl" ] && { W=0; break; }
+    sleep 0.25
+done
+echo "[PINEAPPLE-UI] socket wayland: ${W:-0} ${wl##*/}" > /dev/console || true
+if [ -n "${wl:-}" ]; then
+    export WAYLAND_DISPLAY="${wl##*/}"
+    systemctl --user import-environment WAYLAND_DISPLAY || true
+fi
+systemctl --user enable --now pineapple-wallpaper.service \
+    pineapple-shell.service pineapple-dock.service pineapple-launcher.service \
+    pineapple-launchpad.service pineapple-mission.service pineapple-gestures.service \
+    pineapple-notifyd.service pineapple-control-center.service pineapple-ai.service \
+    >/dev/null 2>&1 || true
+systemctl --user start pineappleos-session.target
+sleep 8
+echo "[PINEAPPLE-UI] unidades:" > /dev/console || true
+systemctl --user list-units --no-legend --type=service \
+    | awk '{print $1}' | grep '^pineapple-' \
+    | while read -r u; do
+        st="$(systemctl --user is-active "$u" 2>/dev/null || echo ?)"
+        echo "[PINEAPPLE-UI]   $u $st" > /dev/console || true
+    done
+sleep 40
+st="$(systemctl --user is-active pineapple-compositor.service 2>/dev/null || echo inactive)"
+echo "[PINEAPPLE-UI] compositor apos 40s=$st" > /dev/console || true
+if [ "$st" = "active" ]; then
+    echo "[PINEAPPLE-UI] UP" > /dev/console || true
+fi
+sleep 90
+systemctl --user stop pineappleos-session.target >/dev/null 2>&1 || true
+sudo systemctl poweroff >/dev/null 2>&1 || true
+exit 0
+MAIN
+    sudo chmod +x "$R/usr/share/pineappleos/session/session-loader.sh" \
+                 "$R/usr/share/pineappleos/session/session-main.sh"
+    sudo tee -a "$R/home/user/.bash_profile" >/dev/null <<'BASHRC'
+
+if [ "$(tty 2>/dev/null)" = "/dev/tty1" ] && [ -z "${PINEAPPLE_LOADED:-}" ]; then
+    exec /usr/share/pineappleos/session/session-loader.sh
+fi
+BASHRC
+
+    echo "=> [grafico] regravando squashfs"
+    comp="$(unsquashfs -s "$SQ" 2>/dev/null | sed -n 's/^Compression\s*//p' | tr 'A-Z' 'a-z' || true)"
+    case "$comp" in xz|zstd|gzip|lzo|lz4) : ;; *) comp=xz ;; esac
+    echo "   compressão atual: $comp"
+    sudo mksquashfs "$R" "$WORK/newfs.squashfs" -comp "$comp" \
+        -no-progress -processors "$(nproc)" > "$WORK/mksquash.log" 2>&1 || {
+        echo "FALHA[grafico]: mksquashfs"; tail -20 "$WORK/mksquash.log"; exit 1; }
+    sudo chown "$(id -u):$(id -g)" "$WORK/newfs.squashfs"
+    mv "$WORK/newfs.squashfs" "$SQ"
+    sudo rm -rf "$R"
+    echo "=> [grafico] squashfs regravado com sessão de teste (dirá PASS se a UI subir)"
+}
+
+if [ "$GRAPHICAL" = "1" ]; then
+    prepare_graphical
+fi
+
 # --- 3) regrava ISO de teste ----------------------------------------------------
 echo "=> regravando ISO de teste (grub-mkrescue)"
 grub-mkrescue -o "$WORK/test.iso" "$WORK/tree" > "$WORK/mkrescue.log" 2>&1 || {
@@ -137,18 +309,23 @@ analyze() {
     echo "    --- primeiras 12 linhas do boot log ---"
     sed -n '1,12p' "$s" | sed 's/^/      /'
     case "$state" in
-        pass)   echo "PASS[$name]: atingiu o alvo Basic System (early-boot completo)" ;;
+        pass)   [ "$GRAPHICAL" = "1" ] \
+                    && echo "PASS[$name]: sessão gráfica Pineapple de pé (compositor + applets)" \
+                    || echo "PASS[$name]: atingiu o alvo Basic System (early-boot completo)" ;;
         panic)  echo "FAIL[$name]: kernel panic detectado" ;;
         grub)   echo "FAIL[$name]: erro do GRUB no boot" ;;
         earlyexit) echo "FAIL[$name]: QEMU encerrou antes do alvo" ;;
-        timeout) echo "FAIL[$name]: timeout sem atingir Basic System" ;;
+        timeout) echo "FAIL[$name]: timeout sem atingir o alvo" ;;
     esac
     if [ "$state" = "pass" ]; then
-        if grep -q "debian login:" "$s"; then
+        if [ "$GRAPHICAL" = "1" ]; then
+            grep -a "PINEAPPLE-UI" "$s" | sed 's/^/      /' || true
+        elif grep -q "debian login:" "$s"; then
             echo "PASS[$name]: getty vivo (multi-user.target / login: pronto)"
         fi
         return 0
     fi
+    [ "$GRAPHICAL" = "1" ] && grep -a "PINEAPPLE-UI" "$s" | sed 's/^/      /' || true
     tail -40 "$s" | sed 's/^/      /'
     return 1
 }
@@ -185,6 +362,12 @@ else
 fi
 
 # watcher: um loop no pai, até BOOT_TIMEOUT ou ambos qemus saírem
+# Alvo: no modo normal é basic.target; no modo gráfico é a evidência da UI.
+if [ "$GRAPHICAL" = "1" ]; then
+    TARGET_RE="PINEAPPLE-UI: UP"
+else
+    TARGET_RE="Reached target (Basic System|basic\.target)"
+fi
 scrub < "$WORK/bios.log" > "$WORK/bios.live"
 scrub < "$WORK/efi.log" > "$WORK/efi.live" 2>/dev/null || :
 deadline=$((SECONDS + BOOT_TIMEOUT))
@@ -194,14 +377,14 @@ while [ "$SECONDS" -lt "$deadline" ]; do
     sleep 4
     if [ -z "$bios_done" ]; then
         scrub < "$WORK/bios.log" > "$WORK/bios.live"
-        if grep -qE "Reached target (Basic System|basic\.target)" "$WORK/bios.live"; then bios_done="pass"; fi
+        if grep -qE "$TARGET_RE" "$WORK/bios.live"; then bios_done="pass"; fi
         if grep -q "Kernel panic" "$WORK/bios.live"; then bios_done="panic"; fi
         if grep -qE "^error: " "$WORK/bios.live"; then bios_done="grub"; fi
         if ! kill -0 "$BIOS_Q" 2>/dev/null; then bios_done="${bios_done:-earlyexit}"; fi
     fi
     if [ -n "$EFI_Q" ] && [ -z "$efi_done" ]; then
         scrub < "$WORK/efi.log" > "$WORK/efi.live"
-        if grep -qE "Reached target (Basic System|basic\.target)" "$WORK/efi.live"; then efi_done="pass"; fi
+        if grep -qE "$TARGET_RE" "$WORK/efi.live"; then efi_done="pass"; fi
         if grep -q "Kernel panic" "$WORK/efi.live"; then efi_done="panic"; fi
         if grep -qE "^error: " "$WORK/efi.live"; then efi_done="grub"; fi
         if ! kill -0 "$EFI_Q" 2>/dev/null; then efi_done="${efi_done:-earlyexit}"; fi

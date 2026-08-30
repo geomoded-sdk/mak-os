@@ -197,7 +197,7 @@ jobs:
           bash Scripts/ci-apt.sh \
             live-build debootstrap debian-archive-keyring \
             devscripts curl xorriso grub-pc-bin \
-            grub-efi-amd64-bin mtools
+            grub-efi-amd64-bin mtools squashfs-tools
 
       - name: Verificar Python
         run: |
@@ -237,4 +237,4 @@ jobs:
       - name: Boot test QEMU (BIOS + UEFI)
         run: |
           ISO="$(ls pineappleos-*amd64.iso | head -n1)"
-          BOOT_TIMEOUT=600 bash Scripts/boot-test-iso.sh "$ISO"
+          GRAPHICAL=1 BOOT_TIMEOUT=900 bash Scripts/boot-test-iso.sh "$ISO"
