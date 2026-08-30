@@ -125,7 +125,9 @@ scrub() {
 # e um único loop do pai monitora os dois logs ao vivo (evita trap/subshell bugs).
 
 analyze() {
-    # ESTRITO: PASS apenas se o early-boot systemd completar ("Basic System").
+    # ESTRITO: PASS apenas se o early-boot systemd completar ("basic.target").
+    # O systemd 257 imprime "Reached target basic.target - Basic System."
+    # (versões antigas: "Reached target Basic System.") — casa os dois.
     local name="$1" log="$2" s="$3" state="$4"
     scrub < "$log" > "$s"
     if [ ! -s "$s" ]; then
@@ -135,12 +137,18 @@ analyze() {
     echo "    --- primeiras 12 linhas do boot log ---"
     sed -n '1,12p' "$s" | sed 's/^/      /'
     case "$state" in
-        pass)   echo "PASS[$name]: atingiu o alvo Basic System (early-boot completo)"; return 0 ;;
+        pass)   echo "PASS[$name]: atingiu o alvo Basic System (early-boot completo)" ;;
         panic)  echo "FAIL[$name]: kernel panic detectado" ;;
         grub)   echo "FAIL[$name]: erro do GRUB no boot" ;;
         earlyexit) echo "FAIL[$name]: QEMU encerrou antes do alvo" ;;
         timeout) echo "FAIL[$name]: timeout sem atingir Basic System" ;;
     esac
+    if [ "$state" = "pass" ]; then
+        if grep -q "debian login:" "$s"; then
+            echo "PASS[$name]: getty vivo (multi-user.target / login: pronto)"
+        fi
+        return 0
+    fi
     tail -40 "$s" | sed 's/^/      /'
     return 1
 }
@@ -186,14 +194,14 @@ while [ "$SECONDS" -lt "$deadline" ]; do
     sleep 4
     if [ -z "$bios_done" ]; then
         scrub < "$WORK/bios.log" > "$WORK/bios.live"
-        if grep -q "Reached target Basic System" "$WORK/bios.live"; then bios_done="pass"; fi
+        if grep -qE "Reached target (Basic System|basic\.target)" "$WORK/bios.live"; then bios_done="pass"; fi
         if grep -q "Kernel panic" "$WORK/bios.live"; then bios_done="panic"; fi
         if grep -qE "^error: " "$WORK/bios.live"; then bios_done="grub"; fi
         if ! kill -0 "$BIOS_Q" 2>/dev/null; then bios_done="${bios_done:-earlyexit}"; fi
     fi
     if [ -n "$EFI_Q" ] && [ -z "$efi_done" ]; then
         scrub < "$WORK/efi.log" > "$WORK/efi.live"
-        if grep -q "Reached target Basic System" "$WORK/efi.live"; then efi_done="pass"; fi
+        if grep -qE "Reached target (Basic System|basic\.target)" "$WORK/efi.live"; then efi_done="pass"; fi
         if grep -q "Kernel panic" "$WORK/efi.live"; then efi_done="panic"; fi
         if grep -qE "^error: " "$WORK/efi.live"; then efi_done="grub"; fi
         if ! kill -0 "$EFI_Q" 2>/dev/null; then efi_done="${efi_done:-earlyexit}"; fi
