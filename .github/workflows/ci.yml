@@ -237,4 +237,4 @@ jobs:
       - name: Boot test QEMU (BIOS + UEFI)
         run: |
           ISO="$(ls pineappleos-*amd64.iso | head -n1)"
-          BOOT_TIMEOUT=600 BOOT_DEBUG=1 bash Scripts/boot-test-iso.sh "$ISO"
+          BOOT_TIMEOUT=600 bash Scripts/boot-test-iso.sh "$ISO"

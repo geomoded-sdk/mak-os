@@ -121,32 +121,8 @@ scrub() {
     sed 's/\x1b\[[0-9;]*[a-zA-Z]//g; s/\r//g'
 }
 
-# run_boot <name> <timeout_s> <qemu-args...>
-#   roda o QEMU em segundo plano e MONITORA o log ao vivo; mata o QEMU assim
-#   que o boot atinge o alvo (ou condena por panic/erro do GRUB). Retorna
-#   "pass"|"panic"|"grub"|"earlyexit"|"timeout".
-run_boot() {
-    local name="$1" timeout_s="$2"; shift 2
-    # subshell em background herda o trap EXIT do pai não deve:
-    # o "rm -rf \$WORK" do trap rodaria AQUI e apagaria o log durante o boot
-    trap - EXIT
-    local qpid deadline state s sfile="$WORK/$name.live"
-    "$@" > "$WORK/$name.log" 2>&1 &
-    qpid=$!
-    deadline=$((SECONDS + timeout_s))
-    state="timeout"
-    while [ "$SECONDS" -lt "$deadline" ]; do
-        sleep 4
-        scrub < "$WORK/$name.log" > "$sfile"
-        if grep -q "Reached target Basic System" "$sfile"; then state="pass"; break; fi
-        if grep -q "Kernel panic" "$sfile"; then state="panic"; break; fi
-        if grep -qE "^error: " "$sfile"; then state="grub"; break; fi
-        if ! kill -0 "$qpid" 2>/dev/null; then state="earlyexit"; break; fi
-    done
-    kill "$qpid" 2>/dev/null || true
-    wait "$qpid" 2>/dev/null || true
-    echo "$state"
-}
+# run_boot foi removida: os QEMUs sobem direto como filhos do pai em background
+# e um único loop do pai monitora os dois logs ao vivo (evita trap/subshell bugs).
 
 analyze() {
     # ESTRITO: PASS apenas se o early-boot systemd completar ("Basic System").
@@ -170,14 +146,14 @@ analyze() {
 }
 
 # 5.1 e 5.2 — BIOS (SeaBIOS) e UEFI (OVMF) em PARALELO
-if [ "${BOOT_DEBUG:-0}" = "1" ]; then
-    set -x
-fi
+# Atenção: nada de subshell/background com trap herdado — os QEMUs sobem direto
+# como filhos do shell e UM LOOOP do pai monitora os dois logs ao vivo.
 echo "==> boots BIOS (SeaBIOS, El Torito) e UEFI (OVMF) em paralelo (até ${BOOT_TIMEOUT}s cada)"
 
-run_boot BIOS "$BOOT_TIMEOUT" $QRUN "${QEMU[@]}" \
-    -cdrom "$WORK/test.iso" -boot d \</dev/null > "$WORK/bios.state" 2>&1 &
-BIOS_PID=$!
+ORIG_CONFIG_LOG="$WORK/test.iso"
+$QRUN "${QEMU[@]}" -cdrom "$WORK/test.iso" -boot d \
+    > "$WORK/bios.log" 2>&1 &
+BIOS_Q=$!
 
 CODE_FD=""
 VARS_TMPL=""
@@ -186,42 +162,63 @@ if [ -d /usr/share/OVMF ]; then
     VARS_TMPL="$(ls /usr/share/OVMF/OVMF_VARS*.fd 2>/dev/null | head -n1 || true)"
 fi
 
-EFI_PID=""
+EFI_Q=""
+EFI_MODE="ded"
 if [ -n "$CODE_FD" ] && [ -n "$VARS_TMPL" ]; then
     cp "$VARS_TMPL" "$WORK/OVMF_VARS.fd"
-    run_boot UEFI "$BOOT_TIMEOUT" $QRUN "${QEMU[@]}" \
-        -drive if=pflash,format=raw,readonly=on,file="$CODE_FD" \
-        -drive if=pflash,format=raw,file="$WORK/OVMF_VARS.fd" \
-        -cdrom "$WORK/test.iso" -boot order=d \</dev/null > "$WORK/efi.state" 2>&1 &
-    EFI_PID=$!
+    $QRUN "${QEMU[@]}" \
+        -drive 'if=pflash,format=raw,readonly=on,file='"$CODE_FD" \
+        -drive 'if=pflash,format=raw,file='"$WORK/OVMF_VARS.fd" \
+        -cdrom "$WORK/test.iso" -boot order=d \
+        > "$WORK/efi.log" 2>&1 &
+    EFI_Q=$!
 else
     echo "aviso: OVMF não instalado — pulando teste UEFI"
 fi
 
-wait "$BIOS_PID"
-BIOS_STATE="$(cat "$WORK/bios.state" | scrub)"
-if [ -n "$EFI_PID" ]; then
-    wait "$EFI_PID"
-    EFI_STATE="$(cat "$WORK/efi.state" | scrub)"
-else
-    EFI_STATE="pass"
-fi
+# watcher: um loop no pai, até BOOT_TIMEOUT ou ambos qemus saírem
+scrub < "$WORK/bios.log" > "$WORK/bios.live"
+scrub < "$WORK/efi.log" > "$WORK/efi.live" 2>/dev/null || :
+deadline=$((SECONDS + BOOT_TIMEOUT))
+bios_done=""
+efi_done=""
+while [ "$SECONDS" -lt "$deadline" ]; do
+    sleep 4
+    if [ -z "$bios_done" ]; then
+        scrub < "$WORK/bios.log" > "$WORK/bios.live"
+        if grep -q "Reached target Basic System" "$WORK/bios.live"; then bios_done="pass"; fi
+        if grep -q "Kernel panic" "$WORK/bios.live"; then bios_done="panic"; fi
+        if grep -qE "^error: " "$WORK/bios.live"; then bios_done="grub"; fi
+        if ! kill -0 "$BIOS_Q" 2>/dev/null; then bios_done="${bios_done:-earlyexit}"; fi
+    fi
+    if [ -n "$EFI_Q" ] && [ -z "$efi_done" ]; then
+        scrub < "$WORK/efi.log" > "$WORK/efi.live"
+        if grep -q "Reached target Basic System" "$WORK/efi.live"; then efi_done="pass"; fi
+        if grep -q "Kernel panic" "$WORK/efi.live"; then efi_done="panic"; fi
+        if grep -qE "^error: " "$WORK/efi.live"; then efi_done="grub"; fi
+        if ! kill -0 "$EFI_Q" 2>/dev/null; then efi_done="${efi_done:-earlyexit}"; fi
+    fi
+    if [ -n "$bios_done" ] && { [ -z "$EFI_Q" ] || [ -n "$efi_done" ]; }; then
+        break
+    fi
+done
+bios_done="${bios_done:-timeout}"
+efi_done="${efi_done:-timeout}"
+
+kill "$BIOS_Q" 2>/dev/null || true
+[ -n "$EFI_Q" ] && kill "$EFI_Q" 2>/dev/null || true
+wait "$BIOS_Q" 2>/dev/null || true
+[ -n "$EFI_Q" ] && wait "$EFI_Q" 2>/dev/null || true
 
 BIOS_STATUS=0
 EFI_STATUS=0
-echo "    [debug] bios.state=[${BIOS_STATE}] bios.log existe? [$(test -e "$WORK/bios.log" && echo sim || echo nao)] work=[$WORK]"
-if [ ! -e "$WORK/bios.log" ]; then
-    echo "FAIL[BIOS]: $WORK/bios.log nao foi criado pelo run_boot em background"
-    echo "    (QRUN='$QRUN' ACCEL='$ACCEL' )"
-    exit 1
-fi
 scrub < "$WORK/bios.log" > "$WORK/bios.s"
-analyze "BIOS" "$WORK/bios.log" "$WORK/bios.s" "$BIOS_STATE" || BIOS_STATUS=$?
+analyze "BIOS" "$WORK/bios.log" "$WORK/bios.s" "$bios_done" || BIOS_STATUS=$?
 if [ -s "$WORK/efi.log" ]; then
     scrub < "$WORK/efi.log" > "$WORK/efi.s"
-    analyze "UEFI" "$WORK/efi.log" "$WORK/efi.s" "$EFI_STATE" || EFI_STATUS=$?
+    analyze "UEFI" "$WORK/efi.log" "$WORK/efi.s" "$efi_done" || EFI_STATUS=$?
 else
-    analyze "UEFI" "$WORK/bios.log" "$WORK/bios.s" "$EFI_STATE" || EFI_STATUS=$?
+    analyze "UEFI" "$WORK/bios.log" "$WORK/bios.s" "$efi_done" || EFI_STATUS=$?
 fi
 echo "    (último BIOS): $(tail -2 "$WORK/bios.log" 2>/dev/null | scrub | tr '\n' ' ' | cut -c1-120)"
 echo "    (último UEFI): $(tail -2 "$WORK/efi.log" 2>/dev/null | scrub | tr '\n' ' ' | cut -c1-120)"
