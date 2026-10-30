@@ -156,10 +156,10 @@ else
     fi
   done
 fi
-make olddefconfig
+make HOSTCFLAGS="-std=gnu11" olddefconfig
 
 echo "==> Compilando (use -j$(nproc))"
-make -j"$(nproc)" bzImage modules
+make HOSTCFLAGS="-std=gnu11" -j"$(nproc)" bzImage modules
 
 echo "==> Instalando módulos"
 sudo make modules_install

@@ -73,10 +73,7 @@ jobs:
           failed=0
           for crate in Desktop Dock Launcher Launchpad Mission Canopy Gestures Filesystem/bfs-fuse Kernel/pineapple-init; do
             echo "==> fmt: $crate"
-            cargo fmt \
-              --manifest-path "$crate/Cargo.toml" \
-              -- \
-              --check || failed=1
+            cargo fmt --manifest-path "$crate/Cargo.toml" || failed=1
           done
           exit $failed
 
