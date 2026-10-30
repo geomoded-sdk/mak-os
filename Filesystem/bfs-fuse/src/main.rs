@@ -18,11 +18,12 @@
 
 use fuser::{
     FileAttr, FileType, Filesystem, MountOption, ReplyAttr, ReplyData, ReplyDirectory, ReplyEntry,
-    Request,
+    ReplyCreate, ReplyOpen, ReplyWrite, Request,
 };
+use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::fs;
-use std::os::unix::fs::MetadataExt;
+use std::os::unix::fs::{FileExt, MetadataExt, OpenOptionsExt, PermissionsExt};
 use std::path::{Path, PathBuf};
 use std::time::{Duration, SystemTime};
 
@@ -35,6 +36,14 @@ const INO_PRIVATE: u64 = 2;
 struct BfsFs {
     /// Diretório de dados real (o "backing store" do volume).
     backing: PathBuf,
+    paths: HashMap<u64, PathBuf>,
+}
+
+fn inode_for(path: &Path) -> u64 {
+    use std::hash::{Hash, Hasher};
+    let mut hasher = std::collections::hash_map::DefaultHasher::new();
+    path.hash(&mut hasher);
+    1000 + (hasher.finish() % 1_000_000)
 }
 
 fn attr(ino: u64, size: u64, kind: FileType, uid: u32, gid: u32) -> FileAttr {
@@ -109,6 +118,7 @@ impl TimeExt for fs::Metadata {
 impl Filesystem for BfsFs {
     fn lookup(&mut self, _req: &Request, parent: u64, name: &OsStr, reply: ReplyEntry) {
         if parent == INO_ROOT && name == ".bfsprivate" {
+            self.paths.insert(INO_PRIVATE, self.backing.join(".bfsprivate"));
             reply.entry(&TTL, &attr(INO_PRIVATE, 0, FileType::Directory, 0, 0), 0);
             return;
         }
@@ -117,6 +127,7 @@ impl Filesystem for BfsFs {
             if name == "volume.info" {
                 let p = self.backing.join(".bfsprivate/volume.info");
                 if let Ok(meta) = fs::metadata(&p) {
+                    self.paths.insert(INO_PRIVATE + 1, p);
                     reply.entry(&TTL, &file_attr_from_meta(INO_PRIVATE + 1, &meta), 0);
                     return;
                 }
@@ -124,18 +135,13 @@ impl Filesystem for BfsFs {
             reply.error(libc::ENOENT);
             return;
         }
-        // Passthrough do backing store.
-        let path = self.backing.join(name);
+        // Passthrough do backing store, resolvendo também subdiretórios.
+        let base = self.paths.get(&parent).cloned().unwrap_or_else(|| self.backing.clone());
+        let path = base.join(name);
         match fs::metadata(&path) {
             Ok(meta) => {
-                // inode determinístico por hash do nome (suficiente p/ skeleton)
-                let ino = 1000
-                    + (name
-                        .to_string_lossy()
-                        .bytes()
-                        .map(|b| b as u64)
-                        .sum::<u64>()
-                        % 1_000_000);
+                let ino = inode_for(&path);
+                self.paths.insert(ino, path.clone());
                 reply.entry(&TTL, &file_attr_from_meta(ino, &meta), 0);
             }
             Err(_) => reply.error(libc::ENOENT),
@@ -147,10 +153,8 @@ impl Filesystem for BfsFs {
             INO_ROOT => reply.attr(&TTL, &attr(INO_ROOT, 0, FileType::Directory, 0, 0)),
             INO_PRIVATE => reply.attr(&TTL, &attr(INO_PRIVATE, 0, FileType::Directory, 0, 0)),
             _ => {
-                // tenta volume.info
-                let p = self.backing.join(".bfsprivate/volume.info");
-                if ino == INO_PRIVATE + 1 {
-                    if let Ok(meta) = fs::metadata(&p) {
+                if let Some(path) = self.paths.get(&ino) {
+                    if let Ok(meta) = fs::metadata(path) {
                         reply.attr(&TTL, &file_attr_from_meta(ino, &meta));
                         return;
                     }
@@ -180,7 +184,8 @@ impl Filesystem for BfsFs {
                     if name.starts_with('.') && name != ".bfsprivate" {
                         continue; // oculta metadados no listing (como o macOS)
                     }
-                    let ino_e = 1000 + (name.bytes().map(|b| b as u64).sum::<u64>() % 1_000_000);
+                    let ino_e = inode_for(&e.path());
+                    self.paths.insert(ino_e, e.path());
                     let kind = if e.path().is_dir() {
                         FileType::Directory
                     } else {
@@ -194,6 +199,24 @@ impl Filesystem for BfsFs {
             if p.exists() {
                 entries.push((INO_PRIVATE + 1, FileType::RegularFile, "volume.info".into()));
             }
+        } else if let Some(dir) = self.paths.get(&ino).cloned() {
+            if let Ok(rd) = fs::read_dir(dir) {
+                for entry in rd.flatten() {
+                    let name = entry.file_name().to_string_lossy().into_owned();
+                    if name.starts_with('.') {
+                        continue;
+                    }
+                    let child = entry.path();
+                    let child_ino = inode_for(&child);
+                    self.paths.insert(child_ino, child.clone());
+                    let kind = if child.is_dir() {
+                        FileType::Directory
+                    } else {
+                        FileType::RegularFile
+                    };
+                    entries.push((child_ino, kind, name));
+                }
+            }
         }
 
         for (i, (e_ino, e_kind, e_name)) in entries.into_iter().enumerate().skip(offset as usize) {
@@ -202,6 +225,81 @@ impl Filesystem for BfsFs {
             }
         }
         reply.ok();
+    }
+
+    fn open(&mut self, _req: &Request, ino: u64, flags: i32, reply: ReplyOpen) {
+        let Some(path) = self.paths.get(&ino) else {
+            reply.error(libc::ENOENT);
+            return;
+        };
+        let mut options = fs::OpenOptions::new();
+        if flags & libc::O_RDWR != 0 {
+            options.read(true).write(true);
+        } else if flags & libc::O_WRONLY != 0 {
+            options.write(true);
+        } else {
+            options.read(true);
+        }
+        match options.open(path) {
+            Ok(_) => reply.opened(ino, 0),
+            Err(err) => reply.error(err.raw_os_error().unwrap_or(libc::EIO)),
+        }
+    }
+
+    fn create(
+        &mut self,
+        _req: &Request,
+        parent: u64,
+        name: &OsStr,
+        mode: u32,
+        _umask: u32,
+        flags: i32,
+        reply: ReplyCreate,
+    ) {
+        let base = self.paths.get(&parent).cloned().unwrap_or_else(|| self.backing.clone());
+        let path = base.join(name);
+        match fs::OpenOptions::new()
+            .create(true)
+            .write(true)
+            .read(flags & libc::O_RDWR != 0)
+            .mode(mode)
+            .open(&path)
+        {
+            Ok(_) => {
+                let ino = inode_for(&path);
+                self.paths.insert(ino, path.clone());
+                match fs::metadata(&path) {
+                    Ok(meta) => reply.created(&TTL, &file_attr_from_meta(ino, &meta), 0, ino, 0),
+                    Err(_) => reply.error(libc::EIO),
+                }
+            }
+            Err(err) => reply.error(err.raw_os_error().unwrap_or(libc::EIO)),
+        }
+    }
+
+    fn mkdir(
+        &mut self,
+        _req: &Request,
+        parent: u64,
+        name: &OsStr,
+        mode: u32,
+        _umask: u32,
+        reply: fuser::ReplyEntry,
+    ) {
+        let base = self.paths.get(&parent).cloned().unwrap_or_else(|| self.backing.clone());
+        let path = base.join(name);
+        match fs::create_dir(&path) {
+            Ok(()) => {
+                let ino = inode_for(&path);
+                self.paths.insert(ino, path.clone());
+                let _ = fs::set_permissions(&path, PermissionsExt::from_mode(mode));
+                match fs::metadata(&path) {
+                    Ok(meta) => reply.entry(&TTL, &file_attr_from_meta(ino, &meta), 0),
+                    Err(_) => reply.error(libc::EIO),
+                }
+            }
+            Err(err) => reply.error(err.raw_os_error().unwrap_or(libc::EIO)),
+        }
     }
 
     fn read(
@@ -215,20 +313,45 @@ impl Filesystem for BfsFs {
         _lock: Option<u64>,
         reply: ReplyData,
     ) {
-        if ino == INO_PRIVATE + 1 {
-            let p = self.backing.join(".bfsprivate/volume.info");
-            if let Ok(data) = fs::read(&p) {
-                let start = offset as usize;
-                if start >= data.len() {
-                    reply.data(&[]);
-                } else {
-                    let end = (start + size as usize).min(data.len());
-                    reply.data(&data[start..end]);
+        if let Some(path) = self.paths.get(&ino) {
+            match fs::File::open(path) {
+                Ok(file) => {
+                    let mut data = vec![0u8; size as usize];
+                    match file.read_at(&mut data, offset.max(0) as u64) {
+                        Ok(n) => reply.data(&data[..n]),
+                        Err(err) => reply.error(err.raw_os_error().unwrap_or(libc::EIO)),
+                    }
+                    return;
                 }
-                return;
+                Err(err) => reply.error(err.raw_os_error().unwrap_or(libc::EIO)),
             }
         }
         reply.error(libc::EIO);
+    }
+
+    fn write(
+        &mut self,
+        _req: &Request,
+        ino: u64,
+        _fh: u64,
+        offset: i64,
+        data: &[u8],
+        _write_flags: u32,
+        _flags: i32,
+        _lock: Option<u64>,
+        reply: ReplyWrite,
+    ) {
+        let Some(path) = self.paths.get(&ino) else {
+            reply.error(libc::ENOENT);
+            return;
+        };
+        match fs::OpenOptions::new().write(true).open(path) {
+            Ok(file) => match file.write_at(data, offset.max(0) as u64) {
+                Ok(n) => reply.written(n as u32),
+                Err(err) => reply.error(err.raw_os_error().unwrap_or(libc::EIO)),
+            },
+            Err(err) => reply.error(err.raw_os_error().unwrap_or(libc::EIO)),
+        }
     }
 }
 
@@ -257,7 +380,9 @@ fn main() {
         mountpoint.display()
     );
     let _ = fs::create_dir_all(&mountpoint);
-    if let Err(e) = fuser::mount2(BfsFs { backing }, &mountpoint, &options) {
+    let mut paths = HashMap::new();
+    paths.insert(INO_ROOT, backing.clone());
+    if let Err(e) = fuser::mount2(BfsFs { backing, paths }, &mountpoint, &options) {
         eprintln!("bfs-fuse: falha ao montar: {e}");
         std::process::exit(1);
     }
