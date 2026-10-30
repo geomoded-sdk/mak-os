@@ -391,7 +391,10 @@ impl Filesystem for BfsFs {
                     }
                     return;
                 }
-                Err(err) => reply.error(err.raw_os_error().unwrap_or(libc::EIO)),
+                Err(err) => {
+                    reply.error(err.raw_os_error().unwrap_or(libc::EIO));
+                    return;
+                }
             }
         }
         reply.error(libc::EIO);

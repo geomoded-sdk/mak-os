@@ -4,7 +4,7 @@
 # ============================================================
 
 # ---------- Identidade ----------
-CONFIG_LOCALVERSION="-pineappleos"
+CONFIG_LOCALVERSION="-oemx"
 CONFIG_KERNEL_GZIP=y
 CONFIG_PINEAPPLE_CORE=y
 

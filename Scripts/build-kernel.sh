@@ -156,16 +156,18 @@ else
     fi
   done
 fi
-make HOSTCFLAGS="-std=gnu11" olddefconfig
+make HOSTCFLAGS="-std=gnu11" KBUILD_HOSTCFLAGS="-std=gnu11" KCFLAGS="-std=gnu11" olddefconfig
 
 echo "==> Compilando (use -j$(nproc))"
-make HOSTCFLAGS="-std=gnu11" -j"$(nproc)" bzImage modules
+make HOSTCFLAGS="-std=gnu11" KBUILD_HOSTCFLAGS="-std=gnu11" KCFLAGS="-std=gnu11" -j"$(nproc)" bzImage modules
 
 echo "==> Instalando módulos"
 sudo make modules_install
 
 # =============================================================================
-#  LPNU — kernel compatibility layer (macOS) — integração OBRIGATÓRIA
+#  LPNU legado desativado: OEM-X usa PNFS nativo e não depende de LPNU/APFS.
+#  O bloco é mantido apenas como referência histórica durante a migração.
+#  Ele não é executado nem instalado no sistema.
 #
 #  Fonte: https://github.com/geomoded-sdk/lpnu/releases/tag/v2.0.0
 #
@@ -179,6 +181,7 @@ sudo make modules_install
 #  Se qualquer etapa falhar (download, integridade, compilação ou vermagic),
 #  o build é ABORTADO — o Pineapple OS não compila sem o LPNU.
 # =============================================================================
+if false; then
 LPNU_TAG="v2.0.0"
 APFS_TAG="v0.3.19"
 LPNU_REPO="https://github.com/geomoded-sdk/lpnu/archive/refs/tags/$LPNU_TAG.tar.gz"
@@ -249,6 +252,7 @@ sudo tee /etc/modules-load.d/pineapple-lpnu.conf >/dev/null <<'EOF'
 lpnu
 apfs
 EOF
+fi
 
 # ---------------------------------------------------------------------------
 #  Modo CI/empacotamento: não mexe no /boot/GRUB do runner; só empacota o
@@ -259,9 +263,9 @@ if [ -n "$KERNEL_BUILD_OUT" ]; then
   mkdir -p "$KERNEL_BUILD_OUT"/boot "$KERNEL_BUILD_OUT"/lib/modules \
            "$KERNEL_BUILD_OUT"/usr/local/bin
 
-  # Identidade: o artefato NÃO se chama vmlinuz — é pineapple.ekern.
-  cp arch/x86/boot/bzImage "$KERNEL_BUILD_OUT/boot/pineapple.ekern-$KRELEASE"
-  cp -a "/lib/modules/$KRELEASE" "$KERNEL_BUILD_OUT/lib/modules/"
+  OEMX_RELEASE="$(make -s kernelrelease)"
+  cp arch/x86/boot/bzImage "$KERNEL_BUILD_OUT/boot/oem-x.ekern-$OEMX_RELEASE"
+  cp -a "/lib/modules/$OEMX_RELEASE" "$KERNEL_BUILD_OUT/lib/modules/"
 
   # Embute o PowerBook ID + PNFS check no initramfs empacotado
   sudo mkdir -p /usr/share/pineappleos \
@@ -277,17 +281,13 @@ if [ -n "$KERNEL_BUILD_OUT" ]; then
 
   if command -v update-initramfs >/dev/null 2>&1; then
     echo "==> Gerando initramfs"
-    sudo update-initramfs -c -k "$KRELEASE"
-    [ -f "/boot/initrd.img-$KRELEASE" ] || {
+    sudo update-initramfs -c -k "$OEMX_RELEASE"
+    [ -f "/boot/initrd.img-$OEMX_RELEASE" ] || {
       echo "ERRO: initramfs Pineapple não foi gerado" >&2
       exit 1
     }
-    cp "/boot/initrd.img-$KRELEASE" "$KERNEL_BUILD_OUT/boot/"
+    cp "/boot/initrd.img-$OEMX_RELEASE" "$KERNEL_BUILD_OUT/boot/"
   fi
-
-  cp /usr/local/bin/ld-mac "$KERNEL_BUILD_OUT/usr/local/bin/"
-  cp /etc/modules-load.d/pineapple-lpnu.conf "$KERNEL_BUILD_OUT/"
-  cp "$LPNU_KO" "$APFS_KO" "$KERNEL_BUILD_OUT/"
 
   echo "==> Pacote do kernel pronto em: $KERNEL_BUILD_OUT"
   find "$KERNEL_BUILD_OUT" -type f | sort
@@ -295,9 +295,9 @@ if [ -n "$KERNEL_BUILD_OUT" ]; then
 fi
 
 echo "==> Instalando kernel e initramfs"
-# Identidade: instala como pineapple.ekern (nunca "vmlinuz").
-sudo cp arch/x86/boot/bzImage "/boot/pineapple.ekern-$KRELEASE"
-sudo update-initramfs -c -k "$KRELEASE"
+OEMX_RELEASE="$(make -s kernelrelease)"
+sudo cp arch/x86/boot/bzImage "/boot/oem-x.ekern-$OEMX_RELEASE"
+sudo update-initramfs -c -k "$OEMX_RELEASE"
 
 # Garante que o PowerBook ID check esteja dentro do initramfs
 if [ -x "$ROOT/Scripts/setup-powerbook-check.sh" ]; then
@@ -309,4 +309,4 @@ sudo update-grub
 
 echo "==> Kernel instalado. Reinicie para usar o Pineapple OS."
 echo "    Lembre-se do argumento: -pineapplepowerbookid=<ID> (senão: panic)"
-echo "    LPNU compilado do fonte para este kernel: lpnu.ko, apfs.ko, ld-mac"
+echo "    OEM-X instalado: $OEMX_RELEASE"

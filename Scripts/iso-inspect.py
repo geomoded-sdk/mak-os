@@ -9,7 +9,7 @@
 #    * MBR híbrido: assinatura 0x55aa e partição protetora GPT (0xEE);
 #    * Nenhum arquivo >= 4GiB (gatilho do aviso de cluster 64 KB do Rufus);
 #    * Nenhum nome de arquivo não-ISO com mais de 64 caracteres (aviso do Rufus);
-#    * Arquivos obrigatórios: /live/pineapple.ekern, /live/pineapple.boot,
+#    * Arquivos obrigatórios: /live/oem-x.ekern, /live/pineapple.boot,
 #      *.squashfs, /boot/grub/grub.cfg (com busca pelos nomes novos);
 #    * Conteúdo EFI presente (BOOTX64.EFI dentro da imagem FAT embutida).
 #
@@ -224,7 +224,7 @@ def main():
             max_name_path = path
         # confere requisitos
         if path.startswith("/live/"):
-            if base_name == "pineapple.ekern" and required["live_kernel"] is None:
+            if base_name == "oem-x.ekern" and required["live_kernel"] is None:
                 required["live_kernel"] = path
             if base_name == "pineapple.boot" and required["live_initramfs"] is None:
                 required["live_initramfs"] = path

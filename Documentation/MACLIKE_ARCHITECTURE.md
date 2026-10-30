@@ -54,16 +54,15 @@ mudar a topologia fisica pode quebrar pacotes Debian e ferramentas POSIX.
 
 ## Kernel e compatibilidade
 
-- O ponto de partida permanece o Linux 6.1, com `CONFIG_LOCALVERSION` igual a
-  `-pineappleos` e `CONFIG_MODULES=y`.
-- O nome de produto pode ser **Pineapple Kernel**, mas a documentacao deve
+- O OEM-X usa uma base vendorizada 6.1, com `CONFIG_LOCALVERSION` igual a
+  `-oemx` e `CONFIG_MODULES=y`.
+- O nome de produto é **OEM-X Kernel**, mas a documentacao deve
   continuar declarando que ele e um kernel Linux modificado.
 - Recursos de baixo nivel entram como modulos ou patches pequenos e isolados:
   suporte a hardware, energia, observabilidade, PNFS e integracao com initramfs.
 - Programas Linux continuam usando ELF, POSIX, procfs, sysfs, XDG e as ABI do
   Linux. A experiencia mac-like nao deve exigir uma ABI proprietaria.
-- LPNU e APFS continuam compilados contra exatamente o release do kernel que
-  sera empacotado, evitando `vermagic` incompativel.
+- OEM-X fornece PNFS nativo; LPNU e APFS não fazem parte da arquitetura ativa.
 
 ## Inspiracoes e licencas
 

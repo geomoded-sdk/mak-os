@@ -384,56 +384,23 @@ if ls "$ROOT"/Scripts/debs/*.deb >/dev/null 2>&1; then
   cp "$ROOT"/Scripts/debs/*.deb config/packages.chroot/
 fi
 
-# ------------------------------------------------------------ LPNU (obrigatório)
-# LPNU v2.0.0 — kernel compatibility layer (macOS): permite rodar binários
-# Mach-O e montar APFS. Os módulos são COMPILADOS DO FONTE contra o kernel da
-# própria ISO (os .ko pré-compilados do release são do 6.17-azure e não
-# carregariam — vermagic/modversions). Aqui baixamos as fontes offline; o hook
-# chroot (hooks/pineapple-lpnu.hook.chroot) compila e instala na imagem.
-# Falhou em qualquer etapa → build da ISO é abortado.
-echo "==> Incluindo LPNU (fontes + ld-mac) — obrigatório"
-LPNU_DIR="config/includes.chroot/root/lpnu-build"
-mkdir -p "$LPNU_DIR"
-
-# O kernel e os módulos LPNU foram compilados no job kernel-build. Eles entram
-# no chroot antes do hook para preservar a mesma vermagic do kernel da ISO.
+# ------------------------------------------------------------ integração OEM-X
+# O kernel OEM-X já inclui PNFS e seus módulos. A ISO não baixa, compila ou
+# instala LPNU/APFS legados: aplicações Linux usam a ABI de usuário normal e
+# os volumes do sistema usam o PNFS nativo.
 KERNEL_DIST="$(dirname "$PINEAPPLE_KERNEL_DIR")"
 if [ -d "$KERNEL_DIST/lib/modules" ]; then
-  echo "==> Incluindo módulos do kernel Pineapple no chroot"
+  echo "==> Incluindo módulos do OEM-X no chroot"
   mkdir -p config/includes.chroot/lib/modules
   cp -a "$KERNEL_DIST/lib/modules/." config/includes.chroot/lib/modules/
-  mkdir -p config/includes.chroot/etc/modules-load.d
-  cp "$KERNEL_DIST/modules-load.d/pineapple-lpnu.conf" \
-    config/includes.chroot/etc/modules-load.d/
-  mkdir -p config/includes.chroot/usr/local/bin
-  cp "$KERNEL_DIST/usr/local/bin/ld-mac" config/includes.chroot/usr/local/bin/
-else
-  wget -qO "$LPNU_DIR/lpnu-src.tar.gz" \
-    "https://github.com/geomoded-sdk/lpnu/archive/refs/tags/v2.0.0.tar.gz"
-  wget -qO "$LPNU_DIR/apfs-src.tar.gz" \
-    "https://github.com/linux-apfs/linux-apfs-rw/archive/refs/tags/v0.3.19.tar.gz"
-  curl -fsSL \
-    -H 'Accept: application/octet-stream' \
-    -o "$LPNU_DIR/ld-mac" \
-    "https://api.github.com/repos/geomoded-sdk/lpnu/releases/assets/402871192"
-  if [ "$(sha256sum "$LPNU_DIR/ld-mac" | cut -d' ' -f1)" != \
-       "e7ee78932e6f7abd21cd320af6b7e6895875306a4e491b50bd78ae6faaa9c4a5" ]; then
-    echo "==> ERRO: sha256 de ld-mac não confere" >&2
-    exit 1
-  fi
-  chmod +x "$LPNU_DIR/ld-mac"
 fi
-mkdir -p config/hooks/normal
-cp "$ROOT/Installer/live-build/hooks/pineapple-lpnu.hook.chroot" \
-  config/hooks/normal/0001-pineapple-lpnu.hook.chroot
-chmod +x config/hooks/normal/0001-pineapple-lpnu.hook.chroot
 
 # ------------------------------------------------------------ grub.cfg da ISO
 # O template grub2 do live-build 3.0~a57 é frágil (background via ($root) e o
 # core gerado pelo binary.sh usa grub-mkimage sem '-p', obrigatório desde o
 # grub 2.12 — o que quebra o El Torito). Aqui regravamos um grub.cfg robusto
 # que localiza o kernel por busca na mídia (CD/USB, BIOS/UEFI).
-echo "==> Configurando grub.cfg da ISO (pineapple.ekern, sem 'vmlinuz')"
+echo "==> Configurando grub.cfg da ISO (oem-x.ekern, sem 'vmlinuz')"
 cat > config/hooks/0020-pineapple-grub.cfg.hook.binary <<EOF
 #!/bin/sh
 set -eu
@@ -441,17 +408,17 @@ set -eu
 # genérico produzido automaticamente pelo live-build. O initramfs live é
 # preservado, pois contém a sessão gráfica e o live-boot.
 LIVE_INITRAMFS="\$(find binary/live -maxdepth 1 -type f -name 'initrd.img-*' -print -quit 2>/dev/null || true)"
-rm -f binary/live/vmlinuz-* binary/live/pineapple.ekern binary/live/pineapple.boot
+rm -f binary/live/vmlinuz-* binary/live/oem-x.ekern binary/live/pineapple.boot
 CUSTOM_KERNEL_DIR="${PINEAPPLE_KERNEL_DIR}"
-KERNEL_FILE="\$(find "\$CUSTOM_KERNEL_DIR" -maxdepth 1 -type f -name 'pineapple.ekern-*' -print -quit 2>/dev/null || true)"
+KERNEL_FILE="\$(find "\$CUSTOM_KERNEL_DIR" -maxdepth 1 -type f -name 'oem-x.ekern-*' -print -quit 2>/dev/null || true)"
 [ -n "\$KERNEL_FILE" ] && [ -n "\$LIVE_INITRAMFS" ] || {
     echo "ERRO: kernel Pineapple ausente em \$CUSTOM_KERNEL_DIR" >&2
     echo "Execute build-kernel.sh com KERNEL_BUILD_OUT e mantenha o initramfs live." >&2
     exit 1
 }
-cp "\$KERNEL_FILE" binary/live/pineapple.ekern
+cp "\$KERNEL_FILE" binary/live/oem-x.ekern
 mv "\$LIVE_INITRAMFS" binary/live/pineapple.boot
-KERN="pineapple.ekern"
+KERN="oem-x.ekern"
 INITRD="pineapple.boot"
 cat > binary/boot/grub/grub.cfg <<GRUB
 set default=0
