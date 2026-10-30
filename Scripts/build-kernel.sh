@@ -65,21 +65,21 @@ fi
 cd "$KERNEL_SOURCE_DIR"
 
 # =============================================================================
-#  Identidade Pineapple — modifica o fonte Linux de verdade (uname/proc/version)
+#  Identidade OEM-X — modifica o código da árvore-base de verdade (uname/proc/version)
 #
 #  O sistema que roda É o Linux, mas se identifica como "Pineapple" em:
-#    * uname -s / uname -r          → Pineapple / <release>-pineappleos
-#    * /proc/version                → "Pineapple version …"
+#    * uname -s / uname -r          → OEM-X / <release>-oemx
+#    * /proc/version                → "OEM-X version …"
 #  (mesma filosofia do Android, que renomeia o banner do kernel.)
 # =============================================================================
-echo "==> Aplicando identidade Pineapple no fonte (uts.h / version.c)"
+echo "==> Aplicando identidade OEM-X no fonte (uts.h / version.c)"
 # UTS_SYSNAME: define o sysname do uname e a primeira palavra de /proc/version.
 # Não use xargs aqui: algumas versões do kernel não têm essa macro no mesmo
 # arquivo e o grep retorna 1, fazendo o pipeline abortar sob `set -e`.
 patched_identity=0
 while IFS= read -r -d '' f; do
   if grep -q 'UTS_SYSNAME "Linux"' "$f"; then
-    sed -i 's/UTS_SYSNAME "Linux"/UTS_SYSNAME "Pineapple"/' "$f"
+    sed -i 's/UTS_SYSNAME "Linux"/UTS_SYSNAME "OEM-X"/' "$f"
     echo "    patch: $f"
     patched_identity=1
   fi
@@ -89,7 +89,7 @@ done < <(find include init -type f \( -name '*.h' -o -name '*.c' \) -print0 2>/d
 if [ "$patched_identity" -eq 0 ]; then
   while IFS= read -r f; do
     [ -n "$f" ] || continue
-    sed -i 's/"Linux"/"Pineapple"/g' "$f"
+    sed -i 's/"Linux"/"OEM-X"/g' "$f"
     echo "    patch(fallback): $f"
     patched_identity=1
   done < <(grep -rl '"Linux"' include/linux/uts.h include/uapi/linux/utsname.h \

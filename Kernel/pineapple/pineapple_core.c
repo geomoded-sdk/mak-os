@@ -13,7 +13,7 @@ static struct kobject *pineapple_kobj;
 static ssize_t identity_show(struct kobject *kobj,
                              struct kobj_attribute *attr, char *buf)
 {
-    return sysfs_emit(buf, "Pineapple Kernel\n");
+    return sysfs_emit(buf, "OEM-X Kernel\n");
 }
 
 static ssize_t release_show(struct kobject *kobj,
@@ -50,7 +50,7 @@ static int __init pineapple_core_init(void)
         return ret;
     }
 
-    pr_info("Pineapple Kernel core initialized (%s)\n", utsname()->release);
+    pr_info("OEM-X Kernel core initialized (%s)\n", utsname()->release);
     return 0;
 }
 

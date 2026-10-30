@@ -52,7 +52,7 @@ PineappleOS/
 ├── Filesystem/    # PNFS nativo + recursos APFS/HFS+ (snapshots, clones, checksums)
 ├── Installer/     # live-build, GRUB, Plymouth, SDDM, schemas, systemd, initramfs
 ├── Orchard/       # instalador próprio (motor Rust + UI GTK4/GLS Render)
-├── Kernel/        # Config do kernel ("Pineapple Kernel") e docs de boot
+├── Kernel/        # Fonte integrado e identidade do OEM-X Kernel
 ├── Apps/          # Aplicativos nativos (Python/GTK4) + daemon de wallpaper
 ├── Compatibility/ # Flatpak, AppImage, Wine, Darling, Waydroid
 ├── Scripts/       # Scripts de build, install, testes e geração de imagens
@@ -94,9 +94,9 @@ Para a ISO, defina o ID no build:
 POWERBOOK_ID=SEU_ID ./Scripts/build-iso.sh
 ```
 
-> **Sobre o kernel**: o Pineapple OS usa o kernel Linux compilado com
-> configuração própria e identidade "Pineapple Kernel" — o mesmo modelo do
-> Android. Leia [Kernel/README.md](Kernel/README.md) para todos os detalhes.
+> **Sobre o kernel**: o Pineapple OS compila a árvore-fonte oficial armazenada no
+> repositório com o código OEM-X integrado. A identidade exposta é **OEM-X**.
+> Leia [Kernel/README.md](Kernel/README.md) para os detalhes.
 
 ## Requisitos para build
 

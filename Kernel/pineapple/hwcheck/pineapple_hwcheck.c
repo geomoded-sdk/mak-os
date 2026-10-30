@@ -71,7 +71,7 @@ static int __init pineapple_hwcheck_init(void)
 		if (!hw_allowed(pdev->vendor, pdev->device, cls)) {
 			panic("Pineapple OS: hardware não autorizado nesta build.\n\n"
 			      "  Placa: %s %04x:%04x (classe %s)\n"
-			      "  Esta build do Pineapple Kernel só aceita o hardware\n"
+			      "  Esta build do OEM-X Kernel só aceita o hardware\n"
 			      "  listado em hwlist.txt no momento da compilação.\n\n"
 			      "  Você precisa reiniciar o computador.\n",
 			      pci_name(pdev), pdev->vendor, pdev->device,
