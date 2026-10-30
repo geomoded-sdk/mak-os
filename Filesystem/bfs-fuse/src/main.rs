@@ -18,7 +18,7 @@
 
 use fuser::{
     FileAttr, FileType, Filesystem, MountOption, ReplyAttr, ReplyData, ReplyDirectory, ReplyEntry,
-    ReplyCreate, ReplyOpen, ReplyWrite, Request,
+    ReplyCreate, ReplyEmpty, ReplyOpen, ReplyWrite, Request,
 };
 use std::collections::HashMap;
 use std::ffi::OsStr;
@@ -299,6 +299,74 @@ impl Filesystem for BfsFs {
                 }
             }
             Err(err) => reply.error(err.raw_os_error().unwrap_or(libc::EIO)),
+        }
+    }
+
+    fn unlink(&mut self, _req: &Request, parent: u64, name: &OsStr, reply: ReplyEmpty) {
+        let base = self.paths.get(&parent).cloned().unwrap_or_else(|| self.backing.clone());
+        match fs::remove_file(base.join(name)) {
+            Ok(()) => reply.ok(),
+            Err(err) => reply.error(err.raw_os_error().unwrap_or(libc::EIO)),
+        }
+    }
+
+    fn rmdir(&mut self, _req: &Request, parent: u64, name: &OsStr, reply: ReplyEmpty) {
+        let base = self.paths.get(&parent).cloned().unwrap_or_else(|| self.backing.clone());
+        match fs::remove_dir(base.join(name)) {
+            Ok(()) => reply.ok(),
+            Err(err) => reply.error(err.raw_os_error().unwrap_or(libc::EIO)),
+        }
+    }
+
+    fn rename(
+        &mut self,
+        _req: &Request,
+        parent: u64,
+        name: &OsStr,
+        newparent: u64,
+        newname: &OsStr,
+        _flags: u32,
+        reply: ReplyEmpty,
+    ) {
+        let old_base = self.paths.get(&parent).cloned().unwrap_or_else(|| self.backing.clone());
+        let new_base = self
+            .paths
+            .get(&newparent)
+            .cloned()
+            .unwrap_or_else(|| self.backing.clone());
+        match fs::rename(old_base.join(name), new_base.join(newname)) {
+            Ok(()) => reply.ok(),
+            Err(err) => reply.error(err.raw_os_error().unwrap_or(libc::EIO)),
+        }
+    }
+
+    fn symlink(
+        &mut self,
+        _req: &Request,
+        parent: u64,
+        name: &OsStr,
+        link: &Path,
+        reply: ReplyEntry,
+    ) {
+        let base = self.paths.get(&parent).cloned().unwrap_or_else(|| self.backing.clone());
+        let path = base.join(name);
+        match std::os::unix::fs::symlink(link, &path) {
+            Ok(()) => {
+                let ino = inode_for(&path);
+                self.paths.insert(ino, path.clone());
+                match fs::symlink_metadata(&path) {
+                    Ok(meta) => reply.entry(&TTL, &file_attr_from_meta(ino, &meta), 0),
+                    Err(_) => reply.error(libc::EIO),
+                }
+            }
+            Err(err) => reply.error(err.raw_os_error().unwrap_or(libc::EIO)),
+        }
+    }
+
+    fn readlink(&mut self, _req: &Request, ino: u64, reply: ReplyData) {
+        match self.paths.get(&ino).and_then(|path| fs::read_link(path).ok()) {
+            Some(target) => reply.data(target.as_os_str().as_encoded_bytes()),
+            None => reply.error(libc::ENOENT),
         }
     }
 
