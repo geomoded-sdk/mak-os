@@ -66,10 +66,8 @@ cd "$KERNEL_SOURCE_DIR"
 
 # GCC 15 usa C23 por padrão. O realmode do kernel 6.1 depende das declarações
 # booleanas GNU tradicionais; fixa GNU11 somente nesse sub-build compatível.
-if grep -q '^REALMODE_CFLAGS' arch/x86/realmode/Makefile; then
-  printf '\n# OEM-X: compatibilidade com GCC 15+\nREALMODE_CFLAGS += -std=gnu11\n' \
-    >> arch/x86/realmode/Makefile
-fi
+printf '\n# OEM-X: compatibilidade com GCC 15+\nREALMODE_CFLAGS += -std=gnu11\n' \
+  >> arch/x86/realmode/Makefile
 
 # =============================================================================
 #  Identidade OEM-X — modifica o código da árvore-base de verdade (uname/proc/version)
