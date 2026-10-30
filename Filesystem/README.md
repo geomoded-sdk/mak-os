@@ -1,4 +1,4 @@
-# BFS v2 — Pineapple File System
+# PNFS — Pineapple File System
 
 > Sistema de arquivos de usuário baseado no filesystem do kernel (**exFAT** por
 > padrão) com uma **camada de metadados própria**. O BFS **não finge ser APFS**:
@@ -15,7 +15,7 @@ O projeto assume explicitamente a seguinte divisão:
 
 ```
 exFAT (filesystem do kernel — a base)
- └── BFS metadata layer (overlay de usuário, em .bfsprivate/)
+ └── PNFS metadata layer (overlay de usuário, em .bfsprivate/)
       ├── xattrs      → metadata.py   · atributos estendidos (AppleDouble "._*")
       ├── finder      → finder.py     · Finder Info, tags, ícone, comentário
       ├── snapshots   → snapshots.py  · estados imutáveis do volume
@@ -25,7 +25,7 @@ exFAT (filesystem do kernel — a base)
 ```
 
 Cada camada é um módulo separado e a ordem da pilha é **declarada no
-`volume.info`** de cada volume (`"layers": [...]`, formato `"bfs-overlay"`,
+`volume.info`** de cada volume (`"layers": [...]`, formato `"pnfs-overlay"`,
 versão 2). O runtime nativo em `pineapplefs-c/` grava exatamente essa
 declaração no preboot e no boot, e aplica `user.DOSATTRIB` quando o filesystem
 suporta xattrs; os nomes começam por ponto para permanecerem ocultos também
@@ -38,7 +38,7 @@ python3 Scripts/pineapplefs.py status  /media/PENDRIVE  # volume.info completo
 
 ## O que ele faz (espelhando o macOS)
 
-| Recurso                 | Como o macOS faz              | No BFS v2                                |
+| Recurso                 | Como o macOS faz              | No PNFS                                |
 |-------------------------|-------------------------------|------------------------------------------|
 | Atributos por arquivo   | `._<nome>` (AppleDouble)      | camada **xattrs** — `._<nome>` idêntico, no exFAT |
 | Metadados do volume     | `.Spotlight-V100`, `.fseventsd`, `.Trashes`, `.DS_Store` | cria todos no `init` + `.bfsprivate` |
@@ -53,7 +53,7 @@ python3 Scripts/pineapplefs.py status  /media/PENDRIVE  # volume.info completo
 
 ## Como usar
 
-Inicializar um volume BFS sem formatar nem apagar dados:
+Inicializar um volume PNFS sem formatar nem apagar dados:
 
 ```bash
 python3 Scripts/pineapplefs.py init /media/PENDRIVE --name "Pineapple OS"
@@ -101,7 +101,7 @@ Lista completa: `python3 Scripts/pineapplefs.py --help`.
 
 ```
 Filesystem/pineapplefs/
-├── __init__.py        # pacote BFS v2 (re-exporta BFSVolume + camadas)
+├── __init__.py        # pacote PNFS (re-exporta BFSVolume + camadas)
 ├── constants.py       # constantes e helpers compartilhados (MAGIC, LAYERS, …)
 ├── core.py            # BFSVolume: núcleo + pilha de camadas (facade)
 ├── metadata.py        # camada xattrs  — atributos estendidos (AppleDouble)

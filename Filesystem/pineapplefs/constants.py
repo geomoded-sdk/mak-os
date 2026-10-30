@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 # =============================================================================
-#  pineapplefs / constants.py — constantes e helpers compartilhados do BFS v2
+#  pineapplefs / constants.py — constantes e helpers compartilhados do PNFS
+#
+#  PNFS (Pineapple Native File System) é o sistema de arquivos do Pineapple OS.
+#  O diretório de metadados do volume continua se chamando .bfsprivate
+#  (módulo bfsprivate) — não confundir com o nome do filesystem.
 #
 #  Este módulo não importa nenhum outro do pacote: é a base que todas as
 #  camadas usam sem criar importação circular.
@@ -11,16 +15,17 @@ import os
 import uuid as _uuid
 from pathlib import Path
 
-MAGIC = "BFS"
-FORMAT = "bfs-overlay"
+MAGIC = "PNFS"
+FORMAT = "pnfs-overlay"
 FORMAT_VERSION = 2
 
-# Pilha de camadas do BFS v2 (a ordem abaixo é a declarada no volume.info).
-# O BFS NÃO finge ser APFS: é um overlay de usuário próprio sobre o filesystem
+# Pilha de camadas do PNFS (a ordem abaixo é a declarada no volume.info).
+# O PNFS NÃO finge ser APFS: é um overlay de usuário próprio sobre o filesystem
 # do kernel (exFAT etc.), inspirado em recursos que existem em vários sistemas.
 LAYERS = ("xattrs", "finder", "snapshots", "clones", "checksums", "sparse")
 
-# Diretórios/arquivos do sistema que o BFS ignora em varreduras
+# Diretórios/arquivos do sistema que o PNFS ignora em varreduras.
+# .bfsprivate é o MÓDULO de metadados do volume (nome fixo, não é o FS).
 SYSTEM_NAMES = {
     ".bfsprivate",
     ".Spotlight-V100",

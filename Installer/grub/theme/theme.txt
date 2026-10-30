@@ -1,19 +1,19 @@
 # =============================================================================
-#  GRUB theme — Pineapple OS (estilo Apple)
-#  O menu fica oculto (boot direto, sem "passar pelo GRUB"). Este tema só é
-#  exibido se o usuário segurar Shift / entrar em recovery — e mesmo assim
-#  com o visual limpo: fundo #c2bec2 e menu discreto.
+#  GRUB theme — Pineapple OS (estilo Apple, nível Kindle ~9%)
+#  O menu fica oculto (boot direto). Este tema só é exibido se o usuário
+#  segurar Shift / entrar em recovery — e mesmo assim com o visual limpo:
+#  fundo lavanda escuro #262426 e menu discreto.
 # =============================================================================
 
 desktop-image: "background.png"
-desktop-color: "#c2bec2"
+desktop-color: "#262426"
 
 + boot_menu {
   left = 40%
   top = 38%
   width = 460
-  item_color = "#6b7280"
-  selected_item_color = "#1c1d22"
+  item_color = "#9a969a"
+  selected_item_color = "#eceaed"
   item_height = 40
   item_padding = 10
   item_spacing = 12

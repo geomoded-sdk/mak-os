@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # =============================================================================
-#  pineapplefs / checksums.py — camada BFS: checksums
+#  pineapplefs / checksums.py — camada PNFS: checksums
 #
-#  BFS v2 — camada "checksums". Registra a integridade (sha256 + tamanho) de
+#  PNFS — camada "checksums". Registra a integridade (sha256 + tamanho) de
 #  cada arquivo em .bfsprivate/checksums/index.json e permite verificar o
 #  volume (APFS-like, mas honesto: checagem por arquivo, sob demanda).
 # =============================================================================

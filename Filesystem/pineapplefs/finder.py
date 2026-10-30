@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # =============================================================================
-#  pineapplefs / finder.py — camada BFS: metadados do Finder
+#  pineapplefs / finder.py — camada PNFS: metadados do Finder
 #
-#  BFS v2 — camada "finder". Traduz o que o macOS grava no Finder Info e nas
-#  xattrs "com.apple.metadata:*" para o overlay BFS:
+#  PNFS — camada "finder". Traduz o que o macOS grava no Finder Info e nas
+#  xattrs "com.apple.metadata:*" para o overlay PNFS:
 #
 #    * flags do Finder (invisível, ícone custom, estacionário)  → Finder Info
 #    * tags coloridas (com.apple.metadata:kMDItemUserTags)      → xattr

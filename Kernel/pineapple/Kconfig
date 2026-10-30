@@ -2,5 +2,50 @@ config PINEAPPLE_CORE
     bool "Pineapple OS kernel core"
     default n
     help
-      Enable the Pineapple OS kernel identity and system metadata interface.
-      This is built into the kernel when selected by the Pineapple config.
+      Enable the Pineapple OS kernel identity and system metadata interface
+      (/sys/kernel/pineapple/). Built into the kernel when selected by the
+      Pineapple config.
+
+config PINEAPPLE_BSD
+    bool "Pineapple BSD compatibility layer"
+    default n
+    help
+      FreeBSD-inspired sysctl/kinfo interface for the Pineapple OS hybrid
+      kernel (Linux core + BSD-style userland APIs, like XNU = Mach + BSD).
+      Exposes /proc/sys/pineapple/{ostype,osrelease,osversion} and
+      /sys/kernel/pineapple/bsd/.
+
+config PINEAPPLE_BOOT
+    bool "Pineapple boot-args (PowerBook ID + PNFS)"
+    default n
+    help
+      Parses -pineapplepowerbookid= and -pineapplefs= from the kernel command
+      line inside the KERNEL (not only initramfs) and exports them via
+      /sys/kernel/pineapple/boot/.
+
+config PINEAPPLE_BOOT_ENFORCE
+    bool "Panic without a valid PowerBook ID (kernel-level)"
+    depends on PINEAPPLE_BOOT
+    default n
+    help
+      Kernel-level enforcement: without a valid -pineapplepowerbookid=<ID>
+      (checked against the list baked into THIS build from ids.txt), the
+      kernel panics macOS-style before userspace runs. Defense in depth on
+      top of the initramfs check.
+
+config PINEAPPLE_HWCHECK
+    bool "Hardware allowlist check (per build)"
+    default n
+    help
+      Bakes Kernel/hwlist.txt into THIS build. At boot, any PCI display or
+      network device not on the list triggers a macOS-style kernel panic.
+      Each build has its own allowlist — hardware accepted depends on which
+      cards were chosen when compiling that kernel.
+
+config PINEAPPLE_PNFS
+    bool "PNFS — Pineapple Native File System (kernel)"
+    default n
+    help
+      In-kernel registration of the PNFS filesystem ("mount -t pnfs").
+      First kernel stage of the Pineapple Native File System; the userspace
+      metadata module remains .bfsprivate.

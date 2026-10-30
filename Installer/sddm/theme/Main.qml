@@ -3,13 +3,12 @@ import QtQuick.Controls 2.12
 import SddmComponents 2.0
 
 // =============================================================================
-//  Pineapple OS — tema de login do SDDM (estilo macOS)
+//  Pineapple OS — tema de login do SDDM
 //
-//  Reproduz a tela de login do macOS:
-//    * wallpaper desfocado/escurecido como fundo;
-//    * relógio e data no centro superior;
-//    * avatar do usuário centralizado (círculo) + campo de senha;
-//    * botões de energia (Reiniciar / Desligar) no rodapé.
+//  Continuidade visual com o boot: mesmo fundo lavanda escuro (#262426,
+//  nível Kindle ~9%) e o abacaxi de contorno no topo. Relógio, avatar,
+//  senha e botões de energia aparecem sobre esse fundo — sem wallpaper,
+//  sem blur. Boot → login parecem a mesma tela.
 // =============================================================================
 
 Rectangle {
@@ -19,60 +18,37 @@ Rectangle {
 
     property string lastError: ""
 
-    color: "#1d2430"
+    // fundo idêntico ao Plymouth/GRUB (#262426)
+    color: "#262426"
 
-    // ---- fundo: wallpaper do sistema (fallback em cascata) ----
+    // ---- abacaxi de contorno (mesmo asset do boot) ----
     Image {
-        id: bg
-        anchors.fill: parent
-
-        // Tenta usar o wallpaper ativo em formato raster (PNG/JPG). O Qt
-        // carrega SVG também, então ele fica como último fallback.
-        property int bgIndex: 0
-        property var bgPaths: [
-            "file:///usr/share/backgrounds/pineappleos/wallpaper.png",
-            "file:///usr/share/backgrounds/pineappleos/wallpaper.jpg",
-            "file:///usr/share/backgrounds/pineappleos/wallpaper.jpeg",
-            "file:///usr/share/backgrounds/pineappleos/highsierra.png",
-            "file:///usr/share/backgrounds/pineappleos/highsierra.jpg",
-            "file:///usr/share/backgrounds/pineappleos/highsierra.svg"
-        ]
-        source: bgPaths[bgIndex]
-
-        onStatusChanged: {
-            if (status === Image.Error && bgIndex < bgPaths.length - 1) {
-                bgIndex++
-                source = bgPaths[bgIndex]
-            }
-        }
-
-        onSourceChanged: bgIndex = bgPaths.indexOf(source)
-
-        fillMode: Image.PreserveAspectCrop
+        id: logo
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: parent.top
+        anchors.topMargin: Screen.height * 0.08
+        source: "pineapple.png"
+        width: Math.round(Screen.height * 0.14)
+        height: width
+        fillMode: Image.PreserveAspectFit
+        opacity: 0.95
     }
 
-    // Escurecimento estilo macOS (o login escurece o wallpaper)
-    Rectangle {
-        anchors.fill: parent
-        color: "#0a0e14"
-        opacity: 0.55
-    }
-
-    // ---- relógio e data (topo central) ----
+    // ---- relógio e data ----
     Column {
         id: clockColumn
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: parent.top
-        anchors.topMargin: Screen.height * 0.10
+        anchors.top: logo.bottom
+        anchors.topMargin: Screen.height * 0.04
         spacing: 4
 
         Text {
             anchors.horizontalCenter: parent.horizontalCenter
             id: clockLabel
             text: clockTimer.text
-            font.pixelSize: Math.round(Screen.height * 0.034)
+            font.pixelSize: Math.round(Screen.height * 0.030)
             font.weight: Font.Light
-            color: "#f5f6f8"
+            color: "#eceaed"
         }
     }
 
@@ -85,55 +61,50 @@ Rectangle {
         onTriggered: text = Qt.formatDateTime(new Date(), "HH:mm")
     }
 
-    // ---- formulário de login (estilo macOS) ----
+    // ---- formulário de login ----
     Column {
         id: form
         anchors.centerIn: parent
         width: Math.max(Screen.width * 0.24, 300)
         spacing: 14
 
-        // Avatar do usuário (círculo, gerado por gen-backgrounds.py)
         Image {
             id: avatar
             anchors.horizontalCenter: parent.horizontalCenter
             source: "avatar.png"
-            width: Math.round(Screen.height * 0.16)
+            width: Math.round(Screen.height * 0.14)
             height: width
             fillMode: Image.PreserveAspectFit
         }
 
-        // Nome do usuário logado (como o macOS mostra o nome + avatar)
         Text {
             id: userLabel
             anchors.horizontalCenter: parent.horizontalCenter
             text: "Usuário"
-            font.pixelSize: Math.round(Screen.height * 0.022)
+            font.pixelSize: Math.round(Screen.height * 0.020)
             font.weight: Font.Light
-            color: "#f5f6f8"
+            color: "#eceaed"
         }
 
-        // Campo de usuário — visível apenas quando o SDDM não informa o
-        // usuário padrão (na prática o macOS já mostra o nome logado).
         TextField {
             id: username
             width: parent.width
             height: 44
             placeholderText: "Usuário"
             color: "#ffffff"
-            placeholderTextColor: "#b7c0cc"
+            placeholderTextColor: "#9a969a"
             font.pixelSize: 16
             horizontalAlignment: TextInput.AlignHCenter
             visible: root.defaultUser.length === 0
             background: Rectangle {
                 radius: 12
-                color: Qt.rgba(0.08, 0.09, 0.12, 0.55)
-                border.color: username.activeFocus ? "#7fb7e8" : Qt.rgba(1, 1, 1, 0.22)
+                color: "#3c393c"
+                border.color: username.activeFocus ? "#c2bec2" : "#4a474a"
                 border.width: username.activeFocus ? 2 : 1
             }
             onAccepted: password.forceActiveFocus()
         }
 
-        // Mensagem de erro (usuário/senha inválidos)
         Text {
             id: errorText
             width: parent.width
@@ -145,7 +116,6 @@ Rectangle {
             wrapMode: Text.WordWrap
         }
 
-        // Campo de senha (translúcido, arredondado, estilo macOS)
         TextField {
             id: password
             width: parent.width
@@ -153,13 +123,13 @@ Rectangle {
             placeholderText: "Senha"
             echoMode: TextInput.Password
             color: "#ffffff"
-            placeholderTextColor: "#b7c0cc"
+            placeholderTextColor: "#9a969a"
             font.pixelSize: 16
             horizontalAlignment: TextInput.AlignHCenter
             background: Rectangle {
                 radius: 12
-                color: Qt.rgba(0.08, 0.09, 0.12, 0.55)
-                border.color: password.activeFocus ? "#7fb7e8" : Qt.rgba(1, 1, 1, 0.22)
+                color: "#3c393c"
+                border.color: password.activeFocus ? "#c2bec2" : "#4a474a"
                 border.width: password.activeFocus ? 2 : 1
             }
             onAccepted: doLogin()
@@ -168,16 +138,6 @@ Rectangle {
                 root.lastError = ""
                 password.forceActiveFocus()
             }
-        }
-
-        // Botão "Entrar" (acento azul, estilo macOS)
-        Button {
-            id: loginButton
-            width: parent.width
-            height: 44
-            text: "Entrar"
-            visible: false // no macOS clicar na senha é suficiente
-            onClicked: doLogin()
         }
     }
 
@@ -190,7 +150,7 @@ Rectangle {
 
         Text {
             text: "Reiniciar"
-            color: "#eef2f7"
+            color: "#eceaed"
             font.pixelSize: 15
             opacity: 0.85
             MouseArea {
@@ -201,7 +161,7 @@ Rectangle {
 
         Text {
             text: "Desligar"
-            color: "#eef2f7"
+            color: "#eceaed"
             font.pixelSize: 15
             opacity: 0.85
             MouseArea {
@@ -230,10 +190,8 @@ Rectangle {
         sddm.login(user, password.text, sessionIndex)
     }
 
-    // Nome de usuário preenchido automaticamente pelo SDDM (se disponível)
     property string defaultUser: ""
 
-    // Seleção de sessão (quando há mais de uma)
     ComboBox {
         id: sessionCombo
         width: 1
@@ -244,7 +202,6 @@ Rectangle {
     }
 
     Component.onCompleted: {
-        // Preenche o nome do usuário com o usuário padrão do SDDM
         if (sddm.user !== undefined && sddm.user.length > 0) {
             root.defaultUser = sddm.user
             userLabel.text = sddm.user

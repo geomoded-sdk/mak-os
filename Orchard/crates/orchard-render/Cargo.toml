@@ -1,0 +1,29 @@
+[package]
+name = "orchard-render"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Pineapple OS — framework de UI do Orchard (backend GTK4 + GLS Render)"
+
+[features]
+default = ["gtk4-backend"]
+gtk4-backend = ["dep:gtk4", "dep:glib", "dep:gio"]
+gls-backend = [
+    "dep:wgpu",
+    "dep:winit",
+    "dep:pollster",
+    "dep:font8x8",
+    "dep:bytemuck",
+    "dep:raw-window-handle",
+]
+
+[dependencies]
+gtk4 = { version = "0.8", optional = true }
+glib = { version = "0.19", optional = true }
+gio = { version = "0.19", optional = true }
+wgpu = { version = "22", optional = true }
+winit = { version = "0.30", optional = true }
+pollster = { version = "0.3", optional = true }
+font8x8 = { version = "0.3", optional = true }
+bytemuck = { version = "1", features = ["derive"], optional = true }
+raw-window-handle = { version = "0.6", optional = true }

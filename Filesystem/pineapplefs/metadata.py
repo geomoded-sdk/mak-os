@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # =============================================================================
-#  pineapplefs / metadata.py — camada BFS: xattrs
+#  pineapplefs / metadata.py — camada PNFS: xattrs
 #
-#  BFS v2 — camada de metadados "xattrs". Grava os atributos estendidos de um
+#  PNFS — camada de metadados "xattrs". Grava os atributos estendidos de um
 #  arquivo no formato AppleDouble (sidecar "._<nome>"), o mesmo que o macOS
 #  usa em volumes que não suportam atributos nativos (exFAT, FAT, SMB).
 #

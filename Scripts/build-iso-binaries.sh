@@ -38,7 +38,8 @@ for spec in \
     Launchpad:pineapple-launchpad \
     Mission:pineapple-mission \
     Canopy:pineapple-canopy \
-    Gestures:pineapple-gestures ; do
+    Gestures:pineapple-gestures \
+    Orchard:pineapple-orchard ; do
     crate="${spec%%:*}"
     bin="${spec##*:}"
     echo "=> $crate -> $bin"

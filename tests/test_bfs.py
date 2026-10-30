@@ -1,4 +1,4 @@
-"""Testes do BFS (Pineapple File System) — volume exFAT + recursos APFS/HFS+."""
+"""Testes do PNFS (Pineapple Native File System) — volume exFAT + recursos APFS/HFS+."""
 import os
 import shutil
 import sys
@@ -32,8 +32,8 @@ class TestBFSInit(unittest.TestCase):
 
     def test_volume_info(self):
         info = self.vol.info()
-        self.assertEqual(info["magic"], "BFS")
-        self.assertEqual(info["format"], "bfs-overlay")
+        self.assertEqual(info["magic"], "PNFS")
+        self.assertEqual(info["format"], "pnfs-overlay")
         self.assertTrue(info["case_insensitive"])
 
     def test_artifacts_have_utility(self):

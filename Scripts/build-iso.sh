@@ -25,7 +25,7 @@ WORKDIR="$ROOT/Installer/live-build/$OUTPUT"
 
 # ------------------------------------------------- boot.plist + args de boot
 # boot.plist é o equivalente do boot-args/NVRAM do macOS: um plist que define
-# os argumentos de kernel, o PowerBook ID e o volume BFS usados na linha
+# os argumentos de kernel, o PowerBook ID e o volume PNFS usados na linha
 # linux do GRUB. A variável de ambiente POWERBOOK_ID tem prioridade sobre a
 # chave PowerBookID do plist.
 BOOT_PLIST="$LB_DIR/boot.plist"
@@ -67,7 +67,7 @@ BOOT_ID="$(plist_get PowerBookID)"
 #   boot=live components      → live-boot obrigatório
 #   -v / -x                   → boot verboso / modo de segurança (estilo macOS)
 #   -pineapplepowerbookid=ID  → ID do PowerBook (obrigatório; sem ele: panic)
-#   -pineapplefs=DEV          → volume BFS (fora do modo live)
+#   -pineapplefs=DEV          → volume PNFS (fora do modo live)
 BOOTARGS="boot=live components ${PLIST_ARGS}"
 [ "$PLIST_VERBOSE" = "true" ] && BOOTARGS="$BOOTARGS -v"
 [ "$PLIST_SAFE" = "true" ] && BOOTARGS="$BOOTARGS -x"
@@ -213,7 +213,6 @@ xdg-desktop-portal
 xdg-desktop-portal-gtk
 flatpak
 apparmor
-calamares
 util-linux
 libarchive-tools
 zstd
@@ -281,6 +280,14 @@ export GDK_BACKEND=wayland
 export QT_QPA_PLATFORM=wayland
 systemctl --user start graphical-session.target
 systemctl --user start pineappleos-session.target
+
+# MODO LIVE: abre o instalador Orchard automaticamente na primeira subida.
+if grep -qw 'boot=live' /proc/cmdline 2>/dev/null; then
+    if [ -x /usr/local/bin/pineapple-orchard ]; then
+        /usr/local/bin/pineapple-orchard &
+    fi
+fi
+
 exec sleep infinity
 EOF
 chmod +x config/includes.chroot/usr/share/pineappleos/session/pineapple-wayland-session.sh
@@ -293,12 +300,22 @@ Type=Application
 DesktopNames=PineappleOS;
 EOF
 
-# Configuracao e branding do instalador grafico Pineapple.
-echo "==> Incluindo configuracao do Calamares"
-mkdir -p config/includes.chroot/etc/calamares
-cp "$ROOT/Installer/calamares/settings.conf" config/includes.chroot/etc/calamares/
-cp -r "$ROOT/Installer/calamares/branding" config/includes.chroot/etc/calamares/
-cp -r "$ROOT/Installer/calamares/modules" config/includes.chroot/etc/calamares/
+# Desktop entry do instalador Orchard (app normal no live e no sistema).
+echo "==> Desktop entry do Orchard"
+mkdir -p config/includes.chroot/usr/share/applications
+cat > config/includes.chroot/usr/share/applications/pineapple-orchard.desktop <<'EOF'
+[Desktop Entry]
+Name=Instalar Pineapple OS
+Comment=Instalador do Pineapple OS (Orchard)
+Exec=/usr/local/bin/pineapple-orchard
+Icon=pineappleos
+Terminal=false
+Type=Application
+Categories=System;
+EOF
+
+# Instalador próprio Orchard (motor Rust + UI GTK4), no lugar do Calamares.
+echo "==> Incluindo Orchard (instalador próprio)"
 
 # Unidades da sessão de usuário, incluindo o assistente de primeiro boot.
 echo "==> Incluindo unidades systemd da sessão"
@@ -400,12 +417,21 @@ chmod +x config/hooks/normal/0001-pineapple-lpnu.hook.chroot
 # core gerado pelo binary.sh usa grub-mkimage sem '-p', obrigatório desde o
 # grub 2.12 — o que quebra o El Torito). Aqui regravamos um grub.cfg robusto
 # que localiza o kernel por busca na mídia (CD/USB, BIOS/UEFI).
-echo "==> Configurando grub.cfg da ISO (busca por /live/vmlinuz)"
+echo "==> Configurando grub.cfg da ISO (pineapple.ekern, sem 'vmlinuz')"
 cat > config/hooks/0020-pineapple-grub.cfg.hook.binary <<EOF
 #!/bin/sh
 set -eu
-KERN="\$(basename binary/live/vmlinuz-*amd64)"
-INITRD="\$(basename binary/live/initrd.img-*amd64)"
+# Identidade: renomeia o kernel/initrd do live — nada se chama "vmlinuz".
+for k in binary/live/vmlinuz-*amd64; do
+    [ -e "\$k" ] || continue
+    mv "\$k" "binary/live/pineapple.ekern"
+done
+for i in binary/live/initrd.img-*amd64; do
+    [ -e "\$i" ] || continue
+    mv "\$i" "binary/live/pineapple.boot"
+done
+KERN="pineapple.ekern"
+INITRD="pineapple.boot"
 cat > binary/boot/grub/grub.cfg <<GRUB
 set default=0
 set timeout=5
@@ -420,9 +446,7 @@ insmod ext2
 insmod search
 # "menuentry" é obrigatório: sem ele o GRUB não auto-boota e cai no prompt
 menuentry "pineappleos" {
-    # busca pelo nome exato (Rock Ridge/FAT guarda vmlinuz-*amd64, não "vmlinuz")
     search --no-floppy --set=root --file /live/\$KERN
-    # se a busca falhar (ex.: DVD onde o search não indexa a (cd0)), usa (cd0)
     if [ ! -e /live/\$KERN ]; then set root=(cd0); fi
     linux /live/\$KERN ${BOOTARGS}
     initrd /live/\$INITRD

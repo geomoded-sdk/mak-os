@@ -1,0 +1,511 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PineappleOS  2.0</title>
+<style>
+:root{font-family:-Getapack-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;color:#292929}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{background:#172d3c}
+button,input,select{font:inherit}
+button{cursor:pointer}
+#desktop{
+ position:relative;width:100%;height:100%;height:100dvh;
+ display:flex;align-items:center;justify-content:center;
+ background:
+ radial-gradient(ellipse at 50% 110%,#e8b37a 0%,transparent 43%),
+ linear-gradient(145deg,#91adbd 0%,#55788d 40%,#274657 75%,#152e3d 100%);
+ overflow:hidden
+}
+#desktop:before{
+ content:"";position:absolute;inset:0;pointer-events:none;
+ background:linear-gradient(145deg,transparent 45%,rgba(15,32,43,.35) 46%,transparent 70%);
+}
+#app{
+ position:relative;z-index:2;
+ width:min(780px,calc(100vw - 24px));
+ height:min(620px,calc(100dvh - 48px));
+ min-height:300px;
+ display:flex;flex-direction:column;
+ overflow:hidden;
+ border-radius:8px;
+ background:#f6f6f6;
+ border:1px solid rgba(255,255,255,.8);
+ box-shadow:0 18px 65px rgba(0,0,0,.4)
+}
+#titlebar{
+ flex:0 0 38px;height:38px;
+ display:flex;align-items:center;justify-content:center;
+ position:relative;
+ background:linear-gradient(#fafafa,#e9e9e9);
+ border-bottom:1px solid #c8c8c8;
+ color:#555;font-size:13px
+}
+.traffic{position:absolute;left:13px;display:flex;gap:7px}
+.dot{width:12px;height:12px;border-radius:50%;border:1px solid #0002}
+.red{background:#ff6058}.yellow{background:#ffbd2e}.green{background:#28c840}
+#screen{
+ flex:1 1 auto;min-height:0;
+ display:flex;flex-direction:column;
+ overflow:hidden
+}
+.content{
+ flex:1 1 auto;min-height:0;
+ overflow-y:auto;overscroll-behavior:contain;
+ padding:30px 42px 25px;
+ display:flex;flex-direction:column;align-items:center;
+ text-align:center;
+ scrollbar-width:thin;
+ scrollbar-color:#aaa transparent
+}
+.content::-webkit-scrollbar{width:9px}
+.content::-webkit-scrollbar-thumb{background:#bbb;border:2px solid #f6f6f6;border-radius:10px}
+.footer{
+ flex:0 0 auto;min-height:62px;
+ display:flex;align-items:center;justify-content:space-between;
+ gap:12px;padding:10px 22px;
+ background:linear-gradient(#fafafa,#f0f0f0);
+ border-top:1px solid #d6d6d6
+}
+.footer-left,.footer-right{display:flex;gap:9px;align-items:center}
+.logo{width:63px;height:63px;color:#777;margin:0 auto 12px;flex-shrink:0}
+h1{font-size:23px;line-height:1.25;font-weight:400;margin:8px 0 12px}
+h2{font-size:16px;font-weight:500;margin:10px 0}
+p{font-size:13px;line-height:1.55;color:#555;max-width:530px;margin:7px auto}
+.small{font-size:11px;color:#888}
+.btn{
+ border:1px solid #aaa;border-radius:5px;
+ padding:7px 18px;min-width:84px;
+ background:linear-gradient(#fff,#e8e8e8);
+ color:#333;font-size:13px;white-space:nowrap;
+ box-shadow:0 1px 1px #0000000d
+}
+.btn:hover{background:linear-gradient(#fff,#dcecff)}
+.btn.primary{
+ color:white;border-color:#0872c8;
+ background:linear-gradient(#45a5f4,#087bd5);
+ text-shadow:0 -1px #0003
+}
+.btn:disabled{opacity:.4;cursor:default}
+.list{
+ width:100%;max-width:470px;
+ border:1px solid #ccc;border-radius:5px;
+ background:white;text-align:left;overflow:hidden;
+ margin:14px auto
+}
+.item{
+ min-height:42px;padding:10px 13px;
+ display:flex;align-items:center;gap:12px;
+ border-bottom:1px solid #e5e5e5;
+ font-size:13px;cursor:pointer
+}
+.item:last-child{border-bottom:0}
+.item:hover{background:#eef6ff}
+.item.selected{background:#dceeff}
+.sub{font-size:11px;color:#888;margin-top:3px}
+.item-icon{font-size:26px;width:38px;text-align:center;flex-shrink:0}
+.utility-grid{
+ display:grid;grid-template-columns:1fr 1fr;
+ gap:12px;width:100%;max-width:520px;margin:16px auto
+}
+.utility{
+ border:1px solid transparent;border-radius:7px;
+ padding:13px 10px;cursor:pointer
+}
+.utility:hover{background:#eaf4ff;border-color:#c4dff8}
+.utility .big{font-size:38px;margin-bottom:7px}
+.utility b{font-size:13px;font-weight:500}
+.utility p{font-size:11px;margin:5px auto}
+.field{
+ width:100%;max-width:340px;
+ display:block;text-align:left;
+ font-size:12px;color:#555;margin:8px auto
+}
+.field input,.field select{
+ display:block;width:100%;margin-top:5px;
+ padding:9px 10px;border:1px solid #aaa;
+ border-radius:4px;background:white;color:#333
+}
+.progress{width:100%;max-width:410px;height:7px;background:#d8d8d8;border-radius:10px;overflow:hidden;margin:18px auto 8px}
+.progress div{width:0;height:100%;background:#1685df;transition:width .35s}
+.toolbar{
+ flex:0 0 28px;height:28px;
+ background:#f1f1f1;border-bottom:1px solid #ddd;
+ display:flex;align-items:center;padding:0 12px;
+ font-size:11px;color:#555
+}
+.disk-layout{display:flex;width:100%;gap:15px;text-align:left;min-height:200px}
+.disk-side{width:170px;flex-shrink:0}
+.disk-main{flex:1;min-width:0;border-left:1px solid #ddd;padding-left:18px}
+.disk-row{padding:11px;border-radius:4px;cursor:pointer;font-size:12px}
+.disk-row.selected{background:#dceeff}
+.disk-row span{display:block;color:#888;font-size:10px;margin-left:24px}
+#toast{
+ position:fixed;z-index:10;bottom:20px;left:50%;
+ transform:translateX(-50%);
+ display:none;padding:10px 17px;
+ color:white;background:#333;border-radius:7px;
+ font-size:12px;box-shadow:0 3px 12px #0004
+}
+#macmenu{
+ position:absolute;z-index:3;top:0;left:0;right:0;height:26px;
+ display:flex;align-items:center;gap:20px;padding:0 16px;
+ background:#f5f5f5eF;font-size:12px
+}
+#dock{
+ position:absolute;z-index:3;bottom:10px;left:50%;
+ transform:translateX(-50%);
+ display:flex;gap:10px;padding:8px 13px;
+ background:#eeeeee88;border:1px solid #ffffff88;
+ border-radius:15px;backdrop-filter:blur(20px)
+}
+.dockicon{font-size:27px;cursor:pointer}
+#welcome{position:relative;z-index:1;color:white;text-align:center;text-shadow:0 2px 8px #222}
+#welcome h1{font-size:36px;font-weight:300}
+#welcome p{color:white}
+@media(max-width:600px){
+ #app{width:calc(100vw - 12px);height:calc(100dvh - 24px);border-radius:6px}
+ .content{padding:20px 15px}
+ h1{font-size:20px}
+ .footer{padding:9px 12px;min-height:58px}
+ .btn{padding:7px 12px;min-width:72px;font-size:12px}
+ .disk-layout{flex-direction:column}
+ .disk-side{width:100%}
+ .disk-main{border:0;padding:0}
+ #macmenu{gap:9px;padding:0 8px;font-size:10px}
+}
+@media(max-height:480px){
+ #app{height:calc(100dvh - 12px);width:min(780px,calc(100vw - 16px))}
+ .content{padding-top:10px;padding-bottom:10px}
+ .logo{width:42px;height:42px;margin-bottom:5px}
+ h1{font-size:18px;margin:4px 0 7px}
+ .footer{min-height:49px;padding:6px 12px}
+}
+</style>
+</head>
+<body>
+<div id="desktop">
+ <div id="app">
+  <div id="titlebar">
+   <div class="traffic"><i class="dot red"></i><i class="dot yellow"></i><i class="dot green"></i></div>
+   <span id="window-title">PineappleOS  </span>
+  </div>
+  <main id="screen"></main>
+ </div>
+</div>
+<div id="toast"></div>
+
+<script>
+"use strict";
+
+const $=id=>document.getElementById(id);
+const screen=$("screen");
+const titles={
+ language:"Selecione seu idioma",utilities:"Utilitários do PineappleOS",
+ installer:"Instalar PineappleOS  ",license:"Contrato de licença",
+ agree:"Contrato de licença",disk:"Selecione o disco",
+ installing:"Instalando PineappleOS",country:"País ou região",
+ keyboard:"Layout do teclado",network:"Rede Wi-Fi",
+ migration:"Assistente de Migração",Getapackid:"Getapack ID",
+ terms:"Termos e condições",account:"Criar conta de computador",
+ express:"Configuração",complete:"Configuração concluída",
+ diskutil:"Utilitário de Disco",help:"Ajuda do PineappleOS",
+ time:"Time Machine",desktop:"Mesa"
+};
+
+const state={
+ page:"language",
+ previous:[],
+ language:"Português",
+ disk:"Macintosh HD",
+ country:"Brasil",
+ keyboard:"Brasileiro",
+ userName:"",
+ computerName:"",
+ progress:0,
+ timer:null,
+ selectedMigration:"Não transferir informações agora"
+};
+
+const Getapack=`<svg class="logo" viewBox="0 0 100 100" aria-label="Getapack">
+<path fill="currentColor" d="M68 53c0-11 9-17 10-18-5-8-13-9-16-9-7-1-13 4-17 4s-9-4-15-4c-8 0-15 5-19 12-8 14-2 35 6 47 4 6 8 12 14 12 6 0 8-4 15-4s9 4 15 4 10-6 14-12c5-7 7-13 7-13s-14-5-14-19zM58 17c3-4 5-9 5-14-5 1-10 4-13 8-3 4-5 9-5 14 5 0 10-3 13-8z"/>
+</svg>`;
+
+function footer(left="",right=""){
+ return `<div class="footer"><div class="footer-left">${left}</div><div class="footer-right">${right}</div></div>`;
+}
+function button(label,action,primary=false,disabled=false){
+ return `<button class="btn ${primary?"primary":""}" ${disabled?"disabled":""} onclick="${action}">${label}</button>`;
+}
+function content(inner){
+ return `<section class="content">${inner}</section>`;
+}
+function go(page,push=true){
+ stopProgress();
+ if(state.page==="desktop")leaveDesktop();
+ if(push&&state.page!==page)state.previous.push(state.page);
+ state.page=page;
+ render();
+}
+function back(){
+ const previous=state.previous.pop();
+ if(previous)go(previous,false);
+ else go("utilities",false);
+}
+function stopProgress(){
+ if(state.timer){clearInterval(state.timer);state.timer=null}
+}
+function render(){
+ if(state.page==="desktop"){showDesktop();return}
+ $("app").style.display="flex";
+ $("window-title").textContent=titles[state.page]||"PineappleOS  ";
+ const views={
+  language,utilities,installer,license,agree,disk,installing,
+  country,keyboard,network,migration,Getapackid,terms,account,
+  express,complete,diskutil,help,time
+ };
+ (views[state.page]||language)();
+}
+function language(){
+ screen.innerHTML=content(`${Getapack}<h1>Selecione seu idioma</h1>
+ <p>Selecione o idioma principal que você deseja usar.</p>
+ <div class="list" style="max-width:340px">
+ ${["Português","English","Español","Français","Deutsch","Italiano","日本語"].map(x=>`
+ <div class="item ${state.language===x?"selected":""}" onclick="choose('language','${x}')">${x}</div>`).join("")}
+ </div>`)
+ +footer("",button("Continuar","go('utilities')",true));
+}
+function choose(key,value){
+ state[key]=value;render();
+}
+function utilities(){
+ screen.innerHTML=content(`${Getapack}<h1>Utilitários do PineappleOS</h1>
+ <p>Para restaurar o sistema usando um backup, reinstalar o PineappleOS ou usar outras ferramentas, selecione uma das opções abaixo.</p>
+ <div class="utility-grid">
+ <div class="utility" onclick="go('time')"><div class="big">◷</div><b>Restaurar de um backup do Time Machine</b><p>Restaure o Mac usando um backup.</p></div>
+ <div class="utility" onclick="go('installer')"><div class="big">⬇</div><b>Instalar PineappleOS</b><p>Instale uma nova cópia do PineappleOS.</p></div>
+ <div class="utility" onclick="go('help')"><div class="big">◉</div><b>Obter ajuda online</b><p>Consulte informações sobre o PineappleOS.</p></div>
+ <div class="utility" onclick="go('diskutil')"><div class="big">▤</div><b>Utilitário de Disco</b><p>Repare ou apague discos.</p></div>
+ </div>`)
+ +footer(button("Reiniciar","toast('Reinicialização simulada.')"),button("Desligar","toast('Desligamento simulado.')"));
+}
+function installer(){
+ screen.innerHTML=content(`${Getapack}<h1>Instalar PineappleOS  </h1>
+ <p>Para configurar a instalação do PineappleOS  , clique em Continuar.</p>
+ <p>O PineappleOS   oferece novas tecnologias e recursos que tornam seu Mac mais capaz, inteligente e responsivo.</p>
+ <p class="small" style="margin-top:20px">Versão2.0 · Demonstração de interface</p>`)
+ +footer(button("Voltar","back()"),button("Continuar","go('license')",true));
+}
+function license(){
+ screen.innerHTML=content(`<h1>Contrato de licença de software</h1>
+ <p>Leia os termos e condições antes de continuar.</p>
+ <div style="width:100%;max-width:570px;height:260px;max-height:45vh;overflow:auto;text-align:left;background:white;border:1px solid #bbb;padding:15px;font-size:12px;line-height:1.6">
+ <h3>PineappleOS  </h3>
+ <p>Esta é uma interface demonstrativa, não o contrato oficial da Getapack.</p>
+ <p>Esta demonstração não instala, modifica, apaga ou particiona discos reais.</p>
+ <p>As operações apresentadas são simulações locais destinadas à demonstração visual do fluxo de instalação.</p>
+ <p>Getapack, PineappleOS e   são marcas de seus respectivos titulares.</p>
+ </div>`)
+ +footer(button("Voltar","back()"),button("Concordar","go('agree')",true));
+}
+function agree(){
+ screen.innerHTML=content(`${Getapack}<h1>Você concorda com os termos?</h1>
+ <p>Você deve concordar com o contrato de licença para continuar a instalação do PineappleOS  .</p>`)
+ +footer(button("Não concordo","go('license')"),button("Concordo","go('disk')",true));
+}
+function disk(){
+ screen.innerHTML=content(`<h1>Selecione o disco onde deseja instalar o PineappleOS</h1>
+ <p>Escolha o disco de destino para a instalação.</p>
+ <div class="list">
+ <div class="item ${state.disk==="Macintosh HD"?"selected":""}" onclick="choose('disk','Macintosh HD')">
+ <div class="item-icon">💽</div><div><b>Macintosh HD</b><div class="sub">SSD · 250 GB disponíveis</div></div></div>
+ <div class="item ${state.disk==="Disco Externo"?"selected":""}" onclick="choose('disk','Disco Externo')">
+ <div class="item-icon">💽</div><div><b>Disco Externo</b><div class="sub">USB · 128 GB disponíveis</div></div></div>
+ </div>
+ <p class="small">Nenhum dado real será alterado nesta demonstração.</p>`)
+ +footer(button("Voltar","back()"),button("Instalar","go('installing')",true));
+}
+function installing(){
+ state.progress=0;
+ screen.innerHTML=content(`${Getapack}<h1>Instalando PineappleOS  </h1>
+ <p id="progress-text">Preparando para instalar no disco ${state.disk}...</p>
+ <div class="progress"><div id="bar"></div></div>
+ <p id="percent">0% concluído</p>
+ <p class="small">O computador será reiniciado após a conclusão da instalação.</p>`)
+ +footer("",button("Cancelar","cancelInstall()"));
+ state.timer=setInterval(()=>{
+  state.progress=Math.min(100,state.progress+Math.random()*1.7+.55);
+  const bar=$("bar"),percent=$("percent"),text=$("progress-text");
+  if(bar)bar.style.width=state.progress+"%";
+  if(percent)percent.textContent=Math.floor(state.progress)+"% concluído";
+  if(text&&state.progress>94)text.textContent="Finalizando instalação...";
+  if(state.progress>=100){
+   stopProgress();
+   setTimeout(()=>{if(state.page==="installing")go("country")},700);
+  }
+ },350);
+}
+function cancelInstall(){stopProgress();go("disk")}
+function country(){
+ screen.innerHTML=content(`${Getapack}<h1>Selecione seu país ou região</h1>
+ <p>Selecione seu país ou região para configurar o Mac.</p>
+ <div class="list" style="max-width:380px">
+ ${["Brasil","Estados Unidos","Portugal","Argentina","Canadá","Alemanha","Japão","Reino Unido"].map(x=>`<div class="item ${state.country===x?"selected":""}" onclick="choose('country','${x}')">${x}</div>`).join("")}
+ </div>`)
+ +footer(button("Voltar","back()"),button("Continuar","go('keyboard')",true));
+}
+function keyboard(){
+ screen.innerHTML=content(`${Getapack}<h1>Selecione o layout do teclado</h1>
+ <p>Selecione o layout que corresponde ao teclado conectado ao Mac.</p>
+ <div class="list" style="max-width:380px">
+ ${["Brasileiro","Brasileiro - PC","ABC","U.S.","Português"].map(x=>`<div class="item ${state.keyboard===x?"selected":""}" onclick="choose('keyboard','${x}')">${x}</div>`).join("")}
+ </div>`)
+ +footer(button("Voltar","back()"),button("Continuar","go('network')",true));
+}
+function network(){
+ screen.innerHTML=content(`${Getapack}<h1>Selecione sua rede Wi-Fi</h1>
+ <p>Selecione uma rede para conectar o Mac à Internet.</p>
+ <div class="list" style="max-width:400px">
+ <div class="item selected" onclick="toast('Rede selecionada.')">📶 Minha Rede Wi-Fi <span class="small">WPA2</span></div>
+ <div class="item" onclick="toast('Rede selecionada.')">📶 Rede de Convidados</div>
+ <div class="item" onclick="toast('Rede selecionada.')">📶 Outra Rede...</div>
+ </div><p class="small">Você também pode continuar sem conexão.</p>`)
+ +footer(button("Voltar","back()"),button("Continuar","go('migration')",true));
+}
+function migration(){
+ const choices=["De um Mac, backup do Time Machine ou disco de inicialização","De um PC com Windows","Não transferir informações agora"];
+ screen.innerHTML=content(`${Getapack}<h1>Transferir informações para este Mac</h1>
+ <p>Você pode transferir informações de outro Mac, de um backup do Time Machine ou de um PC.</p>
+ <div class="list">
+ ${choices.map(x=>`<div class="item ${state.selectedMigration===x?"selected":""}" onclick="choose('selectedMigration',${JSON.stringify(x).replace(/"/g,"&quot;")})">◉ ${x}</div>`).join("")}
+ </div>`)
+ +footer(button("Voltar","back()"),button("Continuar","go('Getapackid')",true));
+}
+function Getapackid(){
+ screen.innerHTML=content(`${Getapack}<h1>Inicie sessão com seu ID Getapack</h1>
+ <p>Use seu ID Getapack para configurar o iCloud, a App Store e outros serviços.</p>
+ <label class="field">ID Getapack<input id="Getapack-email" type="email" placeholder="nome@exemplo.com"></label>
+ <label class="field">Senha<input id="Getapack-password" type="password" placeholder="Senha"></label>
+ <p class="small">Você pode configurar seu ID Getapack mais tarde.</p>`)
+ +footer(button("Voltar","back()"),button("Continuar","go('terms')",true));
+}
+function terms(){
+ screen.innerHTML=content(`${Getapack}<h1>Termos e condições</h1>
+ <p>Leia os termos e condições para utilizar o PineappleOS.</p>
+ <div style="width:100%;max-width:550px;height:210px;overflow:auto;background:white;border:1px solid #bbb;padding:15px;text-align:left;font-size:12px">
+ <b>Termos e condições</b>
+ <p>Esta tela faz parte de uma demonstração da configuração do PineappleOS  .</p>
+ <p>Esta simulação não cria uma conta Getapack nem estabelece conexão com serviços da Getapack.</p>
+ </div>`)
+ +footer(button("Voltar","back()"),button("Aceitar","go('account')",true));
+}
+function account(){
+ screen.innerHTML=content(`${Getapack}<h1>Crie uma conta de computador</h1>
+ <p>Esta conta será usada para desbloquear o Mac e acessar seus arquivos.</p>
+ <label class="field">Nome completo<input id="fullname" autocomplete="name" placeholder="Nome completo"></label>
+ <label class="field">Nome da conta<input id="username" placeholder="Nome da conta"></label>
+ <label class="field">Senha<input id="password" type="password" placeholder="Senha"></label>
+ <label class="field">Dica de senha<input id="hint" placeholder="Dica de senha (opcional)"></label>`)
+ +footer(button("Voltar","back()"),button("Continuar","saveAccount()",true));
+}
+function saveAccount(){
+ const name=$("fullname").value.trim();
+ if(!name){toast("Digite seu nome para continuar.");return}
+ state.userName=name;
+ state.computerName=$("username").value.trim()||name.split(" ")[0];
+ go("express");
+}
+function express(){
+ screen.innerHTML=content(`${Getapack}<h1>Configurar seu Mac</h1>
+ <p>O PineappleOS pode configurar automaticamente serviços e funcionalidades.</p>
+ <div class="list">
+ <div class="item selected">✓ Ativar serviços de localização</div>
+ <div class="item selected">✓ Compartilhar análises do Mac</div>
+ <div class="item selected">✓ Ativar a Siri</div>
+ </div>`)
+ +footer(button("Voltar","back()"),button("Continuar","go('complete')",true));
+}
+function complete(){
+ screen.innerHTML=content(`${Getapack}<h1>Seu Mac está configurado</h1>
+ <p>O PineappleOS   está pronto para uso.</p>
+ <p>Obrigado por usar esta demonstração.</p>`)
+ +footer("",button("Começar a usar","go('desktop')",true));
+}
+function diskutil(){
+ screen.innerHTML=`<div class="toolbar">Visualizar　 Arquivo　 Editar　 Imagem　 Janela　 Ajuda</div>`
+ +content(`<h1>Utilitário de Disco</h1>
+ <div class="disk-layout">
+ <div class="disk-side">
+ <div class="disk-row selected" onclick="selectDiskRow(this)">▣ Macintosh HD<span>Volume interno</span></div>
+ <div class="disk-row" onclick="selectDiskRow(this)">▣ Disco Externo<span>USB</span></div>
+ <div class="disk-row" onclick="selectDiskRow(this)">▤ Imagens de Disco</div>
+ </div>
+ <div class="disk-main">
+ <div style="font-size:38px;text-align:center;margin:10px">💽</div>
+ <h2>Macintosh HD</h2>
+ <p>Volume interno · APFS</p>
+ <p>Capacidade: 256 GB</p><p>Disponível: 250 GB</p>
+ <div class="progress"><div style="width:8%"></div></div>
+ <p class="small">As operações são demonstrativas.</p>
+ <button class="btn" onclick="toast('Verificação simulada concluída.')">Primeiros Socorros</button>
+ <button class="btn" onclick="toast('Nenhum disco foi apagado.')">Apagar</button>
+ </div></div>`)
+ +footer(button("Voltar","back()"),button("Concluído","go('utilities')",true));
+}
+function selectDiskRow(el){
+ document.querySelectorAll(".disk-row").forEach(x=>x.classList.remove("selected"));
+ el.classList.add("selected");
+}
+function help(){
+ screen.innerHTML=content(`${Getapack}<h1>Ajuda do PineappleOS</h1>
+ <p>Bem-vindo à ajuda do PineappleOS  .</p>
+ <div class="list">
+ <div class="item">▣ Instalar o PineappleOS</div>
+ <div class="item">▣ Configurar seu Mac</div>
+ <div class="item">▣ Usar o Utilitário de Disco</div>
+ <div class="item">▣ Restaurar um backup</div>
+ </div>`)
+ +footer(button("Voltar","back()"),button("Concluído","go('utilities')",true));
+}
+function time(){
+ screen.innerHTML=content(`${Getapack}<h1>Restaurar de um backup do Time Machine</h1>
+ <p>Selecione um backup para restaurar seu sistema.</p>
+ <div class="list"><div class="item">◷ Nenhum backup disponível</div></div>
+ <p class="small">Nenhuma restauração será executada nesta simulação.</p>`)
+ +footer(button("Voltar","back()"),button("Continuar","toast('Nenhum backup encontrado.')",true));
+}
+function showDesktop(){
+ $("app").style.display="none";
+ $("desktop").insertAdjacentHTML("beforeend",`
+ <div id="macmenu"><b></b><b>Canopy</b><span>Arquivo</span><span>Editar</span><span>Visualizar</span><span>Ir</span><span>Janela</span><span>Ajuda</span><span style="margin-left:auto">◉　◉　${new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}</span></div>
+ <div id="welcome"><h1>Bem-vindo${state.userName?", "+escapeHTML(state.userName):""}</h1><p>PineappleOS  </p></div>
+ <div id="dock">
+ <span class="dockicon" onclick="toast('Canopy')">😊</span>
+ <span class="dockicon" onclick="toast('Launchpad')">🚀</span>
+ <span class="dockicon" onclick="toast('Safari')">🧭</span>
+ <span class="dockicon" onclick="toast('Mail')">✉️</span>
+ <span class="dockicon" onclick="toast('Fotos')">🌈</span>
+ <span class="dockicon" onclick="toast('Preferências do Sistema')">⚙️</span>
+ </div>`);
+}
+function leaveDesktop(){
+ $("macmenu")?.remove();
+ $("dock")?.remove();
+ $("welcome")?.remove();
+}
+function escapeHTML(value){
+ return value.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function toast(message){
+ const el=$("toast");
+ el.textContent=message;el.style.display="block";
+ clearTimeout(toast.timer);
+ toast.timer=setTimeout(()=>el.style.display="none",2300);
+}
+render();
+</script>
+</body>
+</html>

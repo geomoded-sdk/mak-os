@@ -12,7 +12,7 @@ sudo apt install -y \
   libgtk-4-dev libgtk-4-layer-shell-dev \
   libadwaita-1-dev libvte-3-90-dev libwebkitgtk-6.0-dev \
   cargo rustc python3 python3-gi gir1.2-gtk-4.0 \
-  live-build debootstrap calamares \
+  live-build debootstrap \
   libsystemd-dev libdbus-1-dev
 ```
 

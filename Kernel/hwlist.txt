@@ -1,0 +1,28 @@
+# =============================================================================
+#  hwlist.txt — allowlist de hardware do Pineapple Kernel (POR BUILD)
+#
+#  Este arquivo é lido por Scripts/build-kernel.sh no momento da compilação.
+#  A lista escolhida aqui é EMBUTIDA no kernel daquela build: qualquer placa
+#  (GPU, wifi, etc.) cujo PCI vendor:device NÃO esteja nesta lista causa
+#  KERNEL PANIC no boot — como o PowerBook ID.
+#
+#  Formato (uma entrada por linha):
+#    vvvv:dddd          vendor:device em hex (sem 0x)
+#    vvvv:dddd:cc       + classe PCI (cc = 2 dígitos: 03 = display, 02 = net)
+#    # comentário       ignorada
+#
+#  Descubra os IDs com:  lspci -nn
+#  Exemplos comuns:
+#    8086:9a49:03   Intel UHD (GPU)
+#    10de:25a0:03   NVIDIA (GPU)
+#    1002:1638:03   AMD (GPU)
+#    8086:2723:02   Intel Wi-Fi AX200
+#    14e4:43a3:02   Broadcom Wi-Fi
+#
+#  Vazio = sem restrição de PCI (apenas identidade PowerBook vale).
+# =============================================================================
+
+# --- Exemplo (descomente e ajuste com lspci -nn do seu hardware) ---
+# 8086:9a49:03
+# 10de:25a0:03
+# 8086:2723:02

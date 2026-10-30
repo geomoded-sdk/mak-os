@@ -32,7 +32,7 @@ KERNSRC="$KERNEL_SOURCE_DIR"
 
 command -v make >/dev/null 2>&1 || { echo "make não encontrado" >&2; exit 1; }
 
-echo "==> Compilando runtime BFS nativo para preboot"
+echo "==> Compilando runtime PNFS nativo para preboot"
 make -C "$ROOT/Filesystem/pineapplefs-c"
 sudo install -D -m 0755 "$ROOT/Filesystem/pineapplefs-c/pineapplefs-boot" \
   /usr/lib/pineappleos/pineapplefs-boot
@@ -56,19 +56,96 @@ fi
 
 cd "$KERNEL_SOURCE_DIR"
 
+# =============================================================================
+#  Identidade Pineapple — modifica o fonte Linux de verdade (uname/proc/version)
+#
+#  O sistema que roda É o Linux, mas se identifica como "Pineapple" em:
+#    * uname -s / uname -r          → Pineapple / <release>-pineappleos
+#    * /proc/version                → "Pineapple version …"
+#  (mesma filosofia do Android, que renomeia o banner do kernel.)
+# =============================================================================
+echo "==> Aplicando identidade Pineapple no fonte (uts.h / version.c)"
+# UTS_SYSNAME: define o sysname do uname e a primeira palavra de /proc/version.
+find include init -type f \( -name '*.h' -o -name '*.c' \) -print0 2>/dev/null \
+  | xargs -0 grep -l 'UTS_SYSNAME "Linux"' 2>/dev/null \
+  | while IFS= read -r f; do
+      sed -i 's/UTS_SYSNAME "Linux"/UTS_SYSNAME "Pineapple"/' "$f"
+      echo "    patch: $f"
+    done
+# fallback para árvores onde UTS_SYSNAME vive em outro lugar
+if ! grep -rq 'UTS_SYSNAME "Pineapple"' include init 2>/dev/null; then
+  grep -rl '"Linux"' include/linux/uts.h include/uapi/linux/utsname.h \
+    init/version.c 2>/dev/null \
+    | while IFS= read -r f; do
+        sed -i 's/"Linux"/"Pineapple"/g' "$f"
+        echo "    patch(fallback): $f"
+      done
+fi
+
 # Integra codigo Pineapple diretamente na arvore Linux vendorizada.
 PINEAPPLE_SOURCE="$ROOT/Kernel/pineapple"
-mkdir -p "$KERNSRC/drivers/pineapple"
+DEST="$KERNSRC/drivers/pineapple"
+mkdir -p "$DEST/bsd" "$DEST/bootargs" "$DEST/hwcheck" "$DEST/pnfs"
 cp "$PINEAPPLE_SOURCE/Kconfig" "$PINEAPPLE_SOURCE/Makefile" \
-  "$PINEAPPLE_SOURCE/pineapple_core.c" "$KERNSRC/drivers/pineapple/"
+   "$PINEAPPLE_SOURCE/pineapple_core.c" "$DEST/"
+cp "$PINEAPPLE_SOURCE/bsd/pineapple_bsd.c" "$DEST/bsd/"
+cp "$PINEAPPLE_SOURCE/bootargs/pineapple_boot.c" "$DEST/bootargs/"
+cp "$PINEAPPLE_SOURCE/hwcheck/pineapple_hwcheck.c" "$DEST/hwcheck/"
+cp "$PINEAPPLE_SOURCE/pnfs/pnfs_fs.c" "$DEST/pnfs/"
 grep -qxF 'source "drivers/pineapple/Kconfig"' "$KERNSRC/drivers/Kconfig" \
   || printf '\nsource "drivers/pineapple/Kconfig"\n' >> "$KERNSRC/drivers/Kconfig"
-grep -qxF 'obj-$(CONFIG_PINEAPPLE_CORE) += pineapple/' "$KERNSRC/drivers/Makefile" \
-  || printf '\nobj-$(CONFIG_PINEAPPLE_CORE) += pineapple/\n' >> "$KERNSRC/drivers/Makefile"
+grep -qxF 'obj-y += pineapple/' "$KERNSRC/drivers/Makefile" \
+  || printf '\nobj-y += pineapple/\n' >> "$KERNSRC/drivers/Makefile"
+
+# =============================================================================
+#  Headers gerados POR BUILD — allowlist de hardware + IDs do PowerBook
+#
+#  Cada build embute SUAS listas:
+#    * Kernel/hwlist.txt  → allowed_hw.h  (hardware aceito por esta build;
+#      placa fora da lista = kernel panic no boot)
+#    * ids.txt            → pineapple_ids.h (PowerBook IDs desta build)
+# =============================================================================
+echo "==> Gerando allowlist de hardware (Kernel/hwlist.txt → allowed_hw.h)"
+"$ROOT/Scripts/gen-allowed-hw.sh" \
+  "$ROOT/Kernel/hwlist.txt" "$DEST/hwcheck/allowed_hw.h"
+
+echo "==> Gerando lista de PowerBook IDs (ids.txt → pineapple_ids.h)"
+{
+  echo "/* Gerado por build-kernel.sh — NÃO editar; fonte: ids.txt */"
+  echo "static const char *pineapple_valid_ids[] = {"
+  while IFS= read -r id; do
+    id="$(echo "$id" | tr -d '[:space:]')"
+    [ -z "$id" ] && continue
+    printf '    "%s",\n' "$id"
+  done < "$ROOT/ids.txt"
+  echo "};"
+  echo "static const unsigned int pineapple_valid_ids_count ="
+  echo "    sizeof(pineapple_valid_ids) / sizeof(pineapple_valid_ids[0]);"
+} > "$DEST/bootargs/pineapple_ids.h"
 
 # Config próprio (identidade + otimizações + MAGIC_SYSRQ para o PowerBook ID)
 echo "==> Aplicando config do Pineapple OS"
 cp "$CONFIG_FILE" .config
+
+# Habilita os módulos Pineapple (identidade, BSD, boot-args, hwcheck, PNFS).
+# A allowlist de hardware e os IDs desta build já foram gerados acima.
+if [ -x scripts/config ]; then
+  scripts/config --enable PINEAPPLE_CORE \
+                 --enable PINEAPPLE_BSD \
+                 --enable PINEAPPLE_BOOT \
+                 --enable PINEAPPLE_BOOT_ENFORCE \
+                 --enable PINEAPPLE_HWCHECK \
+                 --enable PINEAPPLE_PNFS
+else
+  for opt in PINEAPPLE_CORE PINEAPPLE_BSD PINEAPPLE_BOOT \
+             PINEAPPLE_BOOT_ENFORCE PINEAPPLE_HWCHECK PINEAPPLE_PNFS; do
+    if grep -q "^# ${opt} is not set" .config; then
+      sed -i "s/^# ${opt} is not set/${opt}=y/" .config
+    elif ! grep -q "^${opt}=y" .config; then
+      printf '%s=y\n' "$opt" >> .config
+    fi
+  done
+fi
 make olddefconfig
 
 echo "==> Compilando (use -j$(nproc))"
@@ -165,17 +242,18 @@ EOF
 
 # ---------------------------------------------------------------------------
 #  Modo CI/empacotamento: não mexe no /boot/GRUB do runner; só empacota o
-#  kernel, o initramfs (com PowerBook ID + BFS check) e os componentes LPNU.
+#  kernel, o initramfs (com PowerBook ID + PNFS check) e os componentes LPNU.
 # ---------------------------------------------------------------------------
 if [ -n "$KERNEL_BUILD_OUT" ]; then
   echo "==> Empacotando kernel em $KERNEL_BUILD_OUT (modo CI)"
   mkdir -p "$KERNEL_BUILD_OUT"/boot "$KERNEL_BUILD_OUT"/lib/modules \
            "$KERNEL_BUILD_OUT"/usr/local/bin
 
-  cp arch/x86/boot/bzImage "$KERNEL_BUILD_OUT/boot/vmlinuz-$KRELEASE"
+  # Identidade: o artefato NÃO se chama vmlinuz — é pineapple.ekern.
+  cp arch/x86/boot/bzImage "$KERNEL_BUILD_OUT/boot/pineapple.ekern-$KRELEASE"
   cp -a "/lib/modules/$KRELEASE" "$KERNEL_BUILD_OUT/lib/modules/"
 
-  # Embute o PowerBook ID + BFS check no initramfs empacotado
+  # Embute o PowerBook ID + PNFS check no initramfs empacotado
   sudo mkdir -p /usr/share/pineappleos \
                 /usr/share/initramfs-tools/hooks \
                 /usr/share/initramfs-tools/scripts/init-bottom
@@ -204,7 +282,8 @@ if [ -n "$KERNEL_BUILD_OUT" ]; then
 fi
 
 echo "==> Instalando kernel e initramfs"
-sudo cp arch/x86/boot/bzImage /boot/vmlinuz-$VERSION-pineappleos
+# Identidade: instala como pineapple.ekern (nunca "vmlinuz").
+sudo cp arch/x86/boot/bzImage "/boot/pineapple.ekern-$KRELEASE"
 sudo update-initramfs -c -k "$KRELEASE"
 
 # Garante que o PowerBook ID check esteja dentro do initramfs

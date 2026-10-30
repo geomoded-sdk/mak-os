@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # =============================================================================
-#  pineapplefs / clones.py — camada BFS: clones copy-on-write
+#  pineapplefs / clones.py — camada PNFS: clones copy-on-write
 #
-#  BFS v2 — camada "clones". Clones de arquivo com COW (copy-on-write) e
+#  PNFS — camada "clones". Clones de arquivo com COW (copy-on-write) e
 #  deduplicação real por conteúdo: o conteúdo vive em um blob único em
 #  .bfsprivate/clones/ e cada path vira um hardlink desse blob. Gravar por
 #  cima de um clone quebra o link antes da escrita (como o APFS clonefile,

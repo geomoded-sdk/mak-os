@@ -7,7 +7,7 @@
 #  guarda: atributos estendidos (xattrs), Finder Info (invisível, ícone, etc.)
 #  e o resource fork.
 #
-#  O Pineapple OS replica esse comportamento no BFS (Pineapple File System,
+#  O Pineapple OS replica esse comportamento no BFS (Pineapple Native File System,
 #  camada de usuário sobre exFAT): cada arquivo pode ter um sidecar "._*"
 #  compatível com o formato real da Apple (magic 0x00051607).
 #

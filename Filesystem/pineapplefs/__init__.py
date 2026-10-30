@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 # =============================================================================
-#  pineapplefs — Pineapple File System (BFS v2)
+#  pineapplefs — PNFS (Pineapple Native File System)
 #
-#  Sistema de arquivos de usuário sobre o filesystem do kernel (exFAT e
-#  outros) com uma camada de metadados explícita:
+#  Sistema de arquivos do Pineapple OS: overlay sobre o filesystem do kernel
+#  (exFAT e outros) com uma camada de metadados explícita no módulo
+#  .bfsprivate:
 #
-#    exFAT ↓ BFS metadata layer
+#    exFAT ↓ PNFS metadata layer (.bfsprivate)
 #      ├── xattrs      → metadata.py
 #      ├── finder      → finder.py
 #      ├── snapshots   → snapshots.py
@@ -13,13 +14,14 @@
 #      ├── checksums   → checksums.py
 #      └── sparse      → sparse.py
 #
-#  O BFS NÃO finge ser APFS: é um overlay próprio, inspirado em recursos que
+#  O PNFS NÃO finge ser APFS: é um overlay próprio, inspirado em recursos que
 #  existem em vários sistemas de arquivos (sidecars "._*", .bfsprivate,
 #  snapshots, clones COW, arquivos esparsos, checksums, case-insensitive e os
 #  artefatos que o macOS cria no volume).
 # =============================================================================
 __version__ = "2.0.0"
 __all__ = [
+    "PNFSVolume",
     "BFSVolume",
     "XattrLayer",
     "FinderLayer",
@@ -39,7 +41,7 @@ from .archive import pack, unpack, has_pineapple_folder  # noqa: F401
 from .checksums import ChecksumLayer  # noqa: F401
 from .clones import CloneLayer  # noqa: F401
 from .constants import LAYERS, SYSTEM_NAMES, is_sidecar  # noqa: F401
-from .core import BFSVolume  # noqa: F401
+from .core import PNFSVolume  # noqa: F401
 from .finder import FinderLayer  # noqa: F401
 from .metadata import XattrLayer  # noqa: F401
 from .snapshots import SnapshotLayer  # noqa: F401
@@ -51,3 +53,6 @@ from .sparse import (  # noqa: F401
     logical_size,
 )
 from .spotlight import SpotlightIndex  # noqa: F401
+
+# Compat: nome antigo (BFS) mantido como alias — o filesystem é PNFS.
+BFSVolume = PNFSVolume

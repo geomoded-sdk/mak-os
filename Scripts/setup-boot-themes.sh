@@ -54,9 +54,9 @@ if ! grep -q "pineapplepowerbookid" /etc/default/grub; then
 # Use um ID da lista em /usr/share/pineappleos/ids.txt:
 # GRUB_CMDLINE_LINUX_DEFAULT="$(echo $GRUB_CMDLINE_LINUX_DEFAULT) -pineapplepowerbookid=SEU_ID"
 #
-# Pineapple OS — volume BFS obrigatório (fora do modo live). Sem um volume
-# BFS válido (exFAT + .bfsprivate) o kernel entra em panic. Crie com
-# Scripts/setup-bfs.sh e indique o dispositivo:
+# Pineapple OS — volume PNFS obrigatório (fora do modo live). Sem um volume
+# PNFS válido (exFAT + .bfsprivate) o kernel entra em panic. Crie com
+# Scripts/setup-pnfs.sh e indique o dispositivo:
 # GRUB_CMDLINE_LINUX_DEFAULT="$(echo $GRUB_CMDLINE_LINUX_DEFAULT) -pineapplefs=/dev/sdX2"
 EOF
 fi

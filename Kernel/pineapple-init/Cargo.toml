@@ -1,0 +1,10 @@
+[package]
+name = "pineapple-init"
+version = "0.1.0"
+edition = "2021"
+license = "GPL-2.0-only"
+description = "Pineapple OS — init do initramfs (PowerBook ID + BFS check), substituto do script shell"
+
+[[bin]]
+name = "pineapple-init"
+path = "src/main.rs"

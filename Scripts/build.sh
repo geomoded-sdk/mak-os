@@ -63,7 +63,7 @@ install -m644 "$ROOT/AI/pineapple_ai.py" "$ROOT/AI/voice.py" "$APPS/AI/"
 echo "==> Instalando daemon de wallpaper (dinâmico estilo Catalina)"
 install -m755 "$ROOT/Apps/Wallpaper/pineapple-wallpaper.py" "$APP_BIN/pineapple-wallpaper"
 
-echo "==> Instalando BFS (Pineapple File System) — exFAT + recursos APFS/HFS+"
+echo "==> Instalando PNFS (Pineapple Native File System) — exFAT + recursos APFS/HFS+"
 mkdir -p "$APPS/Filesystem"
 cp -r "$ROOT/Filesystem/pineapplefs" "$APPS/Filesystem/"
 install -m755 "$ROOT/Scripts/pineapplefs.py" "$APP_BIN/pineapplefs"
@@ -97,13 +97,17 @@ echo "==> Instalando schemas GSettings"
 mkdir -p "$STAGE/usr/share/glib-2.0/schemas"
 cp "$ROOT/Installer/schemas/org.pineappleos.gschema.xml" "$STAGE/usr/share/glib-2.0/schemas/"
 
-echo "==> Instalando temas de boot (GRUB/Plymouth/SDDM) e Calamares"
+echo "==> Instalando temas de boot (GRUB/Plymouth/SDDM)"
 mkdir -p "$STAGE/boot/grub/themes/pineappleos" "$STAGE/usr/share/plymouth/themes/pineappleos"
-mkdir -p "$STAGE/usr/share/sddm/themes/pineappleos" "$STAGE/usr/share/calamares"
+mkdir -p "$STAGE/usr/share/sddm/themes/pineappleos"
 cp -r "$ROOT/Installer/grub/theme/." "$STAGE/boot/grub/themes/pineappleos/"
 cp -r "$ROOT/Installer/plymouth/theme/." "$STAGE/usr/share/plymouth/themes/pineappleos/"
 cp -r "$ROOT/Installer/sddm/theme/." "$STAGE/usr/share/sddm/themes/pineappleos/"
-cp -r "$ROOT/Installer/calamares" "$STAGE/usr/share/calamares/"
+
+echo "==> Compilando Orchard (instalador próprio)"
+(cd "$ROOT/Orchard" && cargo build --release 2>/dev/null) && \
+  install -m755 "$ROOT/Orchard/target/release/pineapple-orchard" "$BIN/" || \
+  echo "   [aviso] pineapple-orchard não compilado (verifique cargo/GTK4)"
 
 echo "==> Registrando versão"
 mkdir -p "$STAGE/etc"

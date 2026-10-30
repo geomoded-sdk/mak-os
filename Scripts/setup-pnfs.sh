@@ -1,8 +1,8 @@
 #!/bin/bash
 # =============================================================================
-#  setup-bfs.sh — cria o volume de dados BFS OBRIGATÓRIO do Pineapple OS
+#  setup-pnfs.sh — cria o volume de dados BFS OBRIGATÓRIO do Pineapple OS
 #
-#  O Pineapple OS exige um volume BFS (exFAT + .bfsprivate) para iniciar
+#  O Pineapple OS exige um volume PNFS (exFAT + .bfsprivate) para iniciar
 #  fora do modo live. Este script:
 #
 #    1. Formata o dispositivo como exFAT        (⚠️ APAGA TODOS OS DADOS)
@@ -13,8 +13,8 @@
 #    5. Regenera o initramfs (o boot valida o BFS e entra em panic sem ele)
 #
 #  Uso:
-#    sudo ./Scripts/setup-bfs.sh /dev/sdb2            # monta em /data
-#    sudo ./Scripts/setup-bfs.sh /dev/sdb2 /home      # monta em /home
+#    sudo ./Scripts/setup-pnfs.sh /dev/sdb2            # monta em /data
+#    sudo ./Scripts/setup-pnfs.sh /dev/sdb2 /home      # monta em /home
 #
 #  Depois adicione na linha de boot (GRUB_CMDLINE_LINUX_DEFAULT):
 #    -pineapplefs=/dev/sdb2
@@ -44,7 +44,7 @@ if [ ! -b "$DEV" ]; then
 fi
 
 echo "=============================================================="
-echo " ATENÇÃO: $DEV será APAGADO e formatado como exFAT (volume BFS)"
+echo " ATENÇÃO: $DEV será APAGADO e formatado como exFAT (volume PNFS)"
 echo "=============================================================="
 read -r -p "Tem certeza? Digite SIM para continuar: " resp
 if [ "$resp" != "SIM" ]; then
@@ -60,7 +60,7 @@ echo "==> Montando em $MNT"
 mkdir -p "$MNT"
 mount "$DEV" "$MNT"
 
-echo "==> Inicializando o volume BFS"
+echo "==> Inicializando o volume PNFS"
 python3 "$ROOT/Scripts/pineapplefs.py" init "$MNT" --name "Pineapple OS"
 
 echo "==> Registrando no /etc/fstab (por UUID)"
@@ -74,13 +74,13 @@ else
   fi
 fi
 
-echo "==> Regenerando initramfs (check de boot valida o BFS)"
+echo "==> Regenerando initramfs (check de boot valida o PNFS)"
 if command -v update-initramfs >/dev/null; then
   update-initramfs -u
 fi
 
 echo "=============================================================="
-echo " Volume BFS criado em $MNT (obrigatório no boot)."
+echo " Volume PNFS criado em $MNT (obrigatório no boot)."
 echo ""
 echo " Para informar o dispositivo na linha de boot, adicione em"
 echo " /etc/default/grub (GRUB_CMDLINE_LINUX_DEFAULT):"

@@ -1,0 +1,17 @@
+[package]
+name = "pineapple-orchard"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Pineapple OS — instalador Orchard (Rust nativo, UI estilo macOS)"
+
+[[bin]]
+name = "pineapple-orchard"
+path = "src/main.rs"
+
+[dependencies]
+orchard-core = { path = "../orchard-core" }
+gtk4 = { version = "0.7", features = ["v4_10"] }
+glib = "0.18"
+gio = "0.18"
+serde_json = "1"

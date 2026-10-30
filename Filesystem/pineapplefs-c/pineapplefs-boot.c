@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
-/* Minimal BFS metadata runtime for initramfs/preboot and early boot. */
+/* Minimal PNFS metadata runtime for initramfs/preboot and early boot.
+ * O filesystem é PNFS (Pineapple Native File System); o módulo de metadados
+ * do volume continua se chamando .bfsprivate. */
 #define _GNU_SOURCE
 #include <errno.h>
 #include <fcntl.h>
@@ -74,7 +76,7 @@ int main(int argc, char **argv)
         return 1;
     if (lseek(fd, 0, SEEK_END) == 0)
         dprintf(fd,
-            "{\"magic\":\"BFS\",\"format\":\"bfs-overlay\",\"version\":2,"
+            "{\"magic\":\"PNFS\",\"format\":\"pnfs-overlay\",\"version\":2,"
             "\"layers\":[\"xattrs\",\"finder\",\"snapshots\",\"clones\","
             "\"checksums\",\"sparse\"]}\n");
     close(fd);

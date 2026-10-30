@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # =============================================================================
-#  pineapplefs / snapshots.py — camada BFS: snapshots
+#  pineapplefs / snapshots.py — camada PNFS: snapshots
 #
-#  BFS v2 — camada "snapshots". Captura o estado imutável do volume em
+#  PNFS — camada "snapshots". Captura o estado imutável do volume em
 #  .bfsprivate/snapshots/<nome>/: arquivos de clones são deduplicados via
 #  hardlink com a camada de clones; os demais são copiados (imutabilidade
 #  real, como o APFS tmutil/Time Machine — honesto: cópia, não copy-on-write

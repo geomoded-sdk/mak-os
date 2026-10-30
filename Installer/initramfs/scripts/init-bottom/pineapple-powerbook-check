@@ -14,7 +14,7 @@
 #    * Fora do modo live (boot=live), também valida o volume de dados BFS
 #      obrigatório (exFAT + .bfsprivate), que pode ser indicado por
 #      "-pineapplefs=<dispositivo>" ou detectado no fstab (/home ou /data).
-#      Sem um volume BFS válido → KERNEL PANIC.
+#      Sem um volume PNFS válido → KERNEL PANIC.
 #
 #  Por que um kernel panic? Para reproduzir fielmente o comportamento de
 #  bloqueio de um hardware não autorizado: sem o ID correto (e sem o volume
@@ -35,6 +35,16 @@ esac
 # Lista de IDs válidos, embutida no initramfs pelo hook
 # pineapple-powerbook-check (ver Installer/initramfs/hooks/).
 VALID_IDS="/pineappleos-ids.txt"
+
+# ---------------------------------------------------------------------------
+#  pineapple-init (Rust): se o init nativo estiver no initramfs, usa ele.
+#  Ele faz a MESMA validação (PowerBook ID + BFS + panic SysRq). Exit 0 =
+#  boot pode continuar; exit != 0 nunca acontece (o panic é fatal).
+# ---------------------------------------------------------------------------
+if [ -x /sbin/pineapple-init ]; then
+    /sbin/pineapple-init
+    exit $?
+fi
 
 # ---------------------------------------------------------------------------
 #  Lê os argumentos de boot
@@ -108,27 +118,27 @@ if [ "$valid" != "yes" ]; then
 fi
 
 # ---------------------------------------------------------------------------
-#  2. Validação do volume BFS (obrigatório fora do modo live)
+#  2. Validação do volume PNFS (obrigatório fora do modo live)
 #
 #  O BFS (Pineapple File System) é o sistema de arquivos de dados do Pineapple
 #  OS (exFAT + .bfsprivate). Sem ele, o sistema se recusa a iniciar — como o
 #  macOS exige um volume APFS.
 # ---------------------------------------------------------------------------
 
-# Um diretório é um volume BFS válido? (deve ter .bfsprivate/volume.info)
+# Um diretório é um volume PNFS válido? (deve ter .bfsprivate/volume.info)
 # O magic e o formato são conferidos de forma tolerante a espaços: tanto o
 # pineapplefs (Python) quanto o pineapplefs-boot (C) gravam
-# {"magic":"BFS","format":"bfs-overlay"} (com ou sem espaços).
-check_bfs_root() {
+# {"magic":"PNFS","format":"pnfs-overlay"} (com ou sem espaços).
+check_pnfs_root() {
     dir="$1"
     [ -f "$dir/.bfsprivate/volume.info" ] || return 1
-    grep -q '"BFS"' "$dir/.bfsprivate/volume.info" 2>/dev/null || return 1
-    grep -q '"bfs-overlay"' "$dir/.bfsprivate/volume.info" 2>/dev/null || return 1
+    grep -q '"PNFS"' "$dir/.bfsprivate/volume.info" 2>/dev/null || return 1
+    grep -q '"pnfs-overlay"' "$dir/.bfsprivate/volume.info" 2>/dev/null || return 1
     return 0
 }
 
 # Monta (somente leitura) um dispositivo, valida o BFS e desmonta.
-mount_bfs_check() {
+mount_pnfs_check() {
     dev="$1"
     i=0
     while [ ! -e "$dev" ]; do
@@ -141,7 +151,7 @@ mount_bfs_check() {
         rmdir /bfs-check 2>/dev/null
         return 1
     fi
-    check_bfs_root /bfs-check
+    check_pnfs_root /bfs-check
     rc=$?
     umount /bfs-check 2>/dev/null
     rmdir /bfs-check 2>/dev/null
@@ -165,12 +175,12 @@ if [ "$is_live" = "yes" ]; then
 elif [ -n "$boot_fs" ]; then
     # Dispositivo informado explicitamente.
     if [ "$boot_fs" = "root" ]; then
-        if ! check_bfs_root "$rootmnt"; then
-            panic "o volume BFS obrigatório não foi encontrado no sistema raiz (rode Scripts/setup-bfs.sh)"
+        if ! check_pnfs_root "$rootmnt"; then
+            panic "o volume PNFS obrigatório não foi encontrado no sistema raiz (rode Scripts/setup-pnfs.sh)"
         fi
     else
-        if ! mount_bfs_check "$boot_fs"; then
-            panic "o volume BFS obrigatório '-pineapplefs=$boot_fs' não é um volume BFS válido (falta .bfsprivate/volume.info)"
+        if ! mount_pnfs_check "$boot_fs"; then
+            panic "o volume PNFS obrigatório '-pineapplefs=$boot_fs' não é um volume PNFS válido (falta .bfsprivate/volume.info)"
         fi
     fi
 else
@@ -187,8 +197,8 @@ else
                         swap|tmpfs|proc|sysfs|devpts) continue ;;
                     esac
                     found="yes"
-                    if ! mount_bfs_check "$(resolve_dev "$dev")"; then
-                        panic "o volume de dados BFS montado em '$mnt' não é um volume BFS válido (falta .bfsprivate/volume.info)"
+                    if ! mount_pnfs_check "$(resolve_dev "$dev")"; then
+                        panic "o volume de dados BFS montado em '$mnt' não é um volume PNFS válido (falta .bfsprivate/volume.info)"
                     fi
                     ;;
             esac
@@ -196,8 +206,8 @@ else
     fi
     if [ "$found" = "no" ]; then
         # Sem /home ou /data no fstab: o BFS deve estar na própria raiz.
-        if ! check_bfs_root "$rootmnt"; then
-            panic "volume BFS obrigatório não encontrado (adicione -pineapplefs=<dispositivo> ou inicialize com Scripts/setup-bfs.sh)"
+        if ! check_pnfs_root "$rootmnt"; then
+            panic "volume PNFS obrigatório não encontrado (adicione -pineapplefs=<dispositivo> ou inicialize com Scripts/setup-pnfs.sh)"
         fi
     fi
 fi

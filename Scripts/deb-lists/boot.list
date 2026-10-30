@@ -7,8 +7,8 @@ usr/share/plymouth/themes/pineappleos/*
 # SDDM
 usr/share/sddm/themes/pineappleos/*
 
-# Instalador Calamares
-usr/share/calamares/*
+# Instalador Orchard
+usr/local/bin/pineapple-orchard
 
 # Versão
 etc/pineappleos-version

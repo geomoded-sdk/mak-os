@@ -12,9 +12,11 @@ grub/            # tema GRUB (fundo claro estilo Apple)
 plymouth/        # tema de boot (abacaxi + barra de progresso)
 sddm/            # tema de login (estilo macOS)
 initramfs/       # PowerBook ID check (hooks + init-bottom)
-calamares/       # instalador
 os-release       # identidade do sistema (NAME=Pineapple OS)
 ```
+
+O instalador gráfico é o **Orchard** (motor Rust + UI GTK4, em `../Orchard/`),
+não o Calamares.
 
 ## Gerar a ISO
 
@@ -43,15 +45,15 @@ DISTRO=ubuntu SUITE=noble POWERBOOK_ID=SEU_ID ./Scripts/build-iso.sh
    `-pineapplepowerbookid=<ID>`; se ausente/inválido → **kernel panic**.
 4. Para instalar no sistema: `./Scripts/setup-powerbook-check.sh`
 
-## Volume BFS obrigatório (kernel panic sem ele)
+## Volume PNFS obrigatório (kernel panic sem ele)
 
 Fora do modo live, o boot também exige um volume **BFS** (exFAT +
 `.bfsprivate/volume.info`). O initramfs valida o dispositivo de
 `-pineapplefs=<dev>` (ou o detecta pelo `/etc/fstab` em `/home`/`/data`);
-sem volume BFS válido → **kernel panic**.
+sem volume PNFS válido → **kernel panic**.
 
 ```bash
-sudo ./Scripts/setup-bfs.sh /dev/sdb2        # formata exFAT + BFS em /data
+sudo ./Scripts/setup-pnfs.sh /dev/sdb2        # formata exFAT + BFS em /data
 # /etc/default/grub:
 # GRUB_CMDLINE_LINUX_DEFAULT="... -pineapplepowerbookid=SEU_ID -pineapplefs=/dev/sdb2"
 sudo update-grub
@@ -89,12 +91,12 @@ O `.deb` gerado em `Scripts/debs/` é incluído automaticamente pelo `build-iso.
 - Kernel otimizado (`linux-image-amd64`) + firmware.
 - Compositor **labwc**, GTK4, PipeWire, NetworkManager.
 - Todos os componentes do Pineapple OS em `/usr/share/pineappleos`.
-- Flatpak, Wine, **Darling**, AppArmor e o instalador **Calamares**.
+- Flatpak, Wine, **Darling**, AppArmor e o instalador **Orchard**.
 
 ## Instalar no disco
 
 1. Grave a ISO: `dd if=pineappleos.iso of=/dev/sdX bs=4M status=progress`
-2. Boot pelo pendrive → "Instalar Pineapple OS" (Calamares).
+2. Boot pelo pendrive → "Instalar Pineapple OS" (Orchard).
 
 ## Serviços systemd
 

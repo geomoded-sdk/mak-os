@@ -34,7 +34,7 @@
 - [x] Áreas de Trabalho Virtuais (config no compositor)
 - [x] Serviços systemd (user) para todos os componentes
 - [x] Schemas GSettings centralizados
-- [x] Instalador Calamares personalizado (branding + módulos)
+- [x] Instalador próprio Orchard (motor Rust + UI GTK4, 2 renderizadores)
 - [x] Tema GRUB + Plymouth com identidade Pineapple
 - [x] Tema SDDM de login com identidade Pineapple
 - [x] Empacotamento .deb (4 pacotes) + repositório apt assinado

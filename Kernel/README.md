@@ -23,17 +23,44 @@ próprio (como o bloqueio por PowerBook ID). Um kernel verdadeiramente novo
 |----------------------------|------------------------------------------------------|
 | `config-6.1-pineappleos`   | Configuração de referência do kernel (x86_64)        |
 | `pineapple/`               | Código real integrado em `drivers/pineapple/`        |
+| `pineapple/bsd/`           | Camada FreeBSD (sysctl estilo BSD, híbrido XNU)      |
+| `pineapple/bootargs/`      | Boot-args no kernel (PowerBook ID + PNFS)            |
+| `pineapple/hwcheck/`       | Allowlist de hardware por build (panic se fora)      |
+| `pineapple/pnfs/`          | PNFS — filesystem de kernel (mount -t pnfs)          |
+| `hwlist.txt`               | Hardware autorizado NESTA build (GPU, wifi, …)       |
 | `vendor/linux-6.1.tar.xz`  | Fonte Linux 6.1 local, sem download no build        |
 | `build/`                   | Diretório de build (gerado, fora do git)             |
 | `../Scripts/build-kernel.sh` | Compila o kernel + módulos + initramfs             |
 
+## Hardware por build (allowlist)
+
+O build embute `Kernel/hwlist.txt` em **allowlist de hardware** (`allowed_hw.h`).
+No boot, qualquer placa **display** (GPU) ou **rede** (wifi/ethernet) cujo
+PCI `vendor:device` **não** esteja na lista causa **kernel panic** estilo
+macOS. **Cada build aceita só o hardware escolhido na hora de compilar:**
+
+```bash
+# Antes de compilar, edite Kernel/hwlist.txt (use lspci -nn):
+#   8086:9a49:03    Intel UHD (GPU)
+#   8086:2723:02    Intel Wi-Fi AX200
+./Scripts/build-kernel.sh
+```
+
+Lista vazia = sem restrição PCI (só o PowerBook ID vale).
+
 ## Identidade e "esconder a marca"
+
+O build **modifica o fonte Linux** (`include/linux/uts.h` etc.): `uname -s`
+retorna `Pineapple` e `/proc/version` começa com `Pineapple version …`.
+O artefato do kernel **não se chama `vmlinuz`** — é **`pineapple.ekern`**
+(o initramfs live é `pineapple.boot`).
 
 | Onde                          | Como o Pineapple OS aparece                          |
 |-------------------------------|------------------------------------------------------|
-| `uname -r`                    | `6.1.0-pineappleos` (`CONFIG_LOCALVERSION`)          |
+| `uname -s` / `uname -r`       | `Pineapple` / `6.1.0-pineappleos`                    |
+| Artefato do kernel            | `/boot/pineapple.ekern-<release>` (nunca vmlinuz)    |
 | `/etc/os-release`             | `NAME="Pineapple OS"` (`Installer/os-release`)       |
-| Tela de boot (Plymouth/GRUB)  | fundo claro + abacaxi, sem "GNU/Linux"               |
+| Tela de boot (Plymouth/GRUB)  | fundo lavanda #262426 + abacaxi, sem "GNU/Linux"     |
 | Logs do kernel                | ocultos (`quiet loglevel=0`), como no macOS          |
 
 ## Boot — fluxo completo
@@ -42,7 +69,7 @@ próprio (como o bloqueio por PowerBook ID). Um kernel verdadeiramente novo
 BIOS/UEFI
    │
    ▼
-GRUB ──► menu "Pineapple OS" (fundo claro + abacaxi)
+GRUB ──► menu "Pineapple OS" (fundo lavanda escuro + abacaxi)
    │        argumentos: quiet loglevel=0 splash
    │                     -pineapplepowerbookid=<ID>   ← OBRIGATÓRIO
    │                     -pineapplefs=<dev>           ← OBRIGATÓRIO (fora do live)
@@ -54,12 +81,12 @@ Kernel + initramfs
    │        ├─► valida o -pineapplepowerbookid=<ID> contra ids.txt
    │        │     ID ausente/errado ──► KERNEL PANIC (estilo macOS)
    │        │
-   │        └─► valida o volume BFS (fora do modo live)
+   │        └─► valida o volume PNFS (fora do modo live)
    │              monta o dispositivo, confere .bfsprivate/volume.info
-   │              sem BFS válido ──► KERNEL PANIC (estilo macOS)
+   │              sem PNFS válido ──► KERNEL PANIC (estilo macOS)
    │
    ▼
-Plymouth ──► abacaxi sobre fundo #c2bec2 + barra de progresso
+Plymouth ──► abacaxi sobre fundo #262426 + barra de progresso
    │
    ▼
 systemd ──► pineappleos-session.target (compositor + shell + dock...)
@@ -72,7 +99,7 @@ systemd ──► pineappleos-session.target (compositor + shell + dock...)
 | `quiet loglevel=0`           | esconde os logs do kernel (boot limpo)       |
 | `splash`                     | mostra o Plymouth (abacaxi + barra)          |
 | `-pineapplepowerbookid=<ID>` | ID do PowerBook (ver `ids.txt` na raiz)      |
-| `-pineapplefs=<dev>`         | dispositivo do volume BFS (ex.: `/dev/sdb2`) |
+| `-pineapplefs=<dev>`         | dispositivo do volume PNFS (ex.: `/dev/sdb2`) |
 
 > O prefixo `-` é proposital: imita os boot args do macOS
 > (`-v`, `-x`, `-s`...). O kernel Linux ignora argumentos desconhecidos como
@@ -113,10 +140,10 @@ POWERBOOK_ID=SEU_ID ./Scripts/build-iso.sh
 > Se você rodar sem o argumento, o kernel entra em panic e o sistema
 > não inicia — exatamente o comportamento de bloqueio pedido.
 
-## Volume BFS obrigatório (fora do modo live)
+## Volume PNFS obrigatório (fora do modo live)
 
 Assim como o macOS exige um volume APFS, o Pineapple OS **não inicia** sem um
-volume BFS válido (exFAT + `.bfsprivate/volume.info` com `magic: BFS`). O mesmo
+volume PNFS válido (exFAT + `.bfsprivate/volume.info` com `magic: PNFS`). O mesmo
 verificador do initramfs:
 
 1. Se houver `boot=live` na linha de boot, o BFS é dispensado (demo/live).
@@ -129,10 +156,10 @@ verificador do initramfs:
 O kernel tem `CONFIG_EXFAT_FS=y` embutido (não é módulo), então o initramfs
 monta exFAT sem depender de `modprobe`.
 
-### Como criar o volume BFS (instalação)
+### Como criar o volume PNFS (instalação)
 
 ```bash
-sudo ./Scripts/setup-bfs.sh /dev/sdb2          # formata exFAT + BFS em /data
+sudo ./Scripts/setup-pnfs.sh /dev/sdb2          # formata exFAT + BFS em /data
 # /etc/default/grub
 GRUB_CMDLINE_LINUX_DEFAULT="quiet loglevel=0 -pineapplepowerbookid=SEU_ID -pineapplefs=/dev/sdb2"
 sudo update-grub
@@ -171,7 +198,7 @@ garantindo compatibilidade total.
 
 - `HZ_1000` + `PREEMPT` — latência mínima para UI fluida (desktop).
 - `CONFIG_MAGIC_SYSRQ=y` — necessário para o kernel panic do PowerBook ID.
-- `CONFIG_EXFAT_FS=y` — exFAT embutido (volume BFS montável no initramfs).
+- `CONFIG_EXFAT_FS=y` — exFAT embutido (volume PNFS montável no initramfs).
 - Suporte a GPUs AMD (amdgpu), NVIDIA (nouveau), Intel (i915).
 - `FUSE_FS` — necessário para Flatpak e AppImage.
 - `ANDROID_BINDER`/`OVERLAY_FS` — necessário para Waydroid.

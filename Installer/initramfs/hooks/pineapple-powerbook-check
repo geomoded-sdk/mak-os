@@ -26,4 +26,10 @@ if [ -f /usr/share/pineappleos/ids.txt ]; then
     cp /usr/share/pineappleos/ids.txt "${DESTDIR}/pineappleos-ids.txt"
 fi
 
+# pineapple-init (Rust): init nativo de validação — se presente, entra no
+# initramfs e o script init-bottom o usa no lugar da lógica shell.
+if [ -x /usr/lib/pineappleos/pineapple-init ]; then
+    copy_exec /usr/lib/pineappleos/pineapple-init /sbin/pineapple-init
+fi
+
 exit 0

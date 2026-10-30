@@ -1,38 +1,40 @@
 # =============================================================================
-#  Plymouth script — Pineapple OS (boot estilo Apple)
+#  Plymouth script — Pineapple OS (boot estilo Apple, nível Kindle ~9%)
 #
-#  Imita a tela de boot do macOS: fundo #c2bec2, abacaxi de contorno no
-#  centro (mordida à direita, levemente inclinado) e uma fina barra de
-#  progresso logo abaixo, sem textos.
+#  Fundo lavanda-cinza escurecido (#262426 — mesma matiz do #c2bec2 original,
+#  reduzida a ~9% de brilho, confortável à noite) com o abacaxi de contorno
+#  levemente clareado e uma fina barra de progresso. Sem textos.
 # =============================================================================
 
-# --- fundo #c2bec2 (cor sólida, como o boot do macOS) ---
-window.SetBackgroundTopColor (0.761, 0.745, 0.761);
-window.SetBackgroundBottomColor (0.761, 0.745, 0.761);
+# --- fundo #262426 (lavanda escuro, Kinder 9%) ---
+window.SetBackgroundTopColor (0.149, 0.141, 0.149);
+window.SetBackgroundBottomColor (0.149, 0.141, 0.149);
 
-# --- abacaxi de contorno, centralizado ---
+# --- abacaxi de contorno, centralizado, clareado para o fundo escuro ---
 logo.image = Image ("pineapple.png");
+# Clareia o contorno (#7a767a → ~#9a969a) para continuar legível no escuro.
+logo.image = logo.image.Colorize (0.604, 0.588, 0.604, 1.0);
 logo.sprite = Sprite ();
 logo.sprite.SetImage (logo.image);
 logo.sprite.SetX (Window.GetWidth () / 2 - logo.image.GetWidth () / 2);
 logo.sprite.SetY (Window.GetHeight () / 2 - logo.image.GetHeight () / 2);
 
-# --- trilho da barra de progresso (fino, como no boot do macOS) ---
+# --- trilho da barra de progresso (fino, estilo macOS) ---
 bar.width = 340;
 bar.height = 6;
 bar.sprite = Sprite ();
 bar.image = Image.Circle (bar.width, bar.height, 0);
 bar.image = bar.image.Scale (bar.width, bar.height);
-bar.image = bar.image.Colorize (0.62, 0.61, 0.62, 1.0);   # cinza do contorno
+bar.image = bar.image.Colorize (0.235, 0.224, 0.235, 1.0);   # #3c393c (trilho)
 bar.sprite.SetImage (bar.image);
 bar.sprite.SetX (Window.GetWidth () / 2 - bar.width / 2);
 bar.sprite.SetY (Window.GetHeight () / 2 + logo.image.GetHeight () / 2 + 40);
 
-# --- preenchimento da barra (na cor do contorno #7a767a) ---
+# --- preenchimento da barra (cor do abacaxi #9a969a) ---
 progress.width = 0;
 progress.sprite = Sprite ();
 
-# --- animação suave do preenchimento (simula o avanço do boot) ---
+# --- animação suave do preenchimento ---
 anim = 0;
 
 fun update_bar ()
@@ -40,7 +42,7 @@ fun update_bar ()
     progress.width = anim * bar.width;
     progress.image = Image.Circle (progress.width, bar.height, 0);
     progress.image = progress.image.Scale (progress.width, bar.height);
-    progress.image = progress.image.Colorize (0.478, 0.463, 0.478, 1.0);  # #7a767a
+    progress.image = progress.image.Colorize (0.604, 0.588, 0.604, 1.0);  # #9a969a
     progress.sprite.SetImage (progress.image);
     progress.sprite.SetX (bar.sprite.GetX ());
     progress.sprite.SetY (bar.sprite.GetY ());

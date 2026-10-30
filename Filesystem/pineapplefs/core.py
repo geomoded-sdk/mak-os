@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # =============================================================================
-#  pineapplefs / core.py — BFS v2: núcleo do volume e pilha de camadas
+#  pineapplefs / core.py — PNFS: núcleo do volume e pilha de camadas
 #
-#  O BFS (Pineapple File System) é um sistema de arquivos de usuário sobre o
+#  O BFS (Pineapple Native File System) é um sistema de arquivos de usuário sobre o
 #  filesystem do kernel (exFAT e outros). O volume real é o exFAT; o BFS roda
 #  POR CIMA dele como uma camada de metadados explícita:
 #
 #    exFAT (ou outro filesystem do kernel)
-#      └── BFS metadata layer  (overlay de usuário)
+#      └── PNFS metadata layer  (overlay de usuário)
 #            ├── xattrs      → metadata.py   (atributos extendidos AppleDouble)
 #            ├── finder      → finder.py     (Finder Info, tags, ícone, comentário)
 #            ├── snapshots   → snapshots.py  (estados imutáveis do volume)
@@ -41,7 +41,7 @@ from .snapshots import SnapshotLayer
 from .sparse import SparseLayer
 
 __all__ = [
-    "BFSVolume",
+    "PNFSVolume",
     "FORMAT",
     "FORMAT_VERSION",
     "LAYERS",
@@ -51,8 +51,8 @@ __all__ = [
 ]
 
 
-class BFSVolume:
-    """Volume BFS: núcleo (mount, init, caminhos, dados) + camadas de metadados.
+class PNFSVolume:
+    """Volume PNFS: núcleo (mount, init, caminhos, dados) + camadas de metadados.
 
     As camadas ficam expostas como atributos públicos para quem quiser acessar
     um recurso específico diretamente:
@@ -87,7 +87,7 @@ class BFSVolume:
     #  Inicialização do volume (exFAT + camada de metadados BFS)
     # ------------------------------------------------------------------
     def init(self, name="Pineapple OS"):
-        """Adiciona a camada BFS sem formatar nem apagar o volume real."""
+        """Adiciona a camada PNFS sem formatar nem apagar o volume real."""
         self.root.mkdir(parents=True, exist_ok=True)
         self.private.mkdir(exist_ok=True)
         for sub in ("snapshots", "clones", "checksums", "trash", "sparse"):
@@ -328,3 +328,6 @@ def json_dumps(obj):
 def json_loads(text):
     import json
     return json.loads(text)
+
+# Compat: nome antigo — o filesystem é PNFS.
+BFSVolume = PNFSVolume

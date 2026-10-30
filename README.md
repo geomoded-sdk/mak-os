@@ -15,13 +15,13 @@
 - **Kernel panic por PowerBook ID**: o sistema só inicia com o argumento de
   boot `-pineapplepowerbookid=<ID>` (ID válido de `ids.txt`); sem ele, o
   kernel entra em panic estilo macOS.
-- **Volume BFS obrigatório**: fora do modo live, o boot também exige um volume
-  de dados BFS (exFAT + `.bfsprivate`) via `-pineapplefs=<dev>` (ou detectado
+- **Volume PNFS obrigatório**: fora do modo live, o boot também exige um volume
+  de dados PNFS (exFAT + `.bfsprivate`) via `-pineapplefs=<dev>` (ou detectado
   no `/etc/fstab`); sem ele → kernel panic (como o macOS exige APFS).
 - **Logs de boot silenciosos** (`quiet loglevel=0`), como no macOS.
 - **Wallpapers**: High Sierra (dunas), Catalina **dinâmico** (troca conforme
   o horário, via daemon `pineapple-wallpaper`) e Sequoia.
-- **BFS — Pineapple File System**: sistema de arquivos de usuário baseado em
+- **PNFS — Pineapple Native File System**: sistema de arquivos de usuário baseado em
   **exFAT** com recursos estilo **APFS/HFS+** — `._*` AppleDouble, `.bfsprivate`,
   snapshots, clones copy-on-write, arquivos esparsos "expandidos", case-
   insensitive, checksums e a pasta `_PINEAPPLE` em .zip (como o macOS).
@@ -29,7 +29,7 @@
   Mission Control e gestos de touchpad estilo macOS.
 - Modo Claro e Escuro, temas e ícones próprios.
 - IA integrada (Ollama) como assistente local, com voz (STT/TTS offline).
-- Instalador gráfico (Calamares), `.deb` e repositório apt próprio com OTA.
+- Instalador gráfico próprio (**Orchard**, Rust + GTK4), `.deb` e repositório apt próprio com OTA.
 - Suporte nativo a Flatpak, AppImage, Wine, Darling e Waydroid.
 - **ISO x64 gerada pela CI** (GitHub Actions) e publicada como artefato.
 
@@ -49,8 +49,9 @@ PineappleOS/
 ├── Store/         # Loja de aplicativos
 ├── Themes/        # Temas GTK + wallpapers (High Sierra/Catalina/Sequoia)
 ├── Icons/         # Conjunto de ícones próprio (gerado por script)
-├── Filesystem/    # BFS: exFAT + recursos APFS/HFS+ (._*, .bfsprivate, snapshots, clones)
+├── Filesystem/    # PNFS: exFAT + recursos APFS/HFS+ (._*, .bfsprivate, snapshots, clones)
 ├── Installer/     # live-build, GRUB, Plymouth, SDDM, schemas, systemd, initramfs
+├── Orchard/       # instalador próprio (motor Rust + UI GTK4/GLS Render)
 ├── Kernel/        # Config do kernel ("Pineapple Kernel") e docs de boot
 ├── Apps/          # Aplicativos nativos (Python/GTK4) + daemon de wallpaper
 ├── Compatibility/ # Flatpak, AppImage, Wine, Darling, Waydroid
@@ -123,7 +124,7 @@ POWERBOOK_ID=SEU_ID ./Scripts/build-iso.sh  # gera a ISO live (live-build)
 1. Grave a ISO em um pendrive: `dd if=pineappleos.iso of=/dev/sdX bs=4M status=progress`
 2. Inicialize pelo pendrive (informe o `-pineapplepowerbookid=<ID>` se exigido)
    e escolha "Instalar Pineapple OS".
-3. Siga o instalador gráfico (Calamares).
+3. Siga o instalador gráfico (Orchard).
 4. Após instalar, defina o PowerBook ID em `/etc/default/grub` (veja
    `Scripts/setup-powerbook-check.sh`).
 

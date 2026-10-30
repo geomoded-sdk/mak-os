@@ -6,7 +6,7 @@
 #   - pineapple-os-desktop_<ver>.deb   (shell, dock, launcher, launchpad, canopy)
 #   - pineapple-os-apps_<ver>.deb      (apps Python + IA)
 #   - pineapple-os-themes_<ver>.deb    (temas, ícones, wallpaper)
-#   - pineapple-os-boot_<ver>.deb      (GRUB + Plymouth + Calamares)
+#   - pineapple-os-boot_<ver>.deb      (GRUB + Plymouth + Orchard)
 # =============================================================================
 set -euo pipefail
 
@@ -70,7 +70,7 @@ makedeb pineapple-os-themes "Pineapple OS themes, icons and wallpaper" \
   "librsvg2-common, hicolor-icon-theme" themes.list
 
 echo "==> pineapple-os-boot"
-makedeb pineapple-os-boot "Pineapple OS boot themes (GRUB, Plymouth) and Calamares" \
+makedeb pineapple-os-boot "Pineapple OS boot themes (GRUB, Plymouth) and Orchard installer" \
   "" boot.list
 
 echo "==> Pacotes gerados:"

@@ -2,6 +2,9 @@
 build/
 Kernel/build/
 Kernel/linux-6.1/
+Kernel/pineapple-init/target/
+Filesystem/bfs-fuse/target/
+Orchard/target/
 Desktop/target/
 Dock/target/
 Launcher/target/
