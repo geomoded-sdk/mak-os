@@ -3,11 +3,10 @@
 #  build-kernel.sh — compila o kernel do Pineapple OS
 #
 #  O que acontece:
-#    1. Usa a árvore local Kernel/linux-<versao>.
-#    2. Aplica o config próprio (Kernel/config-6.1-pineappleos).
-#    3. Compila o kernel (bzImage) e os módulos.
-#    4. Compila o LPNU do fonte (lpnu.ko + apfs.ko) contra este kernel e
-#       instala o ld-mac — OBRIGATÓRIO (aborta se falhar).
+#    1. Usa a árvore-fonte oficial do Linux em Kernel/linux-<versao>.
+#    2. Integra o código OEM-X em drivers/pineapple/.
+#    3. Aplica a configuração OEM-X (Kernel/config-oem-x).
+#    4. Compila a árvore resultante (bzImage) e os módulos.
 #    5. Instala tudo e regenera o initramfs (que embute o PowerBook ID check).
 #
 #  Variáveis:
@@ -23,7 +22,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 VERSION="${VERSION:-6.1}"
-CONFIG_FILE="$ROOT/Kernel/config-6.1-pineappleos"
+CONFIG_FILE="${CONFIG_FILE:-$ROOT/Kernel/config-oem-x}"
 TARGET_DIR="$ROOT/Kernel/build"
 KERNEL_SOURCE_DIR="${KERNEL_SOURCE_DIR:-$ROOT/Kernel/linux-$VERSION}"
 KERNEL_ARCHIVE="${KERNEL_ARCHIVE:-$ROOT/Kernel/vendor/linux-$VERSION.tar.xz}"
@@ -37,12 +36,21 @@ make -C "$ROOT/Filesystem/pineapplefs-c"
 sudo install -D -m 0755 "$ROOT/Filesystem/pineapplefs-c/pineapplefs-mkfs" \
   /usr/local/bin/pineapplefs-mkfs
 
-echo "==> Usando fonte local do kernel: $KERNEL_SOURCE_DIR"
+echo "==> Usando fonte oficial do Linux + código OEM-X: $KERNEL_SOURCE_DIR"
 mkdir -p "$TARGET_DIR"
 if [ ! -d "$KERNEL_SOURCE_DIR" ]; then
   if [ ! -f "$KERNEL_ARCHIVE" ] && compgen -G "$KERNEL_ARCHIVE.part-*" >/dev/null; then
     KERNEL_ARCHIVE="$TARGET_DIR/linux-$VERSION.tar.xz"
     cat "$ROOT/Kernel/vendor/linux-$VERSION.tar.xz.part-"* > "$KERNEL_ARCHIVE"
+    if [ "$VERSION" = "6.1" ] && command -v sha256sum >/dev/null 2>&1; then
+      expected_sha="$(awk '$2 == "linux-6.1.tar.xz" { print $1 }' \
+        "$ROOT/Kernel/vendor/SHA256SUMS")"
+      actual_sha="$(sha256sum "$KERNEL_ARCHIVE" | cut -d' ' -f1 | tr '[:lower:]' '[:upper:]')"
+      [ -n "$expected_sha" ] && [ "$actual_sha" = "$expected_sha" ] || {
+        echo "ERRO: checksum da fonte oficial do Linux 6.1 não confere" >&2
+        exit 1
+      }
+    fi
   fi
   if [ -f "$KERNEL_ARCHIVE" ]; then
     echo "==> Extraindo arquivo local do kernel: $KERNEL_ARCHIVE"

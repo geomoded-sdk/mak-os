@@ -45,7 +45,7 @@ Veja `Compatibility/PineappleApp/README.md`.
 
 ### Waydroid
 - Android em contêiner (LXC) com Wayland.
-- Requer kernel com `binder` e `overlayfs` (já incluídos em `Kernel/config-6.1-pineappleos`).
+- Requer kernel com `binder` e `overlayfs` (já incluídos em `Kernel/config-oem-x`).
 - Gerenciado pelo atalho `pineapple-waydroid`.
 
 ### Integração de desktop

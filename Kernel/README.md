@@ -6,7 +6,7 @@
 ## O que é este "kernel"?
 
 O Pineapple OS usa uma arvore local do kernel **Linux 6.1**, compilada com uma
-configuracao propria (`config-6.1-pineappleos`) e com codigo Pineapple integrado
+configuração OEM-X (`config-oem-x`) e com o código do projeto integrado
 em `Kernel/pineapple/`. A identidade
 de plataforma é **Pineapple Kernel** — do mesmo jeito que o Android chama seu
 kernel de "Android Kernel" mesmo sendo Linux por baixo.
@@ -21,7 +21,7 @@ próprio (como o bloqueio por PowerBook ID). Um kernel verdadeiramente novo
 
 | Arquivo                    | Descrição                                            |
 |----------------------------|------------------------------------------------------|
-| `config-6.1-pineappleos`   | Configuração de referência do kernel (x86_64)        |
+| `config-oem-x`              | Configuração de referência do OEM-X (x86_64)        |
 | `pineapple/`               | Código real integrado em `drivers/pineapple/`        |
 | `pineapple/bsd/`           | Camada FreeBSD (sysctl estilo BSD, híbrido XNU)      |
 | `pineapple/bootargs/`      | Boot-args no kernel (PowerBook ID + PNFS)            |
