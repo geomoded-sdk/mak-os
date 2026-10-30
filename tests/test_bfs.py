@@ -1,4 +1,4 @@
-"""Testes do PNFS (Pineapple Native File System) — volume exFAT + recursos APFS/HFS+."""
+"""Testes dos recursos de alto nível do PNFS nativo."""
 import os
 import shutil
 import sys
@@ -33,7 +33,7 @@ class TestBFSInit(unittest.TestCase):
     def test_volume_info(self):
         info = self.vol.info()
         self.assertEqual(info["magic"], "PNFS")
-        self.assertEqual(info["format"], "pnfs-overlay")
+        self.assertEqual(info["format"], "pnfs-native")
         self.assertTrue(info["case_insensitive"])
 
     def test_artifacts_have_utility(self):
@@ -249,7 +249,7 @@ class TestBFSV2Layers(unittest.TestCase):
 
     def test_volume_info_declara_layers(self):
         info = self.vol.info()
-        self.assertEqual(info["version"], 2)
+        self.assertEqual(info["version"], 1)
         self.assertEqual(
             tuple(info["layers"]),
             ("xattrs", "finder", "snapshots", "clones", "checksums", "sparse"),

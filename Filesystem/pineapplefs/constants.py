@@ -16,12 +16,12 @@ import uuid as _uuid
 from pathlib import Path
 
 MAGIC = "PNFS"
-FORMAT = "pnfs-overlay"
-FORMAT_VERSION = 2
+FORMAT = "pnfs-native"
+FORMAT_VERSION = 1
 
 # Pilha de camadas do PNFS (a ordem abaixo é a declarada no volume.info).
-# O PNFS NÃO finge ser APFS: é um overlay de usuário próprio sobre o filesystem
-# do kernel (exFAT etc.), inspirado em recursos que existem em vários sistemas.
+# O PNFS tem superbloco próprio no kernel. Estas camadas são recursos de alto
+# nível que complementam o formato nativo, sem depender de outro filesystem.
 LAYERS = ("xattrs", "finder", "snapshots", "clones", "checksums", "sparse")
 
 # Diretórios/arquivos do sistema que o PNFS ignora em varreduras.
@@ -48,7 +48,7 @@ def is_hidden_name(name):
 
 
 def filesystem_type(path):
-    """Devolve o tipo do filesystem Linux montado (exFAT etc.), se possível."""
+    """Devolve o tipo do filesystem Linux montado, se possível."""
     try:
         mounts = Path("/proc/mounts").read_text(encoding="utf-8").splitlines()
     except (OSError, UnicodeError):

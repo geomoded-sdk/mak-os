@@ -1,12 +1,12 @@
 CC ?= cc
 CFLAGS ?= -O2 -Wall -Wextra -Werror
 
-all: pineapplefs-boot
+all: pineapplefs-mkfs
 
-pineapplefs-boot: pineapplefs-boot.c
+pineapplefs-mkfs: pineapplefs-mkfs.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 clean:
-	rm -f pineapplefs-boot
+	rm -f pineapplefs-mkfs
 
 .PHONY: all clean

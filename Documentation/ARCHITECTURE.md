@@ -142,7 +142,7 @@ Usamos **labwc** (compositor wlroots leve e estável) como base. Alternativa:
 
 ## Sistema de arquivos (BFS)
 
-Volumes exFAT ganham uma camada estilo APFS/HFS+ via `Filesystem/pineapplefs`
+Volumes PNFS nativos ganham uma camada estilo APFS/HFS+ via `Filesystem/pineapplefs`
 e o CLI `Scripts/pineapplefs.py`:
 
 - Sidecars **AppleDouble `._*`** (xattrs, Finder Info, resource fork) — o mesmo

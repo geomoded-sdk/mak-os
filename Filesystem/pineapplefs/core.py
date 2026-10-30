@@ -2,12 +2,11 @@
 # =============================================================================
 #  pineapplefs / core.py — PNFS: núcleo do volume e pilha de camadas
 #
-#  O BFS (Pineapple Native File System) é um sistema de arquivos de usuário sobre o
-#  filesystem do kernel (exFAT e outros). O volume real é o exFAT; o BFS roda
-#  POR CIMA dele como uma camada de metadados explícita:
+#  O PNFS (Pineapple Native File System) é um sistema de arquivos nativo no
+#  kernel. Esta API implementa recursos de alto nível sobre o volume montado:
 #
-#    exFAT (ou outro filesystem do kernel)
-#      └── PNFS metadata layer  (overlay de usuário)
+#    PNFS (superbloco e VFS nativos)
+#      └── PNFS metadata/features
 #            ├── xattrs      → metadata.py   (atributos extendidos AppleDouble)
 #            ├── finder      → finder.py     (Finder Info, tags, ícone, comentário)
 #            ├── snapshots   → snapshots.py  (estados imutáveis do volume)
@@ -15,8 +14,7 @@
 #            ├── checksums   → checksums.py  (integridade sha256)
 #            └── sparse      → sparse.py     (representação esparsa/expandida)
 #
-#  O BFS NÃO finge ser APFS: é um overlay próprio, inspirado em recursos que
-#  existem em vários sistemas de arquivos. Cada camada é um módulo separado e
+#  Cada camada é um módulo separado e
 #  a ordem da pilha é declarada no volume.info do volume.
 # =============================================================================
 import os
@@ -84,7 +82,7 @@ class PNFSVolume:
         self.sparse = SparseLayer(self)
 
     # ------------------------------------------------------------------
-    #  Inicialização do volume (exFAT + camada de metadados BFS)
+    #  Inicialização dos recursos de alto nível do volume PNFS
     # ------------------------------------------------------------------
     def init(self, name="Pineapple OS"):
         """Adiciona a camada PNFS sem formatar nem apagar o volume real."""
@@ -111,7 +109,7 @@ class PNFSVolume:
 
         self.clones._ensure_registry()
 
-        # artefatos que o macOS cria no volume (exFAT / APFS)
+        # artefatos apresentados pela experiência Pineapple
         (self.root / ".Spotlight-V100").mkdir(exist_ok=True)
         (self.root / ".fseventsd").mkdir(exist_ok=True)
         (self.root / ".Trashes").mkdir(exist_ok=True)

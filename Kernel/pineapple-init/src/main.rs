@@ -7,8 +7,8 @@
 //   1. Lê /proc/cmdline e extrai -pineapplepowerbookid=<ID> e -pineapplefs=<dev>.
 //   2. Valida o ID contra a lista embutida (ids.txt copiado para
 //      /pineappleos-ids.txt no initramfs).
-//   3. Fora do modo live, valida o volume PNFS (exFAT + .bfsprivate/volume.info).
-//   4. Sem ID válido ou sem BFS → imprime o panic estilo macOS e força
+//   3. Fora do modo live, valida o volume PNFS nativo (.bfsprivate/volume.info).
+//   4. Sem ID válido ou sem PNFS → imprime o panic estilo macOS e força
 //      kernel panic via SysRq (echo c > /proc/sysrq-trigger).
 //
 //  É um binário pequeno (idealmente estático/musl) embutido no initramfs
@@ -68,9 +68,9 @@ fn panic_macos(reason: &str) -> ! {
 }
 
 fn check_pnfs_root(dir: &Path) -> bool {
-    let info = dir.join(".bfsprivate/volume.info");
+    let info = dir.join("volume.info");
     match fs::read_to_string(&info) {
-        Ok(s) => s.contains("\"PNFS\"") && s.contains("\"pnfs-overlay\""),
+        Ok(s) => s.contains("\"PNFS\"") && s.contains("\"pnfs-native\""),
         Err(_) => false,
     }
 }
@@ -89,7 +89,7 @@ fn mount_pnfs_check(dev: &str) -> bool {
     let mnt = "/pnfs-check";
     let _ = fs::create_dir_all(mnt);
     let mounted = Command::new("mount")
-        .args(["-o", "ro", dev, mnt])
+        .args(["-t", "pnfs", "-o", "ro", dev, mnt])
         .stdout(Stdio::null())
         .stderr(Stdio::null())
         .status()
@@ -163,7 +163,7 @@ fn main() {
         } else if !mount_pnfs_check(fs_arg) {
             panic_macos(&format!(
                 "o volume PNFS obrigatório '-pineapplefs={fs_arg}' não é um volume \
-                 BFS válido (falta .bfsprivate/volume.info)"
+                 PNFS nativo válido (falta volume.info)"
             ));
         }
         return;
@@ -189,8 +189,8 @@ fn main() {
                 let real = resolve_fstab_dev(dev);
                 if !mount_pnfs_check(&real) {
                     panic_macos(&format!(
-                        "o volume de dados BFS montado em '{mnt}' não é um volume \
-                         BFS válido (falta .bfsprivate/volume.info)"
+                        "o volume de dados PNFS montado em '{mnt}' não é um volume \
+                         PNFS nativo válido (falta volume.info)"
                     ));
                 }
             }
@@ -198,7 +198,7 @@ fn main() {
     }
     if !found && !check_pnfs_root(Path::new(&rootmnt)) {
         panic_macos(
-            "volume PNFS obrigatório não encontrado \
+            "volume PNFS nativo obrigatório não encontrado \
              (adicione -pineapplefs=<dispositivo> ou inicialize com Scripts/setup-pnfs.sh)",
         );
     }

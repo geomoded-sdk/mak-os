@@ -9,7 +9,7 @@
     * Arguments   -> argumentos de boot normais (quiet/loglevel/splash...).
     * PowerBookID -> ID do PowerBook (obrigatório). Deve existir em ids.txt.
                      Vazio = o ID será pedido na tela do GRUB (senão: panic).
-    * FileSystem  -> dispositivo do volume BFS (ex.: /dev/sdb2 ou 'root').
+    * FileSystem  -> dispositivo do volume PNFS (ex.: /dev/sdb2 ou 'root').
                      Só é obrigatório fora do modo live (instalação).
     * Verbose     -> true  adiciona -v (boot verboso, estilo macOS).
     * SafeMode    -> true  adiciona -x (modo de segurança).

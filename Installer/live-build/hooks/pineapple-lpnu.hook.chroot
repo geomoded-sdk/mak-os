@@ -16,6 +16,24 @@
 # =============================================================================
 set -euo pipefail
 
+# Quando a ISO é montada pelo pipeline novo, os módulos já foram compilados
+# contra o kernel Pineapple. Nunca recompilar contra o kernel genérico do
+# live-build: isso produziria vermagic incompatível.
+PREBUILT_LPNU="$(find /lib/modules -type f -path '*/extra/lpnu.ko' -print -quit 2>/dev/null || true)"
+if [ -n "$PREBUILT_LPNU" ]; then
+    KVER="$(basename "$(dirname "$(dirname "$PREBUILT_LPNU")")")"
+    PREBUILT_APFS="/lib/modules/$KVER/extra/apfs.ko"
+    [ -f "$PREBUILT_APFS" ] || { echo "ERRO: apfs.ko pré-compilado ausente para $KVER" >&2; exit 1; }
+    depmod -a "$KVER"
+    mkdir -p /etc/modules-load.d
+    cat > /etc/modules-load.d/pineapple-lpnu.conf <<'EOF'
+lpnu
+apfs
+EOF
+    echo "==> [LPNU] usando módulos pré-compilados para kernel Pineapple $KVER"
+    exit 0
+fi
+
 SRC=/root/lpnu-build
 [ -d "$SRC" ] || { echo "ERRO: fontes do LPNU não encontradas em $SRC" >&2; exit 1; }
 

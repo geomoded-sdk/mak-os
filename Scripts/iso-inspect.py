@@ -9,8 +9,8 @@
 #    * MBR híbrido: assinatura 0x55aa e partição protetora GPT (0xEE);
 #    * Nenhum arquivo >= 4GiB (gatilho do aviso de cluster 64 KB do Rufus);
 #    * Nenhum nome de arquivo não-ISO com mais de 64 caracteres (aviso do Rufus);
-#    * Arquivos obrigatórios: /live/vmlinuz-*, /live/initrd.img-*, *.squashfs,
-#      /boot/grub/grub.cfg (com busca por /live/vmlinuz + linux/initrd);
+#    * Arquivos obrigatórios: /live/pineapple.ekern, /live/pineapple.boot,
+#      *.squashfs, /boot/grub/grub.cfg (com busca pelos nomes novos);
 #    * Conteúdo EFI presente (BOOTX64.EFI dentro da imagem FAT embutida).
 #
 #  Saída resumida (estilo Rufus) e exit code:
@@ -192,8 +192,8 @@ def main():
 
     # ------------------------------------------------------------ árvore
     required = {
-        "live_vmlinuz": None,
-        "live_initrd": None,
+        "live_kernel": None,
+        "live_initramfs": None,
         "live_squashfs": None,
         "grub_cfg": None,
     }
@@ -224,10 +224,10 @@ def main():
             max_name_path = path
         # confere requisitos
         if path.startswith("/live/"):
-            if "vmlinuz" in base_name and required["live_vmlinuz"] is None:
-                required["live_vmlinuz"] = path
-            if "initrd" in base_name and required["live_initrd"] is None:
-                required["live_initrd"] = path
+            if base_name == "pineapple.ekern" and required["live_kernel"] is None:
+                required["live_kernel"] = path
+            if base_name == "pineapple.boot" and required["live_initramfs"] is None:
+                required["live_initramfs"] = path
             if base_name.endswith(".squashfs") and \
                     required["live_squashfs"] is None:
                 required["live_squashfs"] = path
@@ -262,8 +262,8 @@ def main():
     print("    >4GB file: No")
     if max_name > 64:
         warn(f"nome com {max_name} caracteres: {max_name_path} (Rufus avisa)")
-    print(f"    vmlinuz : {required['live_vmlinuz']}")
-    print(f"    initrd  : {required['live_initrd']}")
+    print(f"    kernel  : {required['live_kernel']}")
+    print(f"    initramfs: {required['live_initramfs']}")
     print(f"    squashfs: {required['live_squashfs']}")
     print(f"    grub.cfg: {required['grub_cfg']}")
 

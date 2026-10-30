@@ -47,13 +47,13 @@ DISTRO=ubuntu SUITE=noble POWERBOOK_ID=SEU_ID ./Scripts/build-iso.sh
 
 ## Volume PNFS obrigatório (kernel panic sem ele)
 
-Fora do modo live, o boot também exige um volume **BFS** (exFAT +
-`.bfsprivate/volume.info`). O initramfs valida o dispositivo de
+Fora do modo live, o boot também exige um volume **PNFS nativo** (`volume.info`).
+O initramfs valida o dispositivo de
 `-pineapplefs=<dev>` (ou o detecta pelo `/etc/fstab` em `/home`/`/data`);
 sem volume PNFS válido → **kernel panic**.
 
 ```bash
-sudo ./Scripts/setup-pnfs.sh /dev/sdb2        # formata exFAT + BFS em /data
+sudo ./Scripts/setup-pnfs.sh /dev/sdb2        # formata PNFS nativo em /data
 # /etc/default/grub:
 # GRUB_CMDLINE_LINUX_DEFAULT="... -pineapplepowerbookid=SEU_ID -pineapplefs=/dev/sdb2"
 sudo update-grub

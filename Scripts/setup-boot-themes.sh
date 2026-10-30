@@ -55,7 +55,7 @@ if ! grep -q "pineapplepowerbookid" /etc/default/grub; then
 # GRUB_CMDLINE_LINUX_DEFAULT="$(echo $GRUB_CMDLINE_LINUX_DEFAULT) -pineapplepowerbookid=SEU_ID"
 #
 # Pineapple OS — volume PNFS obrigatório (fora do modo live). Sem um volume
-# PNFS válido (exFAT + .bfsprivate) o kernel entra em panic. Crie com
+# PNFS nativo válido o kernel entra em panic. Crie com
 # Scripts/setup-pnfs.sh e indique o dispositivo:
 # GRUB_CMDLINE_LINUX_DEFAULT="$(echo $GRUB_CMDLINE_LINUX_DEFAULT) -pineapplefs=/dev/sdX2"
 EOF

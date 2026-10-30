@@ -47,5 +47,4 @@ config PINEAPPLE_PNFS
     default n
     help
       In-kernel registration of the PNFS filesystem ("mount -t pnfs").
-      First kernel stage of the Pineapple Native File System; the userspace
-      metadata module remains .bfsprivate.
+      PNFS has its own on-disk superblock and does not depend on exFAT.

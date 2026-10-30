@@ -16,13 +16,13 @@
   boot `-pineapplepowerbookid=<ID>` (ID válido de `ids.txt`); sem ele, o
   kernel entra em panic estilo macOS.
 - **Volume PNFS obrigatório**: fora do modo live, o boot também exige um volume
-  de dados PNFS (exFAT + `.bfsprivate`) via `-pineapplefs=<dev>` (ou detectado
+  de dados PNFS nativo via `-pineapplefs=<dev>` (ou detectado
   no `/etc/fstab`); sem ele → kernel panic (como o macOS exige APFS).
 - **Logs de boot silenciosos** (`quiet loglevel=0`), como no macOS.
 - **Wallpapers**: High Sierra (dunas), Catalina **dinâmico** (troca conforme
   o horário, via daemon `pineapple-wallpaper`) e Sequoia.
-- **PNFS — Pineapple Native File System**: sistema de arquivos de usuário baseado em
-  **exFAT** com recursos estilo **APFS/HFS+** — `._*` AppleDouble, `.bfsprivate`,
+- **PNFS — Pineapple Native File System**: sistema de arquivos próprio do kernel,
+  com recursos estilo **APFS/HFS+** — `._*` AppleDouble, metadados,
   snapshots, clones copy-on-write, arquivos esparsos "expandidos", case-
   insensitive, checksums e a pasta `_PINEAPPLE` em .zip (como o macOS).
 - Interface fluida com aceleração por GPU; barra superior, Dock, Launchpad,
@@ -49,7 +49,7 @@ PineappleOS/
 ├── Store/         # Loja de aplicativos
 ├── Themes/        # Temas GTK + wallpapers (High Sierra/Catalina/Sequoia)
 ├── Icons/         # Conjunto de ícones próprio (gerado por script)
-├── Filesystem/    # PNFS: exFAT + recursos APFS/HFS+ (._*, .bfsprivate, snapshots, clones)
+├── Filesystem/    # PNFS nativo + recursos APFS/HFS+ (snapshots, clones, checksums)
 ├── Installer/     # live-build, GRUB, Plymouth, SDDM, schemas, systemd, initramfs
 ├── Orchard/       # instalador próprio (motor Rust + UI GTK4/GLS Render)
 ├── Kernel/        # Config do kernel ("Pineapple Kernel") e docs de boot

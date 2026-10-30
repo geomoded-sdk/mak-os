@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # =============================================================================
-#  pineapplefs — CLI do BFS v2 (Pineapple File System)
+#  pineapplefs — CLI dos recursos PNFS (Pineapple Native File System)
 #
-#  BFS é um overlay de usuário sobre o filesystem do kernel (exFAT etc.) com
-#  uma camada de metadados em 6 partes: xattrs, finder, snapshots, clones,
+#  PNFS é o filesystem nativo do kernel com uma camada de recursos em 6 partes:
+#  xattrs, finder, snapshots, clones,
 #  checksums e sparse (veja `layers <dir>`).
 #
 #  Uso:  python3 Scripts/pineapplefs.py <comando> [args...]
@@ -262,7 +262,7 @@ def json_dumps(obj):
 
 
 def main():
-    p = argparse.ArgumentParser(prog="pineapplefs", description="BFS v2 — Pineapple File System (overlay exFAT + camada de metadados: xattrs, finder, snapshots, clones, checksums, sparse)")
+    p = argparse.ArgumentParser(prog="pineapplefs", description="PNFS nativo — xattrs, finder, snapshots, clones, checksums e sparse")
     sub = p.add_subparsers(dest="cmd", required=True)
 
     def add(p_, name, help_, fn):

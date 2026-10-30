@@ -63,10 +63,12 @@ install -m644 "$ROOT/AI/pineapple_ai.py" "$ROOT/AI/voice.py" "$APPS/AI/"
 echo "==> Instalando daemon de wallpaper (dinâmico estilo Catalina)"
 install -m755 "$ROOT/Apps/Wallpaper/pineapple-wallpaper.py" "$APP_BIN/pineapple-wallpaper"
 
-echo "==> Instalando PNFS (Pineapple Native File System) — exFAT + recursos APFS/HFS+"
+echo "==> Instalando PNFS (Pineapple Native File System) nativo"
 mkdir -p "$APPS/Filesystem"
 cp -r "$ROOT/Filesystem/pineapplefs" "$APPS/Filesystem/"
 install -m755 "$ROOT/Scripts/pineapplefs.py" "$APP_BIN/pineapplefs"
+make -C "$ROOT/Filesystem/pineapplefs-c" pineapplefs-mkfs
+install -m755 "$ROOT/Filesystem/pineapplefs-c/pineapplefs-mkfs" "$BIN/pineapplefs-mkfs"
 
 echo "==> Instalando temas e ícones"
 mkdir -p "$STAGE/usr/share/themes" "$STAGE/usr/share/icons"

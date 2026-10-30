@@ -22,6 +22,7 @@ POWERBOOK_ID="${POWERBOOK_ID:-}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 LB_DIR="$ROOT/Installer/live-build"
 WORKDIR="$ROOT/Installer/live-build/$OUTPUT"
+PINEAPPLE_KERNEL_DIR="${PINEAPPLE_KERNEL_DIR:-$ROOT/build/kernel-dist/boot}"
 
 # ------------------------------------------------- boot.plist + args de boot
 # boot.plist é o equivalente do boot-args/NVRAM do macOS: um plist que define
@@ -393,20 +394,35 @@ fi
 echo "==> Incluindo LPNU (fontes + ld-mac) — obrigatório"
 LPNU_DIR="config/includes.chroot/root/lpnu-build"
 mkdir -p "$LPNU_DIR"
-wget -qO "$LPNU_DIR/lpnu-src.tar.gz" \
-  "https://github.com/geomoded-sdk/lpnu/archive/refs/tags/v2.0.0.tar.gz"
-wget -qO "$LPNU_DIR/apfs-src.tar.gz" \
-  "https://github.com/linux-apfs/linux-apfs-rw/archive/refs/tags/v0.3.19.tar.gz"
-curl -fsSL \
-  -H 'Accept: application/octet-stream' \
-  -o "$LPNU_DIR/ld-mac" \
-  "https://api.github.com/repos/geomoded-sdk/lpnu/releases/assets/402871192"
-if [ "$(sha256sum "$LPNU_DIR/ld-mac" | cut -d' ' -f1)" != \
-     "e7ee78932e6f7abd21cd320af6b7e6895875306a4e491b50bd78ae6faaa9c4a5" ]; then
-  echo "==> ERRO: sha256 de ld-mac não confere" >&2
-  exit 1
+
+# O kernel e os módulos LPNU foram compilados no job kernel-build. Eles entram
+# no chroot antes do hook para preservar a mesma vermagic do kernel da ISO.
+KERNEL_DIST="$(dirname "$PINEAPPLE_KERNEL_DIR")"
+if [ -d "$KERNEL_DIST/lib/modules" ]; then
+  echo "==> Incluindo módulos do kernel Pineapple no chroot"
+  mkdir -p config/includes.chroot/lib/modules
+  cp -a "$KERNEL_DIST/lib/modules/." config/includes.chroot/lib/modules/
+  mkdir -p config/includes.chroot/etc/modules-load.d
+  cp "$KERNEL_DIST/modules-load.d/pineapple-lpnu.conf" \
+    config/includes.chroot/etc/modules-load.d/
+  mkdir -p config/includes.chroot/usr/local/bin
+  cp "$KERNEL_DIST/usr/local/bin/ld-mac" config/includes.chroot/usr/local/bin/
+else
+  wget -qO "$LPNU_DIR/lpnu-src.tar.gz" \
+    "https://github.com/geomoded-sdk/lpnu/archive/refs/tags/v2.0.0.tar.gz"
+  wget -qO "$LPNU_DIR/apfs-src.tar.gz" \
+    "https://github.com/linux-apfs/linux-apfs-rw/archive/refs/tags/v0.3.19.tar.gz"
+  curl -fsSL \
+    -H 'Accept: application/octet-stream' \
+    -o "$LPNU_DIR/ld-mac" \
+    "https://api.github.com/repos/geomoded-sdk/lpnu/releases/assets/402871192"
+  if [ "$(sha256sum "$LPNU_DIR/ld-mac" | cut -d' ' -f1)" != \
+       "e7ee78932e6f7abd21cd320af6b7e6895875306a4e491b50bd78ae6faaa9c4a5" ]; then
+    echo "==> ERRO: sha256 de ld-mac não confere" >&2
+    exit 1
+  fi
+  chmod +x "$LPNU_DIR/ld-mac"
 fi
-chmod +x "$LPNU_DIR/ld-mac"
 mkdir -p config/hooks/normal
 cp "$ROOT/Installer/live-build/hooks/pineapple-lpnu.hook.chroot" \
   config/hooks/normal/0001-pineapple-lpnu.hook.chroot
@@ -421,15 +437,20 @@ echo "==> Configurando grub.cfg da ISO (pineapple.ekern, sem 'vmlinuz')"
 cat > config/hooks/0020-pineapple-grub.cfg.hook.binary <<EOF
 #!/bin/sh
 set -eu
-# Identidade: renomeia o kernel/initrd do live — nada se chama "vmlinuz".
-for k in binary/live/vmlinuz-*amd64; do
-    [ -e "\$k" ] || continue
-    mv "\$k" "binary/live/pineapple.ekern"
-done
-for i in binary/live/initrd.img-*amd64; do
-    [ -e "\$i" ] || continue
-    mv "\$i" "binary/live/pineapple.boot"
-done
+# O ISO carrega o kernel Pineapple compilado pelo projeto, nunca o kernel
+# genérico produzido automaticamente pelo live-build. O initramfs live é
+# preservado, pois contém a sessão gráfica e o live-boot.
+LIVE_INITRAMFS="\$(find binary/live -maxdepth 1 -type f -name 'initrd.img-*' -print -quit 2>/dev/null || true)"
+rm -f binary/live/vmlinuz-* binary/live/pineapple.ekern binary/live/pineapple.boot
+CUSTOM_KERNEL_DIR="${PINEAPPLE_KERNEL_DIR}"
+KERNEL_FILE="\$(find "\$CUSTOM_KERNEL_DIR" -maxdepth 1 -type f -name 'pineapple.ekern-*' -print -quit 2>/dev/null || true)"
+[ -n "\$KERNEL_FILE" ] && [ -n "\$LIVE_INITRAMFS" ] || {
+    echo "ERRO: kernel Pineapple ausente em \$CUSTOM_KERNEL_DIR" >&2
+    echo "Execute build-kernel.sh com KERNEL_BUILD_OUT e mantenha o initramfs live." >&2
+    exit 1
+}
+cp "\$KERNEL_FILE" binary/live/pineapple.ekern
+mv "\$LIVE_INITRAMFS" binary/live/pineapple.boot
 KERN="pineapple.ekern"
 INITRD="pineapple.boot"
 cat > binary/boot/grub/grub.cfg <<GRUB
@@ -439,7 +460,6 @@ insmod all_video
 insmod part_msdos
 insmod part_gpt
 insmod fat
-insmod exfat
 insmod iso9660
 insmod udf
 insmod ext2

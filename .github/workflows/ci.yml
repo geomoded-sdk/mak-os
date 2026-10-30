@@ -31,8 +31,8 @@ jobs:
         run: |
           python3 -m unittest discover -s tests -v
 
-  rust-shell:
-    name: Rust (shell/dock/launcher/launchpad/mission/canopy/gestures)
+  rust-components:
+    name: Rust (shell + Orchard + PNFS)
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -46,7 +46,7 @@ jobs:
             libgtk-4-dev libadwaita-1-dev libwayland-dev \
             wayland-protocols libxkbcommon-dev gobject-introspection \
             libgirepository1.0-dev libinput-dev libudev-dev \
-            meson ninja-build pkg-config
+            libfuse3-dev meson ninja-build pkg-config
 
       - name: Compilar gtk4-layer-shell
         run: |
@@ -71,7 +71,7 @@ jobs:
       - name: Verificar formatação
         run: |
           failed=0
-          for crate in Desktop Dock Launcher Launchpad Mission Canopy Gestures; do
+          for crate in Desktop Dock Launcher Launchpad Mission Canopy Gestures Filesystem/bfs-fuse Kernel/pineapple-init; do
             echo "==> fmt: $crate"
             cargo fmt \
               --manifest-path "$crate/Cargo.toml" \
@@ -83,12 +83,17 @@ jobs:
       - name: Verificar crates
         run: |
           failed=0
-          for crate in Desktop Dock Launcher Launchpad Mission Canopy Gestures; do
+          for crate in Desktop Dock Launcher Launchpad Mission Canopy Gestures Filesystem/bfs-fuse Kernel/pineapple-init; do
             echo "==> check: $crate"
             cargo check \
               --manifest-path "$crate/Cargo.toml" || failed=1
           done
           exit $failed
+
+      - name: Verificar workspace Orchard
+        run: |
+          cargo fmt --manifest-path Orchard/Cargo.toml -- --check
+          cargo check --workspace --manifest-path Orchard/Cargo.toml
 
   shell-scripts:
     name: Scripts shell
@@ -185,12 +190,19 @@ jobs:
 
   iso-build:
     name: ISO x64 (amd64)
+    needs: kernel-build
     runs-on: ubuntu-latest
     timeout-minutes: 60
 
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+
+      - name: Baixar kernel Pineapple
+        uses: actions/download-artifact@v5
+        with:
+          name: pineappleos-kernel-6.1-lpnu
+          path: build/kernel-dist
 
       - name: Instalar dependências do build
         run: |
@@ -226,6 +238,7 @@ jobs:
       - name: Compilar ISO amd64
         env:
           POWERBOOK_ID: ${{ secrets.POWERBOOK_ID }}
+          PINEAPPLE_KERNEL_DIR: ${{ github.workspace }}/build/kernel-dist/boot
         run: |
           chmod +x Scripts/build-iso.sh
           sudo -E ./Scripts/build-iso.sh

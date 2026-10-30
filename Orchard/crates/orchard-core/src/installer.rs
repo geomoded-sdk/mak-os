@@ -251,7 +251,7 @@ impl Installer {
         self.cmd("mkfs.ext4", &["-L", "pineapple-root", &p2])?;
         if self.config.pnfs_device.is_none() {
             let p3 = format!("{disk}3");
-            self.cmd("mkfs.exfat", &["-n", "PINEAPPLE", &p3])?;
+            self.cmd("pineapplefs-mkfs", &[&p3])?;
         }
         Ok(())
     }
@@ -356,24 +356,15 @@ impl Installer {
         };
         let mnt = format!("{}/data", self.mount_root);
         self.cmd("mkdir", &["-p", &mnt])?;
-        self.cmd("mount", &[&dev, &mnt])?;
-        // Inicializa o PNFS (exFAT + .bfsprivate) via script existente do projeto.
-        self.cmd(
-            "python3",
-            &[
-                "/usr/share/pineappleos/Filesystem/pineapplefs.py",
-                "init",
-                &mnt,
-                "--name",
-                "PINEAPPLE",
-            ],
-        )?;
+        self.cmd("mount", &["-t", "pnfs", &dev, &mnt])?;
+        // O driver PNFS cria volume.info ao montar o superbloco nativo.
+        self.cmd("test", &["-r", &format!("{mnt}/volume.info")])?;
         // fstab
         if !self.dry_run {
             let uuid = self
                 .blkid(&dev, "UUID")
                 .unwrap_or_else(|_| "UUID=none".into());
-            let line = format!("{uuid} /data exfat defaults,nofail 0 0\n");
+            let line = format!("{uuid} /data pnfs defaults,nofail 0 0\n");
             use std::io::Write;
             let mut f = std::fs::OpenOptions::new()
                 .append(true)

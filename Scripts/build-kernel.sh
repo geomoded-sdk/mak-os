@@ -34,8 +34,8 @@ command -v make >/dev/null 2>&1 || { echo "make não encontrado" >&2; exit 1; }
 
 echo "==> Compilando runtime PNFS nativo para preboot"
 make -C "$ROOT/Filesystem/pineapplefs-c"
-sudo install -D -m 0755 "$ROOT/Filesystem/pineapplefs-c/pineapplefs-boot" \
-  /usr/lib/pineappleos/pineapplefs-boot
+sudo install -D -m 0755 "$ROOT/Filesystem/pineapplefs-c/pineapplefs-mkfs" \
+  /usr/local/bin/pineapplefs-mkfs
 
 echo "==> Usando fonte local do kernel: $KERNEL_SOURCE_DIR"
 mkdir -p "$TARGET_DIR"
@@ -66,20 +66,30 @@ cd "$KERNEL_SOURCE_DIR"
 # =============================================================================
 echo "==> Aplicando identidade Pineapple no fonte (uts.h / version.c)"
 # UTS_SYSNAME: define o sysname do uname e a primeira palavra de /proc/version.
-find include init -type f \( -name '*.h' -o -name '*.c' \) -print0 2>/dev/null \
-  | xargs -0 grep -l 'UTS_SYSNAME "Linux"' 2>/dev/null \
-  | while IFS= read -r f; do
-      sed -i 's/UTS_SYSNAME "Linux"/UTS_SYSNAME "Pineapple"/' "$f"
-      echo "    patch: $f"
-    done
+# Não use xargs aqui: algumas versões do kernel não têm essa macro no mesmo
+# arquivo e o grep retorna 1, fazendo o pipeline abortar sob `set -e`.
+patched_identity=0
+while IFS= read -r -d '' f; do
+  if grep -q 'UTS_SYSNAME "Linux"' "$f"; then
+    sed -i 's/UTS_SYSNAME "Linux"/UTS_SYSNAME "Pineapple"/' "$f"
+    echo "    patch: $f"
+    patched_identity=1
+  fi
+done < <(find include init -type f \( -name '*.h' -o -name '*.c' \) -print0 2>/dev/null)
+
 # fallback para árvores onde UTS_SYSNAME vive em outro lugar
-if ! grep -rq 'UTS_SYSNAME "Pineapple"' include init 2>/dev/null; then
-  grep -rl '"Linux"' include/linux/uts.h include/uapi/linux/utsname.h \
-    init/version.c 2>/dev/null \
-    | while IFS= read -r f; do
-        sed -i 's/"Linux"/"Pineapple"/g' "$f"
-        echo "    patch(fallback): $f"
-      done
+if [ "$patched_identity" -eq 0 ]; then
+  while IFS= read -r f; do
+    [ -n "$f" ] || continue
+    sed -i 's/"Linux"/"Pineapple"/g' "$f"
+    echo "    patch(fallback): $f"
+    patched_identity=1
+  done < <(grep -rl '"Linux"' include/linux/uts.h include/uapi/linux/utsname.h \
+    init/version.c 2>/dev/null || true)
+fi
+
+if [ "$patched_identity" -eq 0 ]; then
+  echo "    aviso: fonte não expõe UTS_SYSNAME; mantendo identidade padrão" >&2
 fi
 
 # Integra codigo Pineapple diretamente na arvore Linux vendorizada.
@@ -267,9 +277,12 @@ if [ -n "$KERNEL_BUILD_OUT" ]; then
 
   if command -v update-initramfs >/dev/null 2>&1; then
     echo "==> Gerando initramfs"
-    sudo update-initramfs -c -k "$KRELEASE" || true
-    [ -f "/boot/initrd.img-$KRELEASE" ] \
-      && cp "/boot/initrd.img-$KRELEASE" "$KERNEL_BUILD_OUT/boot/"
+    sudo update-initramfs -c -k "$KRELEASE"
+    [ -f "/boot/initrd.img-$KRELEASE" ] || {
+      echo "ERRO: initramfs Pineapple não foi gerado" >&2
+      exit 1
+    }
+    cp "/boot/initrd.img-$KRELEASE" "$KERNEL_BUILD_OUT/boot/"
   fi
 
   cp /usr/local/bin/ld-mac "$KERNEL_BUILD_OUT/usr/local/bin/"

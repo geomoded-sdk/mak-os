@@ -1,21 +1,20 @@
 # PNFS — Pineapple File System
 
-> Sistema de arquivos de usuário baseado no filesystem do kernel (**exFAT** por
-> padrão) com uma **camada de metadados própria**. O BFS **não finge ser APFS**:
-> é um overlay inspirado em recursos que existem em vários sistemas de
-> arquivos (exFAT, APFS/HFS+, ext4, btrfs, xfs…).
+> Sistema de arquivos nativo do Pineapple OS, com superbloco PNFS validado pelo
+> kernel e recursos de alto nível próprios. O PNFS não depende de exFAT nem
+> finge ser APFS: seus recursos são implementações originais.
 
-O kernel Linux já monta volumes exFAT; o BFS roda **por cima** dele e traz a
-camada "esperta" estilo Apple para qualquer volume montado (ext4, btrfs, xfs,
-exFAT, NTFS, FAT, APFS via módulo e outros). A inicialização é não destrutiva.
+O kernel Pineapple monta volumes PNFS nativos através de `mount -t pnfs`. As
+camadas de metadados e experiência continuam em userspace, sem substituir o
+formato do volume.
 
 ## Arquitetura — a pilha de camadas
 
 O projeto assume explicitamente a seguinte divisão:
 
 ```
-exFAT (filesystem do kernel — a base)
- └── PNFS metadata layer (overlay de usuário, em .bfsprivate/)
+PNFS (superbloco + VFS nativos do kernel)
+ └── PNFS feature layers (userspace, em .bfsprivate quando aplicável)
       ├── xattrs      → metadata.py   · atributos estendidos (AppleDouble "._*")
       ├── finder      → finder.py     · Finder Info, tags, ícone, comentário
       ├── snapshots   → snapshots.py  · estados imutáveis do volume
@@ -25,8 +24,8 @@ exFAT (filesystem do kernel — a base)
 ```
 
 Cada camada é um módulo separado e a ordem da pilha é **declarada no
-`volume.info`** de cada volume (`"layers": [...]`, formato `"pnfs-overlay"`,
-versão 2). O runtime nativo em `pineapplefs-c/` grava exatamente essa
+`volume.info`** de cada volume (`"layers": [...]`, formato `"pnfs-native"`,
+versão 1). O formatter nativo em `pineapplefs-c/` grava o superbloco e o
 declaração no preboot e no boot, e aplica `user.DOSATTRIB` quando o filesystem
 suporta xattrs; os nomes começam por ponto para permanecerem ocultos também
 nos sistemas que não suportam esse atributo.
@@ -40,7 +39,7 @@ python3 Scripts/pineapplefs.py status  /media/PENDRIVE  # volume.info completo
 
 | Recurso                 | Como o macOS faz              | No PNFS                                |
 |-------------------------|-------------------------------|------------------------------------------|
-| Atributos por arquivo   | `._<nome>` (AppleDouble)      | camada **xattrs** — `._<nome>` idêntico, no exFAT |
+| Atributos por arquivo   | `._<nome>` (AppleDouble)      | camada **xattrs** — `._<nome>` próprio do PNFS |
 | Metadados do volume     | `.Spotlight-V100`, `.fseventsd`, `.Trashes`, `.DS_Store` | cria todos no `init` + `.bfsprivate` |
 | Metadados do Finder     | Finder Info, tags, comentário | camada **finder** — flags, tags coloridas, ícone custom, comentário |
 | Pasta de metadados      | —                             | `.bfsprivate/` (uuid, camadas, snapshots, clones, checksums) |
@@ -126,8 +125,8 @@ macOS/Linux lê os sidecars gerados pelo BFS.
 
 ## Limitações honestas
 
-- O BFS é uma camada de usuário sobre o exFAT do kernel — **não é um
-  filesystem de kernel** e não compete com o APFS em bloco.
+- O PNFS possui superbloco e registro no VFS do kernel; as camadas de
+  userspace complementam o formato nativo.
 - Clones usam hardlinks e a gravação faz copy-on-write no nível de arquivo
   (não de bloco, como o APFS).
 - Snapshots copiam arquivos (imutáveis de verdade); clones são deduplicados

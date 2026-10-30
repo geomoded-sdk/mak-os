@@ -143,23 +143,23 @@ POWERBOOK_ID=SEU_ID ./Scripts/build-iso.sh
 ## Volume PNFS obrigatório (fora do modo live)
 
 Assim como o macOS exige um volume APFS, o Pineapple OS **não inicia** sem um
-volume PNFS válido (exFAT + `.bfsprivate/volume.info` com `magic: PNFS`). O mesmo
+volume PNFS nativo válido (`volume.info` com `magic: PNFS`). O mesmo
 verificador do initramfs:
 
-1. Se houver `boot=live` na linha de boot, o BFS é dispensado (demo/live).
+1. Se houver `boot=live` na linha de boot, o PNFS é dispensado (demo/live).
 2. Se houver `-pineapplefs=<dev>`, o dispositivo é montado (ro) e validado.
    `-pineapplefs=root` valida o próprio sistema raiz.
 3. Sem o argumento, lê `/etc/fstab` do sistema raiz e valida os volumes
    montados em `/home` ou `/data`.
 4. Nada encontrado/inválido → **kernel panic** estilo macOS.
 
-O kernel tem `CONFIG_EXFAT_FS=y` embutido (não é módulo), então o initramfs
-monta exFAT sem depender de `modprobe`.
+O kernel tem o driver PNFS embutido, então o initramfs monta o volume nativo
+sem depender de filesystem externo ou `modprobe`.
 
 ### Como criar o volume PNFS (instalação)
 
 ```bash
-sudo ./Scripts/setup-pnfs.sh /dev/sdb2          # formata exFAT + BFS em /data
+sudo ./Scripts/setup-pnfs.sh /dev/sdb2          # formata PNFS nativo em /data
 # /etc/default/grub
 GRUB_CMDLINE_LINUX_DEFAULT="quiet loglevel=0 -pineapplepowerbookid=SEU_ID -pineapplefs=/dev/sdb2"
 sudo update-grub
@@ -198,7 +198,7 @@ garantindo compatibilidade total.
 
 - `HZ_1000` + `PREEMPT` — latência mínima para UI fluida (desktop).
 - `CONFIG_MAGIC_SYSRQ=y` — necessário para o kernel panic do PowerBook ID.
-- `CONFIG_EXFAT_FS=y` — exFAT embutido (volume PNFS montável no initramfs).
+- `CONFIG_PINEAPPLE_PNFS=y` — PNFS nativo embutido no kernel.
 - Suporte a GPUs AMD (amdgpu), NVIDIA (nouveau), Intel (i915).
 - `FUSE_FS` — necessário para Flatpak e AppImage.
 - `ANDROID_BINDER`/`OVERLAY_FS` — necessário para Waydroid.

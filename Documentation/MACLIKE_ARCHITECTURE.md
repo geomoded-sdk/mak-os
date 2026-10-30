@@ -59,7 +59,7 @@ mudar a topologia fisica pode quebrar pacotes Debian e ferramentas POSIX.
 - O nome de produto pode ser **Pineapple Kernel**, mas a documentacao deve
   continuar declarando que ele e um kernel Linux modificado.
 - Recursos de baixo nivel entram como modulos ou patches pequenos e isolados:
-  suporte a hardware, energia, observabilidade, BFS e integracao com initramfs.
+  suporte a hardware, energia, observabilidade, PNFS e integracao com initramfs.
 - Programas Linux continuam usando ELF, POSIX, procfs, sysfs, XDG e as ABI do
   Linux. A experiencia mac-like nao deve exigir uma ABI proprietaria.
 - LPNU e APFS continuam compilados contra exatamente o release do kernel que
@@ -89,8 +89,8 @@ servicos. Isso nao significa copiar implementacao.
 2. **Servico de metadata**: D-Bus para tags, thumbnails, busca e atualizacoes de
    volumes; usar inotify/fanotify ou APIs equivalentes sem exigir patches no
    kernel inicialmente.
-3. **Volumes**: integrar BFS, ext4, exFAT e APFS via uma API comum de montagem,
-   exibindo cada volume em `Volumes`.
+3. **Volumes**: integrar PNFS nativo, ext4 e APFS via uma API comum de
+   montagem, exibindo cada volume em `Volumes`.
 4. **Experiencia de sistema**: aplicativos padrao, preferencias, instalador,
    atualizador e recuperacao com a mesma nomenclatura e hierarquia visual.
 5. **Kernel**: somente depois de medir uma necessidade real, avaliar patches

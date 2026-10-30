@@ -84,7 +84,8 @@ CONFIG_BTRFS_FS=y
 CONFIG_XFS_FS=y
 CONFIG_F2FS_FS=y
 CONFIG_NTFS3_FS=y
-CONFIG_EXFAT_FS=y
+# PNFS é o filesystem nativo do Pineapple; não depende de exFAT.
+# CONFIG_EXFAT_FS is not set
 CONFIG_VFAT_FS=y
 CONFIG_ISO9660_FS=y
 CONFIG_FUSE_FS=y                  # Flatpak/AppImage
