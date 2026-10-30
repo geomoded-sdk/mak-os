@@ -17,8 +17,8 @@
 // =============================================================================
 
 use fuser::{
-    FileAttr, FileType, Filesystem, MountOption, ReplyAttr, ReplyData, ReplyDirectory,
-    ReplyEntry, Request,
+    FileAttr, FileType, Filesystem, MountOption, ReplyAttr, ReplyData, ReplyDirectory, ReplyEntry,
+    Request,
 };
 use std::ffi::OsStr;
 use std::fs;
@@ -47,7 +47,11 @@ fn attr(ino: u64, size: u64, kind: FileType, uid: u32, gid: u32) -> FileAttr {
         ctime: SystemTime::now(),
         crtime: SystemTime::now(),
         kind,
-        perm: if kind == FileType::Directory { 0o755 } else { 0o644 },
+        perm: if kind == FileType::Directory {
+            0o755
+        } else {
+            0o644
+        },
         nlink: if kind == FileType::Directory { 2 } else { 1 },
         uid,
         gid,
@@ -125,7 +129,13 @@ impl Filesystem for BfsFs {
         match fs::metadata(&path) {
             Ok(meta) => {
                 // inode determinístico por hash do nome (suficiente p/ skeleton)
-                let ino = 1000 + (name.to_string_lossy().bytes().map(|b| b as u64).sum::<u64>() % 1_000_000);
+                let ino = 1000
+                    + (name
+                        .to_string_lossy()
+                        .bytes()
+                        .map(|b| b as u64)
+                        .sum::<u64>()
+                        % 1_000_000);
                 reply.entry(&TTL, &file_attr_from_meta(ino, &meta), 0);
             }
             Err(_) => reply.error(libc::ENOENT),
@@ -170,8 +180,7 @@ impl Filesystem for BfsFs {
                     if name.starts_with('.') && name != ".bfsprivate" {
                         continue; // oculta metadados no listing (como o macOS)
                     }
-                    let ino_e = 1000
-                        + (name.bytes().map(|b| b as u64).sum::<u64>() % 1_000_000);
+                    let ino_e = 1000 + (name.bytes().map(|b| b as u64).sum::<u64>() % 1_000_000);
                     let kind = if e.path().is_dir() {
                         FileType::Directory
                     } else {
@@ -187,8 +196,7 @@ impl Filesystem for BfsFs {
             }
         }
 
-        for (i, (e_ino, e_kind, e_name)) in entries.into_iter().enumerate().skip(offset as usize)
-        {
+        for (i, (e_ino, e_kind, e_name)) in entries.into_iter().enumerate().skip(offset as usize) {
             if reply.add(e_ino, (i + 1) as i64, e_kind, e_name) {
                 break;
             }
@@ -230,7 +238,10 @@ fn main() {
     let mountpoint = PathBuf::from(args.next().unwrap_or_else(|| "/mnt/bfs".into()));
 
     if !Path::new(&backing).is_dir() {
-        eprintln!("bfs-fuse: backing store não é diretório: {}", backing.display());
+        eprintln!(
+            "bfs-fuse: backing store não é diretório: {}",
+            backing.display()
+        );
         std::process::exit(1);
     }
 
