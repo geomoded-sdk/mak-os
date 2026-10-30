@@ -9,6 +9,7 @@
 #include <linux/utsname.h>
 
 static struct kobject *pineapple_kobj;
+extern int oemx_compat_init(struct kobject *root);
 
 static ssize_t identity_show(struct kobject *kobj,
                              struct kobj_attribute *attr, char *buf)
@@ -45,6 +46,14 @@ static int __init pineapple_core_init(void)
 
     ret = sysfs_create_group(pineapple_kobj, &pineapple_attr_group);
     if (ret) {
+        kobject_put(pineapple_kobj);
+        pineapple_kobj = NULL;
+        return ret;
+    }
+
+    ret = oemx_compat_init(pineapple_kobj);
+    if (ret) {
+        sysfs_remove_group(pineapple_kobj, &pineapple_attr_group);
         kobject_put(pineapple_kobj);
         pineapple_kobj = NULL;
         return ret;

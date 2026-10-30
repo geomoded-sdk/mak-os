@@ -111,6 +111,8 @@ DEST="$KERNSRC/drivers/pineapple"
 mkdir -p "$DEST/bsd" "$DEST/bootargs" "$DEST/hwcheck" "$DEST/pnfs"
 cp "$PINEAPPLE_SOURCE/Kconfig" "$PINEAPPLE_SOURCE/Makefile" \
    "$PINEAPPLE_SOURCE/pineapple_core.c" "$DEST/"
+mkdir -p "$DEST/compat"
+cp "$PINEAPPLE_SOURCE/compat/oemx_compat.c" "$DEST/compat/"
 cp "$PINEAPPLE_SOURCE/bsd/pineapple_bsd.c" "$DEST/bsd/"
 cp "$PINEAPPLE_SOURCE/bootargs/pineapple_boot.c" "$DEST/bootargs/"
 cp "$PINEAPPLE_SOURCE/hwcheck/pineapple_hwcheck.c" "$DEST/hwcheck/"
