@@ -116,7 +116,7 @@ grep -qxF 'obj-y += pineapple/' "$KERNSRC/drivers/Makefile" \
 #    * ids.txt            → pineapple_ids.h (PowerBook IDs desta build)
 # =============================================================================
 echo "==> Gerando allowlist de hardware (Kernel/hwlist.txt → allowed_hw.h)"
-"$ROOT/Scripts/gen-allowed-hw.sh" \
+bash "$ROOT/Scripts/gen-allowed-hw.sh" \
   "$ROOT/Kernel/hwlist.txt" "$DEST/hwcheck/allowed_hw.h"
 
 echo "==> Gerando lista de PowerBook IDs (ids.txt → pineapple_ids.h)"
