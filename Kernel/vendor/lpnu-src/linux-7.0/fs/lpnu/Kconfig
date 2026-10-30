@@ -1,0 +1,53 @@
+config LPNU
+	tristate "LPNU - Linux with XNU compatibility layer"
+	depends on BLOCK
+	help
+	  LPNU provides XNU/macOS compatibility for Linux kernel.
+	  It includes:
+	  - APFS filesystem support
+	  - HFS+ filesystem support  
+	  - Mach-O binary loader
+	  - KEXT (.kext) compatibility
+	  - DMG mounting support
+	  - Metal API compatibility
+	  - macOS kernel function emulation
+
+	  This module allows Linux to understand Apple file systems
+	  and execute macOS binaries/extensions.
+
+config LPNU_APFS
+	bool "APFS filesystem support"
+	depends on LPNU
+	default y
+	help
+	  Enable APFS (Apple File System) support in LPNU.
+
+config LPNU_HFS
+	bool "HFS+ filesystem support"
+	depends on LPNU
+	default y
+	help
+	  Enable HFS+ (Hierarchical File System) support in LPNU.
+
+config LPNU_MACHO
+	bool "Mach-O binary loader"
+	depends on LPNU
+	default y
+	help
+	  Enable Mach-O binary format support for loading
+	  macOS executables and kernel extensions.
+
+config LPNU_KEXT
+	bool "KEXT compatibility layer"
+	depends on LPNU
+	default y
+	help
+	  Enable support for loading macOS kernel extensions (.kext).
+
+config BINFMT_MACHO
+	tristate "Mach-O binary format support"
+	depends on PROC_FS
+	help
+	  Enables Linux to recognize and execute Apple Mach-O binaries.
+	  This allows running macOS executables on top of Linux with full
+	  compatibility with existing Linux programs.

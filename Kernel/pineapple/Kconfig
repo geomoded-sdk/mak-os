@@ -48,3 +48,11 @@ config PINEAPPLE_PNFS
     help
       In-kernel registration of the PNFS filesystem ("mount -t pnfs").
       PNFS has its own on-disk superblock and does not depend on exFAT.
+
+config PINEAPPLE_LPNU
+    tristate "LPNU XNU compatibility layer"
+    default y
+    help
+      Builds the vendored LPNU Mach-O/XNU compatibility sources directly into
+      OEM-X. The source is stored in Kernel/vendor/lpnu-src and never fetched
+      by CI.

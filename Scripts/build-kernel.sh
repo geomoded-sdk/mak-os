@@ -117,6 +117,10 @@ cp "$PINEAPPLE_SOURCE/bsd/pineapple_bsd.c" "$DEST/bsd/"
 cp "$PINEAPPLE_SOURCE/bootargs/pineapple_boot.c" "$DEST/bootargs/"
 cp "$PINEAPPLE_SOURCE/hwcheck/pineapple_hwcheck.c" "$DEST/hwcheck/"
 cp "$PINEAPPLE_SOURCE/pnfs/pnfs_fs.c" "$DEST/pnfs/"
+mkdir -p "$DEST/lpnu"
+cp "$PINEAPPLE_SOURCE/lpnu/Makefile" "$DEST/lpnu/"
+cp "$ROOT/Kernel/vendor/lpnu-src/linux-7.0/fs/lpnu/"*.c \
+   "$ROOT/Kernel/vendor/lpnu-src/linux-7.0/fs/lpnu/"*.h "$DEST/lpnu/"
 grep -qxF 'source "drivers/pineapple/Kconfig"' "$KERNSRC/drivers/Kconfig" \
   || printf '\nsource "drivers/pineapple/Kconfig"\n' >> "$KERNSRC/drivers/Kconfig"
 grep -qxF 'obj-y += pineapple/' "$KERNSRC/drivers/Makefile" \
@@ -160,10 +164,12 @@ if [ -x scripts/config ]; then
                  --enable PINEAPPLE_BOOT \
                  --enable PINEAPPLE_BOOT_ENFORCE \
                  --enable PINEAPPLE_HWCHECK \
-                 --enable PINEAPPLE_PNFS
+                 --enable PINEAPPLE_PNFS \
+                 --enable PINEAPPLE_LPNU
 else
   for opt in PINEAPPLE_CORE PINEAPPLE_BSD PINEAPPLE_BOOT \
-             PINEAPPLE_BOOT_ENFORCE PINEAPPLE_HWCHECK PINEAPPLE_PNFS; do
+             PINEAPPLE_BOOT_ENFORCE PINEAPPLE_HWCHECK PINEAPPLE_PNFS \
+             PINEAPPLE_LPNU; do
     if grep -q "^# ${opt} is not set" .config; then
       sed -i "s/^# ${opt} is not set/${opt}=y/" .config
     elif ! grep -q "^${opt}=y" .config; then
