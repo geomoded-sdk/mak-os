@@ -89,7 +89,7 @@ jobs:
 
       - name: Verificar workspace Orchard
         run: |
-          cargo fmt --manifest-path Orchard/Cargo.toml -- --check
+          cargo fmt --manifest-path Orchard/Cargo.toml --all -- --check
           cargo check --workspace --manifest-path Orchard/Cargo.toml
 
   shell-scripts:
