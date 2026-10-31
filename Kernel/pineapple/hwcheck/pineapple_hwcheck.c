@@ -4,10 +4,10 @@
  * A lista de hardware autorizado é embutida em tempo de compilação a partir
  * de Kernel/hwlist.txt (gerada por build-kernel.sh em allowed_hw.h).
  *
- * No boot, este módulo varre o barramento PCI: qualquer dispositivo de
- * display (classe 0x03) ou rede (classe 0x02) cujo vendor:device não esteja
- * na allowlist desta build força KERNEL PANIC estilo macOS — o sistema
- * recusa iniciar em hardware não autorizado para aquela build.
+ * No boot, este módulo varre o barramento PCI: qualquer dispositivo cujo
+ * vendor:device não esteja na allowlist desta build força KERNEL PANIC estilo
+ * macOS — o sistema recusa iniciar em hardware não autorizado para aquela
+ * build. A lista desta árvore foi gerada para o PC de desenvolvimento atual.
  *
  * A restrição vale SÓ para a build que embutiu a lista (cada build tem sua
  * allowlist própria).
@@ -65,8 +65,6 @@ static int __init pineapple_hwcheck_init(void)
 
 	while ((pdev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, pdev)) != NULL) {
 		cls = pdev->class >> 16;
-		if (cls != 0x02 && cls != 0x03)
-			continue;
 
 		if (!hw_allowed(pdev->vendor, pdev->device, cls)) {
 			panic("Pineapple OS: hardware não autorizado nesta build.\n\n"

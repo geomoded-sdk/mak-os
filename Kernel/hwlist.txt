@@ -22,7 +22,31 @@
 #  Vazio = sem restrição de PCI (apenas identidade PowerBook vale).
 # =============================================================================
 
-# --- Exemplo (descomente e ajuste com lspci -nn do seu hardware) ---
-# 8086:9a49:03
-# 10de:25a0:03
-# 8086:2723:02
+# --- Hardware detectado neste PC de desenvolvimento ---
+# Intel UHD Graphics 600, Realtek 8821CE Wi-Fi e controladores/chipset Intel.
+10ec:c821:02
+8086:3185:03
+8086:318c
+8086:3198
+8086:319a
+8086:31a8
+8086:31ac
+8086:31b4
+8086:31b6
+8086:31b8
+8086:31ba
+8086:31bc
+8086:31be
+8086:31c0
+8086:31c2
+8086:31c4
+8086:31c6
+8086:31cc
+8086:31d0
+8086:31d4
+8086:31d8
+8086:31db
+8086:31e3
+8086:31e8
+8086:31ee
+8086:31f0
