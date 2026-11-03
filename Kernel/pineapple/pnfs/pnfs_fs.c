@@ -32,6 +32,11 @@ struct pnfs_super {
 static const char pnfs_volume_info[] =
 	"{\"magic\":\"PNFS\",\"format\":\"pnfs-native\",\"version\":1}\n";
 
+static int pnfs_statfs(struct dentry *dentry, struct kstatfs *buf);
+static const struct super_operations pnfs_super_ops = {
+	.statfs = pnfs_statfs,
+};
+
 /* ---- arquivo volume.info (conteúdo fixo) ---- */
 
 static ssize_t volume_info_read(struct file *file, char __user *buf,
@@ -73,6 +78,7 @@ static int pnfs_fill_super(struct super_block *sb, void *data, int silent)
 	}
 	sb->s_magic = PNFS_MAGIC;
 	sb->s_maxbytes = MAX_LFS_FILESIZE;
+	sb->s_op = &pnfs_super_ops;
 	brelse(bh);
 	return simple_fill_super(sb, PNFS_MAGIC, pnfs_files);
 }
@@ -80,7 +86,7 @@ static int pnfs_fill_super(struct super_block *sb, void *data, int silent)
 static struct dentry *pnfs_mount(struct file_system_type *fs_type,
 				 int flags, const char *dev_name, void *data)
 {
-	return mount_bdev(fs_type, flags, data, pnfs_fill_super);
+	return mount_bdev(fs_type, flags, dev_name, data, pnfs_fill_super);
 }
 
 static int pnfs_statfs(struct dentry *dentry, struct kstatfs *buf)
@@ -96,7 +102,6 @@ static struct file_system_type pnfs_fs_type = {
 	.name		= "pnfs",
 	.mount		= pnfs_mount,
 	.kill_sb	= kill_block_super,
-	.statfs		= pnfs_statfs,
 	.fs_flags	= FS_REQUIRES_DEV,
 };
 

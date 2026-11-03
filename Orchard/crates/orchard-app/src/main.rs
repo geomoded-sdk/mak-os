@@ -633,9 +633,8 @@ impl Ctx {
             let msg2 = msg.clone();
             let ctx = CtxLike::from(self);
 
-            std::thread::spawn(move || {
-                let mut installer = Installer::new(cfg, dry);
-                let result = installer.run(|p| {
+            let mut installer = Installer::new(cfg, dry);
+            let result = installer.run(|p| {
                     let f = (p.percent as f64).clamp(0.0, 1.0);
                     let m = p.message.clone();
                     glib::MainContext::default().invoke_local(move || {
@@ -643,14 +642,13 @@ impl Ctx {
                         pct2.set_text(&format!("{}% concluído", (f * 100.0) as u32));
                         msg2.set_text(&m);
                     });
-                });
-                glib::MainContext::default().invoke_local(move || {
+            });
+            glib::MainContext::default().invoke_local(move || {
                     running.set(false);
                     match result {
                         Ok(()) => ctx.go(Page::Country),
                         Err(_) => ctx.go(Page::Disk),
                     }
-                });
             });
         }
 

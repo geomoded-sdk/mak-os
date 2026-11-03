@@ -208,7 +208,8 @@ where
 
     // Argumentos do app (para não brigar com flags).
     let argv: Vec<String> = std::env::args().collect();
-    let exit = app.run_with_args::<&str>(&argv);
+    let argv_refs: Vec<&str> = argv.iter().map(String::as_str).collect();
+    let exit = app.run_with_args(&argv_refs);
     if exit == glib::ExitCode::SUCCESS {
         Ok(())
     } else {
