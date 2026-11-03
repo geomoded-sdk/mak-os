@@ -424,7 +424,7 @@ impl Ctx {
             u.set_margin_start(12);
             u.set_margin_end(12);
             let big = Label::new(Some(icon));
-            big.set_font_desc(&gtk4::pango::FontDesc::from_string("32"));
+            big.add_css_class("title-1");
             big.set_halign(Align::Center);
             u.append(&big);
             let t = Label::new(Some(title));
@@ -638,13 +638,13 @@ impl Ctx {
                 let result = installer.run(|p| {
                     let f = (p.percent as f64).clamp(0.0, 1.0);
                     let m = p.message.clone();
-                    glib::MainContext::default().invoke(move || {
+                    glib::MainContext::default().invoke_local(move || {
                         bar2.set_fraction(f);
                         pct2.set_text(&format!("{}% concluído", (f * 100.0) as u32));
                         msg2.set_text(&m);
                     });
                 });
-                glib::MainContext::default().invoke(move || {
+                glib::MainContext::default().invoke_local(move || {
                     running.set(false);
                     match result {
                         Ok(()) => ctx.go(Page::Country),
@@ -1052,6 +1052,32 @@ impl From<&Ctx> for CtxLike {
 }
 
 impl CtxLike {
+    fn prepare_install(&self) {
+        let mut a = self.app.borrow_mut();
+        a.config.disk = a.disk_path.clone();
+        a.config.locale = a.locale().to_string();
+        a.config.keyboard_layout = a.kb().to_string();
+        a.config.timezone = a.tz().to_string();
+        a.config.mode = PartitionMode::Erase;
+        if a.config.username.is_empty() {
+            a.config.username = "user".into();
+        }
+        if a.config.password.len() < 4 {
+            a.config.password = "1234".into();
+        }
+        if a.config.hostname == "pineapple" {
+            a.config.hostname = a.config.username.clone();
+        }
+        a.config.powerbook_id = if a.powerbook_id.is_empty() {
+            std::env::var("POWERBOOK_ID").unwrap_or_else(|_| {
+                if a.dry_run { "PB-DRYRUN".into() } else { "PB-UI".into() }
+            })
+        } else {
+            a.powerbook_id.clone()
+        };
+        a.install_progress = 0.0;
+    }
+
     fn go(&self, page: Page) {
         self.app.borrow_mut().go(page);
         self.rebuild();

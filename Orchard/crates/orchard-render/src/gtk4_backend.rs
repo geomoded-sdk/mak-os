@@ -4,20 +4,20 @@
 
 use crate::events::Event;
 use crate::renderer::{Color, Rect, Renderer};
-use gtk::prelude::*;
-use gtk::{Application, ApplicationWindow, DrawingArea};
+use gtk4::prelude::*;
+use gtk4::{Application, ApplicationWindow, DrawingArea};
 use std::cell::RefCell;
 use std::rc::Rc;
 
 /// Renderer imediato sobre um contexto cairo.
 struct Gtk4Renderer<'a> {
-    cr: &'a gtk::cairo::Context,
+    cr: &'a gtk4::cairo::Context,
     width: f32,
     height: f32,
 }
 
 impl<'a> Gtk4Renderer<'a> {
-    fn set_source(cr: &'a gtk::cairo::Context, c: Color) {
+    fn set_source(cr: &'a gtk4::cairo::Context, c: Color) {
         cr.set_source_rgba(c.r as f64, c.g as f64, c.b as f64, c.a as f64);
     }
 }
@@ -54,8 +54,8 @@ impl Renderer for Gtk4Renderer<'_> {
         Self::set_source(self.cr, color);
         self.cr.select_font_face(
             "Inter",
-            gtk::cairo::FontSlant::Normal,
-            gtk::cairo::FontWeight::Normal,
+            gtk4::cairo::FontSlant::Normal,
+            gtk4::cairo::FontWeight::Normal,
         );
         self.cr.set_font_size(size as f64);
         self.cr.move_to(x as f64, (y + size * 0.8) as f64);
@@ -65,8 +65,8 @@ impl Renderer for Gtk4Renderer<'_> {
     fn text_width(&self, size: f32, content: &str) -> f32 {
         self.cr.select_font_face(
             "Inter",
-            gtk::cairo::FontSlant::Normal,
-            gtk::cairo::FontWeight::Normal,
+            gtk4::cairo::FontSlant::Normal,
+            gtk4::cairo::FontWeight::Normal,
         );
         self.cr.set_font_size(size as f64);
         self.cr
@@ -123,7 +123,7 @@ where
             let events = events_rc.clone();
             let mouse = mouse_rc.clone();
             let da2 = da.clone();
-            let gesture = gtk::EventControllerMotion::new();
+            let gesture = gtk4::EventControllerMotion::new();
             gesture.connect_motion(move |_, x, y| {
                 *mouse.borrow_mut() = (x, y);
                 events.borrow_mut().push(Event::MouseMove { x, y });
@@ -135,7 +135,7 @@ where
             let events = events_rc.clone();
             let mouse = mouse_rc.clone();
             let da2 = da.clone();
-            let click = gtk::GestureClick::new();
+            let click = gtk4::GestureClick::new();
             click.connect_pressed(move |_, _n, x, y| {
                 events.borrow_mut().push(Event::MouseDown {
                     x,
@@ -159,7 +159,7 @@ where
         {
             let events = events_rc.clone();
             let da2 = da.clone();
-            let key = gtk::EventControllerKey::new();
+            let key = gtk4::EventControllerKey::new();
             key.connect_key_pressed(move |_, keyval, _keycode, _mods| {
                 let name = keyval.name().map(|n| n.to_string()).unwrap_or_default();
                 let text = keyval.to_unicode().map(|c| c.to_string());

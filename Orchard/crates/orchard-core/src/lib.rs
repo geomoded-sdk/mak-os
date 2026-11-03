@@ -12,6 +12,6 @@ pub mod error;
 pub mod installer;
 
 pub use config::{InstallConfig, PartitionMode};
-pub use disk::{list_disks, DiskInfo, PartitionInfo};
+pub use disk::{human_size, list_disks, DiskInfo, PartitionInfo};
 pub use error::Error;
 pub use installer::{InstallProgress, InstallStep, Installer};
