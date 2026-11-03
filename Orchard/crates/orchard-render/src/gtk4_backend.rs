@@ -96,6 +96,7 @@ where
     let mouse_rc: Rc<RefCell<(f64, f64)>> = Rc::new(RefCell::new((0.0, 0.0)));
     let size_rc: Rc<RefCell<(f32, f32)>> = Rc::new(RefCell::new((1024.0, 640.0)));
 
+    let title = title.to_owned();
     app.connect_activate(move |app| {
         let window = ApplicationWindow::builder()
             .application(app)
@@ -132,25 +133,26 @@ where
             da.add_controller(gesture);
         }
         {
-            let events = events_rc.clone();
-            let mouse = mouse_rc.clone();
-            let da2 = da.clone();
+            let pressed_events = events_rc.clone();
+            let pressed_da = da.clone();
+            let released_events = events_rc.clone();
+            let released_da = da.clone();
             let click = gtk4::GestureClick::new();
             click.connect_pressed(move |_, _n, x, y| {
-                events.borrow_mut().push(Event::MouseDown {
+                pressed_events.borrow_mut().push(Event::MouseDown {
                     x,
                     y,
                     button: 1,
                 });
-                da2.queue_draw();
+                pressed_da.queue_draw();
             });
             click.connect_released(move |_, _n, x, y| {
-                events.borrow_mut().push(Event::MouseUp {
+                released_events.borrow_mut().push(Event::MouseUp {
                     x,
                     y,
                     button: 1,
                 });
-                da2.queue_draw();
+                released_da.queue_draw();
             });
             da.add_controller(click);
         }

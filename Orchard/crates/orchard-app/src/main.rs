@@ -635,21 +635,16 @@ impl Ctx {
 
             let mut installer = Installer::new(cfg, dry);
             let result = installer.run(|p| {
-                    let f = (p.percent as f64).clamp(0.0, 1.0);
-                    let m = p.message.clone();
-                    glib::MainContext::default().invoke_local(move || {
-                        bar2.set_fraction(f);
-                        pct2.set_text(&format!("{}% concluído", (f * 100.0) as u32));
-                        msg2.set_text(&m);
-                    });
+                let f = (p.percent as f64).clamp(0.0, 1.0);
+                bar2.set_fraction(f);
+                pct2.set_text(&format!("{}% concluído", (f * 100.0) as u32));
+                msg2.set_text(&p.message);
             });
-            glib::MainContext::default().invoke_local(move || {
-                    running.set(false);
-                    match result {
-                        Ok(()) => ctx.go(Page::Country),
-                        Err(_) => ctx.go(Page::Disk),
-                    }
-            });
+            running.set(false);
+            match result {
+                Ok(()) => ctx.go(Page::Country),
+                Err(_) => ctx.go(Page::Disk),
+            }
         }
 
         let cancel = button("Cancelar", false);
