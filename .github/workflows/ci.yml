@@ -107,6 +107,11 @@ jobs:
           fail=0
 
           while IFS= read -r f; do
+            # A árvore Linux vendorizada tem scripts upstream que usam
+            # extensões específicas do Bash e não pertencem ao shell do OEM-X.
+            if [[ "$f" == Kernel/linux-6.1/* ]]; then
+              continue
+            fi
             if ! bash -n "$f"; then
               echo "ERRO de sintaxe: $f"
               fail=1
