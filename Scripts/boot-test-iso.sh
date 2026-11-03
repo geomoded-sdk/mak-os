@@ -411,6 +411,22 @@ efi_done="${efi_done:-timeout}"
 
 kill "$BIOS_Q" 2>/dev/null || true
 [ -n "$EFI_Q" ] && kill "$EFI_Q" 2>/dev/null || true
+
+# QEMU can leave a child process behind (especially when launched through
+# sudo/KVM).  Never let the cleanup block consume the workflow timeout.
+stop_qemu() {
+    local pid="$1"
+    [ -n "$pid" ] || return 0
+    kill -TERM "$pid" 2>/dev/null || true
+    for _ in $(seq 1 20); do
+        kill -0 "$pid" 2>/dev/null || return 0
+        sleep 0.5
+    done
+    kill -KILL "$pid" 2>/dev/null || true
+}
+
+stop_qemu "$BIOS_Q"
+[ -n "$EFI_Q" ] && stop_qemu "$EFI_Q"
 wait "$BIOS_Q" 2>/dev/null || true
 [ -n "$EFI_Q" ] && wait "$EFI_Q" 2>/dev/null || true
 
