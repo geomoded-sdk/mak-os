@@ -10,6 +10,11 @@ Uso:
 WINNT_EXPERIMENTAL=1 pineapple-winnt ./programa.exe
 ```
 
+Em um PC com 4 GB de RAM e Celeron, o runner desativa esync/fsync, reduz a
+prioridade de CPU/I/O, silencia o debug do Wine e mantém um prefixo separado.
+O perfil mínimo evita instalar Winetricks. Para ignorar apenas a checagem de
+RAM durante um teste controlado, use `WINNT_EXPERIMENTAL_FORCE=1`.
+
 O material em `E:/reload 7/knw/kernel_export/reconstructed` é uma reconstrução
 decompilada e a documentação dele informa que ainda faltam WDK, tipos, globais,
 símbolos e correções semânticas. Ele não deve ser compilado ou misturado ao

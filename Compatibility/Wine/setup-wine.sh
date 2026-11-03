@@ -8,8 +8,8 @@ echo "==> Habilitando arquitetura 32 bits (necessária para o Wine)"
 sudo dpkg --add-architecture i386
 sudo apt update
 
-echo "==> Instalando Wine e Winetricks"
-sudo apt install -y wine wine64 winetricks
+echo "==> Instalando Wine mínimo (Winetricks é opcional)"
+sudo apt install -y wine wine64
 
 echo "==> Inicializando o prefixo (wineboot)"
 export WINEPREFIX="${WINEPREFIX:-$HOME/.wine-pineappleos}"
@@ -30,4 +30,4 @@ chmod +x "$HOME/.local/bin/pineapple-wine"
 
 echo "==> Wine pronto. Use:  pineapple-wine programa.exe"
 echo "    WinNT experimental: WINNT_EXPERIMENTAL=1 pineapple-winnt programa.exe"
-echo "    (Winetricks: winetricks --gui)"
+echo "    Winetricks é opcional e não é necessário no perfil mínimo."

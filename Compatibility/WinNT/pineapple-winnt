@@ -10,8 +10,16 @@ program="${1:?uso: WINNT_EXPERIMENTAL=1 pineapple-winnt programa.exe [args...]}"
 shift || true
 [ -f "$program" ] || { echo "arquivo não encontrado: $program" >&2; exit 66; }
 
-magic="$(dd if="$program" bs=1 count=2 2>/dev/null || true)"
+magic="$(head -c 2 "$program" 2>/dev/null || true)"
 [ "$magic" = "MZ" ] || { echo "não é um executável PE/WinNT: $program" >&2; exit 65; }
+
+# Perfil mínimo para máquinas OEM-X com 4 GB e Celeron.
+mem_kb="$(awk '/MemTotal:/ { print $2; exit }' /proc/meminfo 2>/dev/null || echo 0)"
+cores="$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1)"
+if [ "${WINNT_EXPERIMENTAL_FORCE:-0}" != 1 ] && [ "$mem_kb" -gt 0 ] && [ "$mem_kb" -lt 2048000 ]; then
+  echo "WinNT experimental exige pelo menos 2 GB de RAM (detectado ${mem_kb} kB)." >&2
+  exit 78
+fi
 
 command -v wine >/dev/null 2>&1 || {
   echo "Wine não está instalado; execute Compatibility/Wine/setup-wine.sh" >&2
@@ -21,12 +29,25 @@ command -v wine >/dev/null 2>&1 || {
 prefix="${WINEPREFIX:-$HOME/.wine-pineappleos-winnt-experimental}"
 export WINEPREFIX="$prefix"
 export WINEARCH="${WINEARCH:-win64}"
+export WINEDEBUG="${WINEDEBUG:--all}"
+export WINEESYNC="${WINEESYNC:-0}"
+export WINEFSYNC="${WINEFSYNC:-0}"
+export WINEDLLOVERRIDES="${WINEDLLOVERRIDES:-mscoree,mshtml=}"
 mkdir -p "$WINEPREFIX"
 
+ulimit -n 4096 2>/dev/null || true
+nice_level="${WINNT_NICE:-10}"
+if [ "$cores" -le 2 ] && command -v ionice >/dev/null 2>&1; then
+  runner=(ionice -c 3 nice -n "$nice_level")
+else
+  runner=(nice -n "$nice_level")
+fi
+
 if command -v wineboot >/dev/null 2>&1; then
-  wineboot -u >/dev/null 2>&1 || true
+  "${runner[@]}" wineboot -u >/dev/null 2>&1 || true
 fi
 
 echo "OEM-X WinNT experimental: $program"
 echo "prefix isolado: $WINEPREFIX"
-exec wine "$program" "$@"
+echo "perfil: ${mem_kb:-desconhecido} kB / ${cores} CPU(s)"
+exec "${runner[@]}" wine "$program" "$@"
