@@ -15,6 +15,7 @@ Veja `Compatibility/PineappleApp/README.md`.
 | Flatpak     | Aplicativos Linux sandboxed | `Compatibility/Flatpak/setup-flatpak.sh` |
 | AppImage    | Aplicativos portáteis       | `Compatibility/AppImage/pineapple-appimage.sh` |
 | Wine        | Aplicativos Windows         | `Compatibility/Wine/setup-wine.sh`       |
+| WinNT experimental | Executáveis PE/WinNT isolados | `Compatibility/WinNT/README.md` |
 | Darling     | Aplicativos macOS (parcial) | `Compatibility/Darling/setup-darling.sh`  |
 | Waydroid    | Aplicativos Android         | `Compatibility/Waydroid/setup-waydroid.sh`|
 

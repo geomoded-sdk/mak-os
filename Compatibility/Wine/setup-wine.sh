@@ -16,6 +16,9 @@ export WINEPREFIX="${WINEPREFIX:-$HOME/.wine-pineappleos}"
 mkdir -p "$WINEPREFIX"
 wineboot -i || true
 
+install -D -m 0755 "$(dirname "$0")/../WinNT/pineapple-winnt" \
+  "$HOME/.local/bin/pineapple-winnt"
+
 cat > "$HOME/.local/bin/pineapple-wine" <<'EOF'
 #!/bin/bash
 # Frontend do Wine no Pineapple OS
@@ -26,4 +29,5 @@ EOF
 chmod +x "$HOME/.local/bin/pineapple-wine"
 
 echo "==> Wine pronto. Use:  pineapple-wine programa.exe"
+echo "    WinNT experimental: WINNT_EXPERIMENTAL=1 pineapple-winnt programa.exe"
 echo "    (Winetricks: winetricks --gui)"

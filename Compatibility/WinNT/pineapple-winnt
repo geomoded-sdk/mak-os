@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [ "${WINNT_EXPERIMENTAL:-0}" != 1 ]; then
+  echo "WinNT experimental desativado. Use: WINNT_EXPERIMENTAL=1 pineapple-winnt programa.exe" >&2
+  exit 64
+fi
+
+program="${1:?uso: WINNT_EXPERIMENTAL=1 pineapple-winnt programa.exe [args...]}"
+shift || true
+[ -f "$program" ] || { echo "arquivo não encontrado: $program" >&2; exit 66; }
+
+magic="$(dd if="$program" bs=1 count=2 2>/dev/null || true)"
+[ "$magic" = "MZ" ] || { echo "não é um executável PE/WinNT: $program" >&2; exit 65; }
+
+command -v wine >/dev/null 2>&1 || {
+  echo "Wine não está instalado; execute Compatibility/Wine/setup-wine.sh" >&2
+  exit 69
+}
+
+prefix="${WINEPREFIX:-$HOME/.wine-pineappleos-winnt-experimental}"
+export WINEPREFIX="$prefix"
+export WINEARCH="${WINEARCH:-win64}"
+mkdir -p "$WINEPREFIX"
+
+if command -v wineboot >/dev/null 2>&1; then
+  wineboot -u >/dev/null 2>&1 || true
+fi
+
+echo "OEM-X WinNT experimental: $program"
+echo "prefix isolado: $WINEPREFIX"
+exec wine "$program" "$@"
