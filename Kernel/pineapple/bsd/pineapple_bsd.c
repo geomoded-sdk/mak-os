@@ -14,6 +14,7 @@
 #include <linux/utsname.h>
 
 static struct kobject *bsd_kobj;
+static struct ctl_table_header *pineapple_sysctl_header;
 
 /* Buffers estáveis apontados pelo sysctl (não usar utsname direto). */
 static char pineapple_ostype[64] = "Pineapple";
@@ -81,9 +82,9 @@ static int __init pineapple_bsd_init(void)
 	strscpy(pineapple_osversion, utsname()->version,
 		sizeof(pineapple_osversion));
 
-	ret = register_sysctl_table(pineapple_sysctl_root);
-	if (ret)
-		pr_warn("pineapple-bsd: sysctl register failed (%d)\n", ret);
+	pineapple_sysctl_header = register_sysctl_table(pineapple_sysctl_root);
+	if (!pineapple_sysctl_header)
+		pr_warn("pineapple-bsd: sysctl register failed\n");
 
 	bsd_kobj = kobject_create_and_add("bsd", kernel_kobj);
 	if (bsd_kobj) {
@@ -98,7 +99,8 @@ static int __init pineapple_bsd_init(void)
 
 static void __exit pineapple_bsd_exit(void)
 {
-	unregister_sysctl_table(pineapple_sysctl_root);
+	if (pineapple_sysctl_header)
+		unregister_sysctl_table(pineapple_sysctl_header);
 	if (bsd_kobj)
 		kobject_put(bsd_kobj);
 }
