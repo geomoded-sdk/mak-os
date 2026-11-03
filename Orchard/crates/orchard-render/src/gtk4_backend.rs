@@ -100,7 +100,7 @@ where
     app.connect_activate(move |app| {
         let window = ApplicationWindow::builder()
             .application(app)
-            .title(title)
+            .title(title.as_str())
             .default_width(1024)
             .default_height(640)
             .build();
