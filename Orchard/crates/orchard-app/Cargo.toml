@@ -11,7 +11,7 @@ path = "src/main.rs"
 
 [dependencies]
 orchard-core = { path = "../orchard-core" }
-gtk4 = { version = "0.7", features = ["v4_10"] }
-glib = "0.18"
-gio = "0.18"
+gtk4 = { version = "0.8", features = ["v4_10"] }
+glib = "0.19"
+gio = "0.19"
 serde_json = "1"

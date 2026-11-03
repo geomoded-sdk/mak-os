@@ -177,10 +177,13 @@ else
     fi
   done
 fi
-make HOSTCFLAGS="-std=gnu11" KBUILD_HOSTCFLAGS="-std=gnu11" KCFLAGS="-std=gnu11" olddefconfig
+make CC="gcc -std=gnu11" HOSTCC="gcc -std=gnu11" \
+  HOSTCFLAGS="-std=gnu11" KBUILD_HOSTCFLAGS="-std=gnu11" KCFLAGS="-std=gnu11" olddefconfig
 
 echo "==> Compilando (use -j$(nproc))"
-make HOSTCFLAGS="-std=gnu11" KBUILD_HOSTCFLAGS="-std=gnu11" KCFLAGS="-std=gnu11" -j"$(nproc)" bzImage modules
+make CC="gcc -std=gnu11" HOSTCC="gcc -std=gnu11" \
+  HOSTCFLAGS="-std=gnu11" KBUILD_HOSTCFLAGS="-std=gnu11" KCFLAGS="-std=gnu11" \
+  -j"$(nproc)" bzImage modules
 
 echo "==> Instalando módulos"
 sudo make modules_install
