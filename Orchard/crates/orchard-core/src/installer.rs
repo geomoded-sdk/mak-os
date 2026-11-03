@@ -131,7 +131,10 @@ impl Installer {
 
     fn run_step(&self, step: InstallStep) -> Result<()> {
         match step {
-            InstallStep::Validate => self.config.validate().map_err(Error::InvalidConfig)?,
+            InstallStep::Validate => {
+                self.config.validate().map_err(Error::InvalidConfig)?;
+                Ok(())
+            }
             InstallStep::UnmountExisting => self.unmount_existing(),
             InstallStep::Partition => self.partition(),
             InstallStep::Format => self.format(),
