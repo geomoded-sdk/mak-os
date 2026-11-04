@@ -15,8 +15,10 @@ EFI_INC="/usr/include/efi"
 EFI_LIB="/usr/lib/x86_64-linux-gnu"
 EFI_CRT="$(find /usr -type f -name crt0-efi-x86_64.o -print -quit 2>/dev/null || true)"
 EFI_LDS="$(find /usr -type f -name elf_x86_64_efi.lds -print -quit 2>/dev/null || true)"
-EFI_GNUEFI="$(find /usr -type f -name libgnuefi.a -print -quit 2>/dev/null || true)"
-EFI_LIBEFI="$(find /usr -type f -name libefi.a -print -quit 2>/dev/null || true)"
+EFI_GNUEFI="$(find /usr/lib/x86_64-linux-gnu /usr/lib/gnuefi /usr/lib \
+  -type f -name libgnuefi.a -not -path '/usr/lib32/*' -print -quit 2>/dev/null || true)"
+EFI_LIBEFI="$(find /usr/lib/x86_64-linux-gnu /usr/lib/gnuefi /usr/lib \
+  -type f -name libefi.a -not -path '/usr/lib32/*' -print -quit 2>/dev/null || true)"
 [ -f "$EFI_CRT" ] && [ -f "$EFI_LDS" ] && \
   [ -f "$EFI_GNUEFI" ] && [ -f "$EFI_LIBEFI" ] || {
   echo "gnu-efi não está instalado" >&2
