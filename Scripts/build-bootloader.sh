@@ -13,8 +13,8 @@ command -v x86_64-linux-gnu-gcc >/dev/null 2>&1 || {
 
 EFI_INC="/usr/include/efi"
 EFI_LIB="/usr/lib/x86_64-linux-gnu"
-EFI_CRT="$(find /usr/lib/gnuefi /usr/lib/x86_64-linux-gnu/gnuefi -name crt0-efi-x86_64.o -print -quit 2>/dev/null || true)"
-EFI_LDS="$(find /usr/lib/gnuefi /usr/lib/x86_64-linux-gnu/gnuefi -name elf_x86_64_efi.lds -print -quit 2>/dev/null || true)"
+EFI_CRT="$(find /usr -type f -name crt0-efi-x86_64.o -print -quit 2>/dev/null || true)"
+EFI_LDS="$(find /usr -type f -name elf_x86_64_efi.lds -print -quit 2>/dev/null || true)"
 [ -f "$EFI_CRT" ] && [ -f "$EFI_LDS" ] || {
   echo "gnu-efi não está instalado" >&2
   exit 1
