@@ -30,7 +30,8 @@ x86_64-linux-gnu-gcc -I"$EFI_INC" -I"$EFI_INC/x86_64" \
 x86_64-linux-gnu-ld -nostdlib -znocombreloc -T "$EFI_LDS" \
   -shared -Bsymbolic "$EFI_CRT" "$OUT/main.o" \
   "$EFI_GNUEFI" "$EFI_LIBEFI" -o "$OUT/oemx-boot.so"
-x86_64-linux-gnu-objcopy -j .text -j .sdata -j .data -j .dynamic -j .dynsym \
-  -j .rel -j .rela -j .reloc --target=efi-app-x86_64 \
+x86_64-linux-gnu-objcopy -O efi-app-x86_64 \
+  -j .text -j .sdata -j .data -j .dynamic -j .dynsym \
+  -j .rel -j .rela -j .reloc \
   "$OUT/oemx-boot.so" "$OUT/BOOTX64.EFI"
 echo "OEM-X UEFI loader: $OUT/BOOTX64.EFI"
