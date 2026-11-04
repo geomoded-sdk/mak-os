@@ -17,7 +17,9 @@ MIRROR="${MIRROR%/}"
 # PowerBook ID obrigatório (ver ids.txt). Se vazio, o live boot entra em
 # kernel panic até que o argumento -pineapplepowerbookid=<ID> seja fornecido
 # na linha de comando do kernel (ex.: editando o GRUB na tela de boot).
-POWERBOOK_ID="${POWERBOOK_ID:-}"
+# Fallback temporário para builds experimentais. A CI pode sobrescrever por
+# secret, mas nunca deixa a ISO ser gerada sem um ID válido.
+POWERBOOK_ID="${POWERBOOK_ID:-QZTM58304}"
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 LB_DIR="$ROOT/Installer/live-build"
@@ -467,6 +469,14 @@ command -v grub-mkrescue >/dev/null 2>&1 || {
   exit 1
 }
 rm -rf binary-root
+BOOT_IMAGES="$ROOT/Bootloader/build/boot-images"
+rm -rf "$BOOT_IMAGES"
+mkdir -p "$BOOT_IMAGES"
+xorriso -osirrox on -indev binary.iso -extract_boot_images "$BOOT_IMAGES" \
+  >/dev/null 2>&1 || {
+    echo "==> ERRO: não foi possível extrair as imagens El Torito originais" >&2
+    exit 1
+  }
 xorriso -osirrox on -indev binary.iso -extract / binary-root
 rm -f binary.iso
 ISO="$ROOT/pineappleos-$SUITE-$ARCH.iso"
@@ -483,11 +493,21 @@ mcopy -i "$EFI_IMG" "$ROOT/Bootloader/build/BOOTX64.EFI" ::/EFI/BOOT/BOOTX64.EFI
 mkdir -p binary-root/boot/grub
 cp "$EFI_IMG" binary-root/boot/grub/efi.img
 
-BIOS_IMG="binary-root/boot/grub/i386-pc/eltorito.img"
-[ -f "$BIOS_IMG" ] || {
-  echo "==> ERRO: imagem BIOS fallback não encontrada em $BIOS_IMG" >&2
+BIOS_SOURCE=""
+while IFS= read -r candidate; do
+  # A imagem UEFI é FAT; a outra imagem El Torito é o estágio BIOS.
+  if ! dd if="$candidate" bs=1 skip=82 count=5 2>/dev/null | grep -q 'FAT'; then
+    BIOS_SOURCE="$candidate"
+    break
+  fi
+done < <(find "$BOOT_IMAGES" -type f -size +8k -print | sort)
+[ -n "$BIOS_SOURCE" ] || {
+  echo "==> ERRO: imagem BIOS fallback não encontrada nas imagens El Torito" >&2
   exit 1
 }
+mkdir -p binary-root/boot/grub/i386-pc
+BIOS_IMG="binary-root/boot/grub/i386-pc/eltorito.img"
+cp "$BIOS_SOURCE" "$BIOS_IMG"
 MBR_IMG="$(find /usr/lib/grub -type f \( -name isohdpfx.bin -o -name boot_hybrid.img \) -print -quit 2>/dev/null || true)"
 XORRISO_ARGS=(
   -as mkisofs -o "$ISO" -iso-level 3 -full-iso9660-filenames

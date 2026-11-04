@@ -248,6 +248,10 @@ jobs:
           POWERBOOK_ID: ${{ secrets.POWERBOOK_ID }}
           PINEAPPLE_KERNEL_DIR: ${{ github.workspace }}/build/kernel-dist/boot
         run: |
+          if [ -z "${POWERBOOK_ID:-}" ]; then
+            export POWERBOOK_ID=QZTM58304
+            echo "POWERBOOK_ID ausente; usando fallback temporário QZTM58304"
+          fi
           chmod +x Scripts/build-iso.sh
           sudo -E ./Scripts/build-iso.sh
 
