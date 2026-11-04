@@ -21,7 +21,7 @@
 <plist version="1.0">
 <dict>
     <key>Arguments</key>
-    <string>quiet loglevel=0 splash rd.quiet locale=pt_BR.UTF-8</string>
+    <string>console=ttyS0,115200 console=tty0 loglevel=7 rd.debug locale=pt_BR.UTF-8</string>
     <key>PowerBookID</key>
     <string></string>
     <key>FileSystem</key>

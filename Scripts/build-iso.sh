@@ -53,7 +53,10 @@ PY
   fi
 }
 
-DEFAULT_BOOT_ARGS="quiet loglevel=0 splash rd.quiet locale=pt_BR.UTF-8"
+# O loader OEM-X precisa deixar o diagnóstico visível durante os builds
+# experimentais. O splash silencioso escondia o ponto exato de falhas de
+# firmware, initramfs e GPU.
+DEFAULT_BOOT_ARGS="console=ttyS0,115200 console=tty0 loglevel=7 rd.debug locale=pt_BR.UTF-8"
 PLIST_ARGS="$(plist_get Arguments)"
 PLIST_FS="$(plist_get FileSystem)"
 PLIST_VERBOSE="$(plist_get Verbose)"
@@ -447,12 +450,10 @@ echo "==> Gerando a ISO (isso pode levar vários minutos)"
 lb build 2>&1 | tee "$ROOT/Installer/live-build/build.log"
 
 # ------------------------------------------------------------ ISO híbrida (Rufus/USB)
-# O genisoimage embutido no live-build 3.0~a57 com bootloader grub2 gera um
-# 'binary.iso' sem híbrido MBR (e com El Torito danificado pelo grub-mkimage
-# sem '-p'). Para o Rufus aceitar, extraímos a árvore dessa ISO bruta e a
-# reconstruímos com grub-mkrescue: El Torito grub2 (BIOS) + imagem EFI (UEFI)
-# + MBR híbrido — bootável em USB e DVD.
-echo "==> Reconstruindo ISO híbrida (BIOS+UEFI) com grub-mkrescue"
+# O live-build gera a imagem BIOS do GRUB. Nós a mantemos como fallback BIOS,
+# mas a imagem El Torito UEFI é criada pelo OEM-X e contém apenas BOOTX64.EFI.
+# Assim o firmware UEFI não passa pelo GRUB.
+echo "==> Reconstruindo ISO híbrida (BIOS fallback + UEFI OEM-X)"
 if [ ! -f binary.iso ]; then
   echo "==> ERRO: binary.iso não encontrado. Veja build.log." >&2
   exit 1
@@ -469,10 +470,39 @@ rm -rf binary-root
 xorriso -osirrox on -indev binary.iso -extract / binary-root
 rm -f binary.iso
 ISO="$ROOT/pineappleos-$SUITE-$ARCH.iso"
-grub-mkrescue -o "$ISO" binary-root
+EFI_IMG="$ROOT/Bootloader/build/oemx-efi.img"
+[ -f "$ROOT/Bootloader/build/BOOTX64.EFI" ] || {
+  echo "==> ERRO: loader UEFI OEM-X não foi compilado" >&2
+  exit 1
+}
+mkdir -p "$ROOT/Bootloader/build"
+dd if=/dev/zero of="$EFI_IMG" bs=1M count=16 status=none
+mkfs.fat -F 12 "$EFI_IMG" >/dev/null
+mmd -i "$EFI_IMG" ::/EFI ::/EFI/BOOT
+mcopy -i "$EFI_IMG" "$ROOT/Bootloader/build/BOOTX64.EFI" ::/EFI/BOOT/BOOTX64.EFI
+mkdir -p binary-root/boot/grub
+cp "$EFI_IMG" binary-root/boot/grub/efi.img
+
+BIOS_IMG="binary-root/boot/grub/i386-pc/eltorito.img"
+[ -f "$BIOS_IMG" ] || {
+  echo "==> ERRO: imagem BIOS fallback não encontrada em $BIOS_IMG" >&2
+  exit 1
+}
+MBR_IMG="$(find /usr/lib/grub -type f \( -name isohdpfx.bin -o -name boot_hybrid.img \) -print -quit 2>/dev/null || true)"
+XORRISO_ARGS=(
+  -as mkisofs -o "$ISO" -iso-level 3 -full-iso9660-filenames
+  -volid "PINEAPPLE_OEMX"
+  -eltorito-boot /boot/grub/i386-pc/eltorito.img
+  -eltorito-catalog /boot.catalog -no-emul-boot
+  -boot-load-size 4 -boot-info-table
+  -eltorito-alt-boot -e /boot/grub/efi.img -no-emul-boot
+  -isohybrid-gpt-basdat
+)
+[ -n "$MBR_IMG" ] && XORRISO_ARGS+=( -isohybrid-mbr "$MBR_IMG" )
+xorriso "${XORRISO_ARGS[@]}" binary-root
 if [ -f "$ISO" ]; then
   echo "==> ISO híbrida criada: $ISO"
 else
-  echo "==> ERRO: grub-mkrescue falhou. Veja build.log." >&2
+  echo "==> ERRO: a reconstrução xorriso da ISO falhou. Veja build.log." >&2
   exit 1
 fi

@@ -212,6 +212,7 @@ jobs:
             live-build debootstrap debian-archive-keyring \
             devscripts curl xorriso grub-pc-bin \
             grub-efi-amd64-bin mtools squashfs-tools \
+            gcc gnu-efi dosfstools \
             libgtk-4-dev libadwaita-1-dev libwayland-dev \
             wayland-protocols libxkbcommon-dev gobject-introspection \
             libgirepository1.0-dev libinput-dev libudev-dev \
@@ -236,6 +237,11 @@ jobs:
           python3 Scripts/gen-icons.py
           python3 Scripts/gen-backgrounds.py
           python3 Scripts/gen-catalina.py
+
+      - name: Compilar bootloader OEM-X UEFI
+        run: |
+          chmod +x Scripts/build-bootloader.sh
+          ./Scripts/build-bootloader.sh
 
       - name: Compilar ISO amd64
         env:
