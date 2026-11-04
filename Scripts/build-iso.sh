@@ -464,21 +464,6 @@ command -v xorriso >/dev/null 2>&1 || {
   echo "xorriso não encontrado. Instale com: sudo apt install xorriso grub-pc-bin grub-efi-amd64-bin mtools" >&2
   exit 1
 }
-command -v grub-mkrescue >/dev/null 2>&1 || {
-  echo "grub-mkrescue não encontrado. Instale com: sudo apt install grub-pc-bin grub-efi-amd64-bin" >&2
-  exit 1
-}
-rm -rf binary-root
-BOOT_IMAGES="$ROOT/Bootloader/build/boot-images"
-rm -rf "$BOOT_IMAGES"
-mkdir -p "$BOOT_IMAGES"
-xorriso -osirrox on -indev binary.iso -extract_boot_images "$BOOT_IMAGES" \
-  >/dev/null 2>&1 || {
-    echo "==> ERRO: não foi possível extrair as imagens El Torito originais" >&2
-    exit 1
-  }
-xorriso -osirrox on -indev binary.iso -extract / binary-root
-rm -f binary.iso
 ISO="$ROOT/pineappleos-$SUITE-$ARCH.iso"
 EFI_IMG="$ROOT/Bootloader/build/oemx-efi.img"
 [ -f "$ROOT/Bootloader/build/BOOTX64.EFI" ] || {
@@ -490,36 +475,12 @@ dd if=/dev/zero of="$EFI_IMG" bs=1M count=16 status=none
 mkfs.fat -F 12 "$EFI_IMG" >/dev/null
 mmd -i "$EFI_IMG" ::/EFI ::/EFI/BOOT
 mcopy -i "$EFI_IMG" "$ROOT/Bootloader/build/BOOTX64.EFI" ::/EFI/BOOT/BOOTX64.EFI
-mkdir -p binary-root/boot/grub
-cp "$EFI_IMG" binary-root/boot/grub/efi.img
-
-BIOS_SOURCE=""
-while IFS= read -r candidate; do
-  # A imagem UEFI é FAT; a outra imagem El Torito é o estágio BIOS.
-  if ! dd if="$candidate" bs=1 skip=82 count=5 2>/dev/null | grep -q 'FAT'; then
-    BIOS_SOURCE="$candidate"
-    break
-  fi
-done < <(find "$BOOT_IMAGES" -type f -size +8k -print | sort)
-[ -n "$BIOS_SOURCE" ] || {
-  echo "==> ERRO: imagem BIOS fallback não encontrada nas imagens El Torito" >&2
-  exit 1
-}
-mkdir -p binary-root/boot/grub/i386-pc
-BIOS_IMG="binary-root/boot/grub/i386-pc/eltorito.img"
-cp "$BIOS_SOURCE" "$BIOS_IMG"
-MBR_IMG="$(find /usr/lib/grub -type f \( -name isohdpfx.bin -o -name boot_hybrid.img \) -print -quit 2>/dev/null || true)"
-XORRISO_ARGS=(
-  -as mkisofs -o "$ISO" -iso-level 3 -full-iso9660-filenames
-  -volid "PINEAPPLE_OEMX"
-  -eltorito-boot /boot/grub/i386-pc/eltorito.img
-  -eltorito-catalog /boot.catalog -no-emul-boot
-  -boot-load-size 4 -boot-info-table
-  -eltorito-alt-boot -e /boot/grub/efi.img -no-emul-boot
-  -isohybrid-gpt-basdat
-)
-[ -n "$MBR_IMG" ] && XORRISO_ARGS+=( -isohybrid-mbr "$MBR_IMG" )
-xorriso "${XORRISO_ARGS[@]}" binary-root
+xorriso -indev binary.iso -outdev "$ISO" \
+  -map "$EFI_IMG" /boot/grub/efi.img \
+  -volid "PINEAPPLE_OEMX" \
+  -boot_image any replay \
+  -boot_image any efi_path=/boot/grub/efi.img
+rm -f binary.iso
 if [ -f "$ISO" ]; then
   echo "==> ISO híbrida criada: $ISO"
 else
