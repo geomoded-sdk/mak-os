@@ -22,6 +22,19 @@
 /* Gerado no build a partir de Kernel/hwlist.txt — não versionar o .h gerado. */
 #include "allowed_hw.h"
 
+/* A ISO de produção usa o modo lock. O runner QEMU recebe observe no seu
+ * grub.cfg temporário para testar o kernel e o initramfs sem fingir que o
+ * hardware virtual pertence à máquina autorizada. */
+static bool hwcheck_enforce = true;
+
+static int __init pineapple_hwcheck_mode(char *value)
+{
+	if (value && (!strcmp(value, "observe") || !strcmp(value, "off")))
+		hwcheck_enforce = false;
+	return 0;
+}
+early_param("pineapple.hwcheck", pineapple_hwcheck_mode);
+
 static const char *pci_class_name(unsigned int class)
 {
 	switch ((class >> 16) & 0xff) {
@@ -56,6 +69,11 @@ static int __init pineapple_hwcheck_init(void)
 {
 	struct pci_dev *pdev = NULL;
 	u8 cls;
+
+	if (!hwcheck_enforce) {
+		pr_info("pineapple-hwcheck: modo observe (trava PCI suspensa para diagnóstico)\n");
+		return 0;
+	}
 
 	/* Lista vazia = sem restrição de PCI (só PowerBook ID vale). */
 	if (pine_allowed_hw_count == 0) {

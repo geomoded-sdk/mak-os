@@ -80,8 +80,14 @@ for i, ln in enumerate(lines):
     if ln.lstrip().startswith("linux "):
         ln = re.sub(r"\b(quiet|loglevel=\S+|splash|rd\.quiet)\b", "", ln)
         ln = re.sub(r"[ \t]{2,}", " ", ln)
+        # Saída desde o primeiro código do kernel e sem a trava PCI: QEMU é
+        # deliberadamente hardware diferente da allowlist da máquina real.
         if "console=ttyS0" not in ln:
-            ln = ln.rstrip() + " console=ttyS0\n"
+            ln = ln.rstrip() + " console=ttyS0,115200\n"
+        if "earlycon=" not in ln:
+            ln = ln.rstrip() + " earlycon=uart8250,io,0x3f8,115200n8 keep_bootcon loglevel=8 ignore_loglevel\n"
+        if "pineapple.hwcheck=" not in ln:
+            ln = ln.rstrip() + " pineapple.hwcheck=observe\n"
         if valid_id and "-pineapplepowerbookid=" not in ln:
             ln = ln.rstrip() + f" -pineapplepowerbookid={valid_id}\n"
         lines[i] = ln

@@ -58,7 +58,7 @@ PY
 # O loader OEM-X precisa deixar o diagnóstico visível durante os builds
 # experimentais. O splash silencioso escondia o ponto exato de falhas de
 # firmware, initramfs e GPU.
-DEFAULT_BOOT_ARGS="console=ttyS0,115200 console=tty0 loglevel=7 rd.debug locale=pt_BR.UTF-8"
+DEFAULT_BOOT_ARGS="console=ttyS0,115200 console=tty0 earlycon=uart8250,io,0x3f8,115200n8 keep_bootcon loglevel=8 ignore_loglevel rd.debug locale=pt_BR.UTF-8 pineapple.hwcheck=lock"
 PLIST_ARGS="$(plist_get Arguments)"
 PLIST_FS="$(plist_get FileSystem)"
 PLIST_VERBOSE="$(plist_get Verbose)"
