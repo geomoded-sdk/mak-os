@@ -6,6 +6,10 @@
 set -euo pipefail
 
 export DEBIAN_FRONTEND=noninteractive
+# A instalação da toolchain GTK/live-build pode ultrapassar 10 minutos em
+# mirrors congestionados. O limite antigo de 600 s encerrava uma instalação
+# saudável com exit 124 antes mesmo da compilação da ISO começar.
+APT_TIMEOUT="${CI_APT_TIMEOUT:-1200}"
 
 sudo pkill -9 -f "apt-get|apt.systemd.daily|unattended-upgrades" 2>/dev/null || true
 sudo rm -f \
@@ -22,9 +26,9 @@ opts=(
   -o Acquire::https::Timeout=120
 )
 
-timeout 600 sudo -E apt-get update "${opts[@]}"
+timeout "$APT_TIMEOUT" sudo -E apt-get update "${opts[@]}"
 
-timeout 600 sudo -E apt-get install -y --no-install-recommends \
+timeout "$APT_TIMEOUT" sudo -E apt-get install -y --no-install-recommends \
   -o Dpkg::Options::="--force-confold" \
   -o Dpkg::Options::="--force-confdef" \
   "${opts[@]}" \
