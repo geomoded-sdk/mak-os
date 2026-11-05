@@ -479,7 +479,10 @@ xorriso -indev binary.iso -outdev "$ISO" \
   -map "$EFI_IMG" /boot/grub/efi.img \
   -volid "PINEAPPLE_OEMX" \
   -boot_image any replay \
-  -boot_image any efi_path=/boot/grub/efi.img
+  -boot_image any next \
+  -boot_image any efi_path=/boot/grub/efi.img \
+  -boot_image any partition_table=on \
+  -boot_image any mbr_force_bootable=on
 rm -f binary.iso
 if [ -f "$ISO" ]; then
   echo "==> ISO híbrida criada: $ISO"
