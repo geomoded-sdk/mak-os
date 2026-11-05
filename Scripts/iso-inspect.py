@@ -153,21 +153,33 @@ def main():
     bios_ok = False
     efi_ok = False
     efi_rba = 0
+    efi_nsec = 0
+    # A entrada inicial é BIOS. Entradas seguintes podem ser agrupadas em
+    # seções; uma seção EFI tem cabeçalho 0x90/0x91 com platform_id 0xef e a
+    # imagem propriamente dita vem na entrada 0x88 seguinte.
+    platform_id = 0x00
     off = 32
-    for _ in range(8):
+    for _ in range((len(cat) - off) // 32):
         ind = cat[off]
         typ = cat[off + 1]
         nsec = struct.unpack("<H", cat[off + 6:off + 8])[0]
         img_lba = le32(cat, off + 8)
-        if ind == 0x88:
-            bios_ok = True
-            print(f"    El Torito BIOS: entry 0x88 img_lba={img_lba} sectors={nsec}")
-        elif ind == 0x91 and (typ == 0xEF or img_lba or nsec):
-            efi_ok = True
-            efi_rba = img_lba
-            print(f"    El Torito EFI : entry 0x91/0xEF img_lba={img_lba} sectors={nsec}")
-        elif ind == 0x00:
+        entry = cat[off:off + 32]
+        if not any(entry):
             break
+        if ind in (0x90, 0x91):
+            platform_id = typ
+            label = "EFI" if platform_id == 0xEF else f"plataforma 0x{platform_id:02x}"
+            print(f"    El Torito: seção {label} (header 0x{ind:02x})")
+        elif ind in (0x88, 0x00):
+            if platform_id == 0xEF:
+                efi_ok = True
+                efi_rba = img_lba
+                efi_nsec = nsec
+                print(f"    El Torito EFI : entry 0x{ind:02x} img_lba={img_lba} sectors={nsec}")
+            elif ind == 0x88:
+                bios_ok = True
+                print(f"    El Torito BIOS: entry 0x88 img_lba={img_lba} sectors={nsec}")
         off += 32
     if not bios_ok:
         err("El Torito: entrada de boot BIOS (0x88) ausente")
@@ -325,7 +337,38 @@ def main():
     # armazenado como `BOOTX64` e a extensão `EFI` em campos separados,
     # normalmente com padding de espaços. Procurar `BOOTX64.EFI` literalmente
     # gera falso negativo mesmo quando o loader está presente na imagem FAT.
-    has_efi = (b"BOOTX64" in data and b"EFI" in data)
+    # A imagem EFI não é uma árvore ISO: é um volume FAT cru apontado pelo
+    # catálogo El Torito. Confere sua geometria mínima e o diretório raiz no
+    # formato FAT 8.3, em vez de procurar texto solto no ISO inteiro.
+    has_efi = False
+    if efi_rba and efi_nsec:
+        image_off = efi_rba * 2048
+        image_size = efi_nsec * 512  # campo El Torito é contado em setores de 512 B
+        try:
+            fat = data[image_off:image_off + image_size]
+            if len(fat) >= 64 and fat[510:512] == b"\x55\xaa":
+                bytes_per_sector = struct.unpack_from("<H", fat, 11)[0]
+                reserved = struct.unpack_from("<H", fat, 14)[0]
+                fat_count = fat[16]
+                root_entries = struct.unpack_from("<H", fat, 17)[0]
+                sectors_per_fat = struct.unpack_from("<H", fat, 22)[0]
+                root_off = (reserved + fat_count * sectors_per_fat) * bytes_per_sector
+                root_size = root_entries * 32
+                root = fat[root_off:root_off + root_size]
+                for pos in range(0, len(root) - 31, 32):
+                    entry = root[pos:pos + 32]
+                    if entry[0] == 0x00:
+                        break
+                    # O diretório raiz contém EFI; o BOOTX64.EFI fica em
+                    # subdiretórios. A assinatura 8.3 abaixo é encontrada na
+                    # área FAT inteira e só é aceita junto de uma FAT válida.
+                    if entry[:11] == b"BOOTX64 EFI":
+                        has_efi = struct.unpack_from("<I", entry, 28)[0] > 0
+                        break
+                if not has_efi:
+                    has_efi = b"BOOTX64 EFI" in fat
+        except (IndexError, struct.error):
+            has_efi = False
     if not has_efi:
         err("conteúdo EFI (BOOTX64.EFI na imagem FAT embutida) não encontrado")
     print("    EFI bootloader (BOOTX64.EFI): presente")
