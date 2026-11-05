@@ -273,7 +273,10 @@ jobs:
           echo "Validando: $ISO"
           python3 Scripts/iso-inspect.py "$ISO"
 
-      - name: Boot test QEMU (BIOS + UEFI)
+      - name: Boot test QEMU básico (BIOS + UEFI)
         run: |
           ISO="$(ls pineappleos-*amd64.iso | head -n1)"
-          GRAPHICAL=1 BOOT_TIMEOUT=900 bash Scripts/boot-test-iso.sh "$ISO"
+          # Primeiro prova o handoff kernel → initramfs → basic.target. O
+          # teste gráfico recompacta 1,5 GiB de squashfs e escondia o ponto
+          # real da falha atrás de um timeout longo.
+          GRAPHICAL=0 BOOT_TIMEOUT=300 bash Scripts/boot-test-iso.sh "$ISO"
