@@ -400,12 +400,11 @@ if [ -d "$KERNEL_DIST/lib/modules" ]; then
   cp -a "$KERNEL_DIST/lib/modules/." config/includes.chroot/lib/modules/
 fi
 
-# ------------------------------------------------------------ grub.cfg da ISO
-# O template grub2 do live-build 3.0~a57 é frágil (background via ($root) e o
-# core gerado pelo binary.sh usa grub-mkimage sem '-p', obrigatório desde o
-# grub 2.12 — o que quebra o El Torito). Aqui regravamos um grub.cfg robusto
-# que localiza o kernel por busca na mídia (CD/USB, BIOS/UEFI).
-echo "==> Configurando grub.cfg da ISO (oem-x.ekern, sem 'vmlinuz')"
+# ------------------------------------------------------------ ponte El Torito
+# O firmware ainda usa o core El Torito compatível para BIOS/UEFI, mas nunca
+# apresenta a interface do GRUB: ele transfere o controle imediatamente para
+# o OEM-X. O menu existe só como estrutura interna exigida pelo core legado.
+echo "==> Configurando ponte El Torito sem menu (oem-x.ekern)"
 cat > config/hooks/0020-pineapple-grub.cfg.hook.binary <<EOF
 #!/bin/sh
 set -eu
@@ -427,7 +426,9 @@ KERN="oem-x.ekern"
 INITRD="pineapple.boot"
 cat > binary/boot/grub/grub.cfg <<GRUB
 set default=0
-set timeout=5
+set timeout_style=hidden
+set timeout=0
+terminal_output console
 insmod all_video
 insmod part_msdos
 insmod part_gpt
@@ -436,8 +437,8 @@ insmod iso9660
 insmod udf
 insmod ext2
 insmod search
-# "menuentry" é obrigatório: sem ele o GRUB não auto-boota e cai no prompt
-menuentry "pineappleos" {
+# Estrutura interna do core El Torito; nenhuma tela ou espera é exibida.
+menuentry "OEM-X" --id=oemx {
     search --no-floppy --set=root --file /live/\$KERN
     if [ ! -e /live/\$KERN ]; then set root=(cd0); fi
     linux /live/\$KERN ${BOOTARGS}

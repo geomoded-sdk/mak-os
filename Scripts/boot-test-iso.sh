@@ -73,7 +73,9 @@ if "terminal_output serial" not in cfg:
         "terminal_input serial\nterminal_output serial",
         1,
     )
-cfg = re.sub(r"^set timeout=\d+", "set timeout=3", cfg, flags=re.M)
+cfg = re.sub(r"^set timeout=\d+", "set timeout=0", cfg, flags=re.M)
+if "set timeout_style=hidden" not in cfg:
+    cfg = cfg.replace("set default=0", "set default=0\nset timeout_style=hidden", 1)
 
 lines = cfg.splitlines(keepends=True)
 for i, ln in enumerate(lines):
