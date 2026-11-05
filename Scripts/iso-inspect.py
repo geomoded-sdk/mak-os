@@ -321,7 +321,11 @@ def main():
               f"{' '.join(efi_in_tree[:3])}{' ...' if len(efi_in_tree) > 3 else ''}")
     else:
         print("    EFI files visíveis na árvore: nenhum (apenas na imagem FAT embutida)")
-    has_efi = data.find(b"BOOTX64.EFI") != -1
+    # Em uma imagem FAT12/16, o diretório usa o formato 8.3: o nome fica
+    # armazenado como `BOOTX64` e a extensão `EFI` em campos separados,
+    # normalmente com padding de espaços. Procurar `BOOTX64.EFI` literalmente
+    # gera falso negativo mesmo quando o loader está presente na imagem FAT.
+    has_efi = (b"BOOTX64" in data and b"EFI" in data)
     if not has_efi:
         err("conteúdo EFI (BOOTX64.EFI na imagem FAT embutida) não encontrado")
     print("    EFI bootloader (BOOTX64.EFI): presente")
