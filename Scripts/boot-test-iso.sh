@@ -289,6 +289,35 @@ grub-mkrescue -o "$WORK/test.iso" "$WORK/tree" > "$WORK/mkrescue.log" 2>&1 || {
     exit 1
 }
 
+# grub-mkrescue recria o El Torito UEFI com o seu próprio GRUB.  Reinstalamos
+# explicitamente a FAT OEM-X extraída da ISO de produção e nela gravamos os
+# argumentos de diagnóstico: o teste UEFI precisa exercitar o BOOTX64.EFI
+# real, não apenas a ponte BIOS/GRUB usada para o teste temporário.
+EFI_TEST_IMG="$WORK/tree/boot/grub/efi.img"
+[ -f "$EFI_TEST_IMG" ] || {
+    echo "FALHA: imagem FAT UEFI OEM-X ausente na ISO extraída"
+    exit 1
+}
+EFI_TEST_ARGS="boot=live components console=tty0 console=ttyS0,115200 earlycon=uart8250,io,0x3f8,115200n8 keep_bootcon loglevel=8 ignore_loglevel pineapple.hwcheck=observe"
+[ -n "$VALID_ID" ] && EFI_TEST_ARGS="$EFI_TEST_ARGS -pineapplepowerbookid=$VALID_ID"
+printf '%s initrd=\\OEMX\\pineapple.boot\n' "$EFI_TEST_ARGS" > "$WORK/bootargs.txt"
+mcopy -o -i "$EFI_TEST_IMG" "$WORK/bootargs.txt" ::/OEMX/bootargs.txt || {
+    echo "FALHA: não foi possível preparar bootargs UEFI de teste"
+    exit 1
+}
+xorriso -indev "$WORK/test.iso" -outdev "$WORK/test-uefi.iso" \
+    -map "$EFI_TEST_IMG" /boot/grub/efi.img \
+    -boot_image any replay \
+    -boot_image any next \
+    -boot_image any efi_path=/boot/grub/efi.img \
+    -boot_image any partition_table=on \
+    -boot_image any mbr_force_bootable=on > "$WORK/uefi-remap.log" 2>&1 || {
+    echo "FALHA: xorriso não reinstalou o boot UEFI OEM-X"
+    tail -30 "$WORK/uefi-remap.log"
+    exit 1
+}
+mv "$WORK/test-uefi.iso" "$WORK/test.iso"
+
 # prova: o grub.cfg que FOI para a ISO de teste
 echo "=> grub.cfg da ISO de teste (search/linux):"
 sed -E 's/\x1b\[[0-9;]*[a-zA-Z]//g' "$WORK/tree/boot/grub/grub.cfg" |
@@ -412,7 +441,12 @@ while [ "$SECONDS" -lt "$deadline" ]; do
     fi
     if [ -n "$EFI_Q" ] && [ -z "$efi_done" ]; then
         scrub < "$WORK/efi.log" > "$WORK/efi.live"
-        if grep -qE "$TARGET_RE" "$WORK/efi.live"; then efi_done="pass"; fi
+        # Para UEFI, handoff sozinho não basta: exige o banner do nosso loader
+        # e prova que OVMF não caiu no GRUB reconstruído pelo teste.
+        if grep -qE "$TARGET_RE" "$WORK/efi.live" \
+            && grep -q "OEM-X bootloader (experimental UEFI)" "$WORK/efi.live"; then
+            efi_done="pass"
+        fi
         if grep -q "Kernel panic" "$WORK/efi.live"; then efi_done="panic"; fi
         if grep -qE "^error: " "$WORK/efi.live"; then efi_done="grub"; fi
         if ! kill -0 "$EFI_Q" 2>/dev/null; then efi_done="${efi_done:-earlyexit}"; fi
