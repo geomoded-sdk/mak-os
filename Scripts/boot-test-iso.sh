@@ -84,8 +84,12 @@ for i, ln in enumerate(lines):
         ln = re.sub(r"[ \t]{2,}", " ", ln)
         # Saída desde o primeiro código do kernel e sem a trava PCI: QEMU é
         # deliberadamente hardware diferente da allowlist da máquina real.
-        if "console=ttyS0" not in ln:
-            ln = ln.rstrip() + " console=ttyS0,115200\n"
+        # O console definido por último torna-se /dev/console. A ISO real
+        # mantém tty0 por ser voltada à tela física; no ISO temporário de
+        # QEMU precisamos terminar em ttyS0, caso contrário o kernel aparece
+        # no log mas initramfs/systemd escrevem só no framebuffer e o teste
+        # acusa timeout mesmo após "Run /init as init process".
+        ln = ln.rstrip() + " console=ttyS0,115200\n"
         if "earlycon=" not in ln:
             ln = ln.rstrip() + " earlycon=uart8250,io,0x3f8,115200n8 keep_bootcon loglevel=8 ignore_loglevel\n"
         if "pineapple.hwcheck=" not in ln:
