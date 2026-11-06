@@ -18,17 +18,26 @@ sudo rm -f \
   /var/lib/apt/lists/lock \
   /var/cache/apt/archives/lock
 
-timeout 60 sudo dpkg --configure -a || true
+# `timeout` sem --foreground pode terminar só o wrapper sudo e deixar apt/dpkg
+# vivo no runner.  Isso fazia a etapa seguinte parecer travada indefinidamente.
+run_limited() {
+  local seconds="$1"
+  shift
+  timeout --foreground --signal=TERM --kill-after=45 "$seconds" "$@"
+}
+
+run_limited 60 sudo dpkg --configure -a || true
 
 opts=(
   -o Acquire::Retries=5
   -o Acquire::http::Timeout=120
   -o Acquire::https::Timeout=120
+  -o DPkg::Lock::Timeout=60
 )
 
-timeout "$APT_TIMEOUT" sudo -E apt-get update "${opts[@]}"
+run_limited "$APT_TIMEOUT" sudo -E apt-get update "${opts[@]}"
 
-timeout "$APT_TIMEOUT" sudo -E apt-get install -y --no-install-recommends \
+run_limited "$APT_TIMEOUT" sudo -E apt-get install -y --no-install-recommends \
   -o Dpkg::Options::="--force-confold" \
   -o Dpkg::Options::="--force-confdef" \
   "${opts[@]}" \
