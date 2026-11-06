@@ -336,7 +336,7 @@ analyze() {
     case "$state" in
         pass)   [ "$GRAPHICAL" = "1" ] \
                     && echo "PASS[$name]: sessão gráfica Pineapple de pé (compositor + applets)" \
-                    || echo "PASS[$name]: atingiu o alvo Basic System (early-boot completo)" ;;
+                    || echo "PASS[$name]: initramfs assumiu o boot (/init)" ;;
         panic)  echo "FAIL[$name]: kernel panic detectado" ;;
         grub)   echo "FAIL[$name]: erro do GRUB no boot" ;;
         earlyexit) echo "FAIL[$name]: QEMU encerrou antes do alvo" ;;
@@ -345,6 +345,8 @@ analyze() {
     if [ "$state" = "pass" ]; then
         if [ "$GRAPHICAL" = "1" ]; then
             grep -a "PINEAPPLE-UI" "$s" | sed 's/^/      /' || true
+        elif grep -q "Run /init as init process" "$s"; then
+            echo "PASS[$name]: kernel entregou o controle ao initramfs (/init)"
         elif grep -q "debian login:" "$s"; then
             echo "PASS[$name]: getty vivo (multi-user.target / login: pronto)"
         fi
@@ -386,12 +388,13 @@ else
     echo "aviso: OVMF não instalado — pulando teste UEFI"
 fi
 
-# watcher: um loop no pai, até BOOT_TIMEOUT ou ambos qemus saírem
-# Alvo: no modo normal é basic.target; no modo gráfico é a evidência da UI.
+# watcher: um loop no pai, até BOOT_TIMEOUT ou ambos qemus saírem.
+# systemd pode guardar basic.target só no journal; no serial, o handoff para
+# /init é a primeira evidência confiável do boot completo do kernel.
 if [ "$GRAPHICAL" = "1" ]; then
     TARGET_RE="PINEAPPLE-UI: UP"
 else
-    TARGET_RE="Reached target (Basic System|basic\.target)"
+    TARGET_RE="Run /init as init process|Reached target (Basic System|basic\.target)"
 fi
 scrub < "$WORK/bios.log" > "$WORK/bios.live"
 scrub < "$WORK/efi.log" > "$WORK/efi.live" 2>/dev/null || :
