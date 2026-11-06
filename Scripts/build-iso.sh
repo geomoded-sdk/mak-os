@@ -454,8 +454,9 @@ lb build 2>&1 | tee "$ROOT/Installer/live-build/build.log"
 
 # ------------------------------------------------------------ ISO híbrida (Rufus/USB)
 # O live-build gera a imagem BIOS do GRUB. Nós a mantemos como fallback BIOS,
-# mas a imagem El Torito UEFI é criada pelo OEM-X e contém apenas BOOTX64.EFI.
-# Assim o firmware UEFI não passa pelo GRUB.
+# mas a imagem El Torito UEFI é criada pelo OEM-X. Ela contém loader, kernel,
+# initramfs e bootargs no mesmo volume FAT; assim o firmware UEFI não passa
+# pelo GRUB nem tenta resolver /live no volume ISO9660 errado.
 echo "==> Reconstruindo ISO híbrida (BIOS fallback + UEFI OEM-X)"
 if [ ! -f binary.iso ]; then
   echo "==> ERRO: binary.iso não encontrado. Veja build.log." >&2
@@ -472,10 +473,25 @@ EFI_IMG="$ROOT/Bootloader/build/oemx-efi.img"
   exit 1
 }
 mkdir -p "$ROOT/Bootloader/build"
-dd if=/dev/zero of="$EFI_IMG" bs=1M count=16 status=none
-mkfs.fat -F 12 "$EFI_IMG" >/dev/null
-mmd -i "$EFI_IMG" ::/EFI ::/EFI/BOOT
+EFI_KERNEL="binary/live/oem-x.ekern"
+EFI_INITRD="binary/live/pineapple.boot"
+[ -f "$EFI_KERNEL" ] && [ -f "$EFI_INITRD" ] || {
+  echo "==> ERRO: kernel/initramfs ausentes para o volume UEFI OEM-X" >&2
+  exit 1
+}
+# Reserva margem para FAT32 e futuras opções; nunca limita silenciosamente o
+# initramfs, que pode crescer conforme drivers são incorporados ao OEM-X.
+EFI_BYTES=$(( $(stat -c%s "$EFI_KERNEL") + $(stat -c%s "$EFI_INITRD") + 24 * 1024 * 1024 ))
+EFI_MIB=$(( (EFI_BYTES + 1024 * 1024 - 1) / (1024 * 1024) ))
+[ "$EFI_MIB" -lt 64 ] && EFI_MIB=64
+dd if=/dev/zero of="$EFI_IMG" bs=1M count="$EFI_MIB" status=none
+mkfs.fat -F 32 "$EFI_IMG" >/dev/null
+mmd -i "$EFI_IMG" ::/EFI ::/EFI/BOOT ::/OEMX
 mcopy -i "$EFI_IMG" "$ROOT/Bootloader/build/BOOTX64.EFI" ::/EFI/BOOT/BOOTX64.EFI
+mcopy -i "$EFI_IMG" "$EFI_KERNEL" ::/OEMX/oem-x.ekern
+mcopy -i "$EFI_IMG" "$EFI_INITRD" ::/OEMX/pineapple.boot
+printf '%s initrd=\\OEMX\\pineapple.boot\n' "$BOOTARGS" > "$ROOT/Bootloader/build/bootargs.txt"
+mcopy -i "$EFI_IMG" "$ROOT/Bootloader/build/bootargs.txt" ::/OEMX/bootargs.txt
 xorriso -indev binary.iso -outdev "$ISO" \
   -map "$EFI_IMG" /boot/grub/efi.img \
   -volid "PINEAPPLE_OEMX" \
